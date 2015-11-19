@@ -1,0 +1,14 @@
+package spawny.spawn;
+
+enum Message_Type {
+  CONNECT = 0;
+  SETUP_DONE = 1; //the session will be passed
+  SESSION_ACTIVE = 2;
+  ERROR_EXIT = 3;
+}
+
+message Message {
+  required Message_Type type = 1;
+  optional string exit = 2;
+  optional string session = 3;
+}

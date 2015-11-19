@@ -1,0 +1,19 @@
+package spawny.Greeter;
+
+enum Message_Type {
+    HELLO = 0;
+    LOGIN_TRY = 1;
+    SESSION_ACTIVATION = 2;
+}
+
+message Login {
+    required string user = 1;
+    required string password = 2;
+    required string template_id = 3;
+}
+
+message Message {
+    required Message_Type type = 1;
+    optional Login login = 2;
+    optional string session = 3;
+}

@@ -1,0 +1,47 @@
+package spawny.Server;
+
+enum Message_Type {
+    DATA_UPDATE = 0;
+    LOGIN_FEEDBACK = 1;
+    LEAVE = 2;
+}
+
+//currently running session
+message Session {
+    required string id = 1;
+    required string user = 2;
+    required string name = 3;
+    required string icon = 4;
+}
+
+//template for a session to create
+message Session_Template {
+    required string id = 1;
+    required string name = 2;
+    required string icon = 3;
+}
+
+//a system user
+message User {
+    required int64 uid = 1;
+    required string name = 2;
+    required string icon = 3;
+}
+
+message Data {
+    repeated Session_Template templates = 1;
+    repeated Session sessions = 2;
+    repeated User users = 3;
+}
+
+message Login_Feedback {
+    required bool login_success = 1;
+    required string msg = 2;
+}
+
+message Message {
+    required Message_Type type = 1;
+    optional Login_Feedback feedback = 2;
+    optional Data data = 3;
+}
+
