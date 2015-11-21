@@ -211,7 +211,6 @@ _init_data(void) {
 
     system_data.templates = templates;
     system_data.n_templates = 1;
-    printf("%d\n", number);
 }
 
 int
