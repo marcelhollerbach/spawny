@@ -219,6 +219,11 @@ server_init(void) {
 
     pw = getpwnam(config->greeter.start_user);
 
+    if (!pw) {
+        printf("Failed to fetch greeter user\n");
+        return 0;
+    }
+
     if (mkfifo(WRITE_COM_PATH, 0) < 0 ||
         mkfifo(READ_COM_PATH, 0) < 0) {
          //startup failed
@@ -230,17 +235,26 @@ server_init(void) {
             printf("Fifos error failed to repair\n");
             return 0;
         }
-      }
+    }
 
-    chmod(WRITE_COM_PATH, S_IRUSR | S_IWUSR);
-    chmod(READ_COM_PATH, S_IRUSR | S_IWUSR);
+    if (chmod(WRITE_COM_PATH, S_IRUSR | S_IWUSR) == -1 ||
+        chmod(READ_COM_PATH, S_IRUSR | S_IWUSR) == -1) {
+        perror("Failed to chmod, reason");
+        return 0;
+    }
 
-    chown(WRITE_COM_PATH, pw->pw_gid, 0);
-    chown(READ_COM_PATH, pw->pw_gid, 0);
+    if (chown(WRITE_COM_PATH, pw->pw_gid, 0) == -1 ||
+        chown(READ_COM_PATH, pw->pw_gid, 0) == -1) {
+        perror("Failed to chown, reason");
+        return 0;
+    }
 
     //start reading
     read_file = open(READ_COM_PATH, O_RDONLY | O_NONBLOCK);
-
+    if (read_file == -1) {
+        perror("Opening read part of the daemon faild, reason");
+        return 0;
+    }
     //register this fd for reading
     manager_register_fd(read_file, _greeter_data, NULL);
 

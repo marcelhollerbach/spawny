@@ -89,7 +89,7 @@ main(int argc, char **argv)
     if (!server_init()) {
         return -1;
     }
-
+    printf("Init done\n");
     if (!spawnservice_spawn(_greeter_job, GREETER_SERVICE, config->greeter.start_user, NULL, NULL)) {
         printf("Starting greeter failed");
         return -1;
