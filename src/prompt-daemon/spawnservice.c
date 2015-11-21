@@ -269,6 +269,7 @@ child_run(void){
         for (int i = 0; env[i]; i++) {
             putenv(env[i]);
         }
+        setenv("TERM", "linux", 0);
 
         //get the new session
         session = current_session_get();
