@@ -1,0 +1,6 @@
+[Unit]
+Description="A daemon which prompts for logins and starts a session after that"
+
+[Service]
+ExecStart=/usr/local/bin/spawny-daemon
+Type=oneshot

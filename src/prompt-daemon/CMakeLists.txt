@@ -26,3 +26,5 @@ target_link_libraries (spawny-daemon
     systemd
     spawny_protocol
 )
+
+install(TARGETS spawny-daemon DESTINATION bin)

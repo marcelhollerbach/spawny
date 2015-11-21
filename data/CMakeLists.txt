@@ -1,0 +1,1 @@
+INSTALL(FILES ${CMAKE_SOURCE_DIR}/data/spawny.service DESTINATION bin)
