@@ -91,6 +91,7 @@ client_run(void) {
 
         if (!msg) {
             printf("Invalid data package!!\n");
+            continue;
         }
 
         switch(msg->type) {
