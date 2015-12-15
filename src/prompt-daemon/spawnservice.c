@@ -170,7 +170,7 @@ _tty_used(char *buf) {
 
     session_enumerate(&sessions, &number);
     for(int i = 0; i < number; i++){
-        char *tty;
+        char *tty = NULL;
 
         session_details(sessions[i], NULL, NULL, NULL, &tty);
         if (!tty) continue;
