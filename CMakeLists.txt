@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 project (Spawny)
 
+include(GNUInstallDirs)
 enable_testing()
 
 add_definitions("-Wall -O0 -g")

@@ -12,4 +12,4 @@ target_link_libraries (spawny-clc
     spawny_protocol
 )
 
-install(TARGETS spawny-clc DESTINATION share/data)
+install(TARGETS spawny-clc DESTINATION ${CMAKE_INSTALL_LIBDIR}/spawny/)

@@ -1,14 +1,30 @@
 #include "main.h"
+#include <string.h>
+#include "ini.h"
 
 Config *config;
+
+static int
+_config_parse(void* user, const char* section,
+              const char* name, const char* value) {
+    if (!strcmp(section, "greeter")) {
+        if (!strcmp(name, "user"))
+          config->greeter.start_user = value;
+        if (!strcmp(name, "cmd"))
+          config->greeter.cmd = value;
+    }
+
+    return 1;
+}
 
 int
 config_init(void) {
     config = calloc(1, sizeof(Config));
 
     config->greeter.start_user = "spawny";
-    config->greeter.cmd = "/usr/local/share/data/spawny-clc";
-    //config->greeter.cmd = "/usr/bin/bash";
+    config->greeter.cmd = PACKAGE_LIB_DIR"/spawny/spawny-clc";
+
+    ini_parse(PACKAGE_ETC_DIR"/spawny/spawny.ini", _config_parse, NULL);
     return 1;
 }
 
