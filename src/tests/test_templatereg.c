@@ -4,7 +4,7 @@
 int test = 0;
 
 static void
-_fire_up_daed(void) {
+_fire_up_daed(void *data) {
     test = 1;
 }
 
@@ -16,9 +16,9 @@ START_TEST(test_templatereg_details)
     char *name = "test";
     char *icon = "icon";
 
-    id = template_register("1", "2", NULL);
-    id = template_register("no", "3", NULL);
-    id = template_register(name, icon, _fire_up_daed);
+    id = template_register("1", "2", NULL, NULL);
+    id = template_register("no", "3", NULL, NULL);
+    id = template_register(name, icon, _fire_up_daed, NULL);
 
 
     ck_assert_ptr_ne(id, NULL);
@@ -38,7 +38,7 @@ START_TEST(test_templatereg_run)
     char *name = "test";
     char *icon = "icon";
 
-    id = template_register(name, icon, _fire_up_daed);
+    id = template_register(name, icon, _fire_up_daed, NULL);
 
     ck_assert_ptr_ne(id, NULL);
 
@@ -58,9 +58,9 @@ START_TEST(test_templatereg_unreg)
     char *name = "test";
     char *icon = "icon";
 
-    id1 = template_register("1", "2", NULL);
-    id2 = template_register("no", "3", NULL);
-    id3 = template_register(name, icon, _fire_up_daed);
+    id1 = template_register("1", "2", NULL, NULL);
+    id2 = template_register("no", "3", NULL, NULL);
+    id3 = template_register(name, icon, _fire_up_daed, NULL);
 
 
     ck_assert_ptr_ne(id1, NULL);

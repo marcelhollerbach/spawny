@@ -5,7 +5,7 @@
 #include <libgen.h>
 
 static void
-_tty_fire_up(void) {
+_tty_fire_up(void *data) {
     uid_t uid;
     struct passwd *pwd;
 
@@ -19,7 +19,7 @@ _tty_fire_up(void) {
 void
 tty_template_init(void) {
     const char *temp;
-    if (!(temp = template_register("tty", NULL, _tty_fire_up)))
+    if (!(temp = template_register("tty", NULL, _tty_fire_up, NULL)))
       printf("Failed to register template\n");
     printf("Registered %s\n", temp);
 }

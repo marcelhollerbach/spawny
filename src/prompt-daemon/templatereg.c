@@ -13,6 +13,7 @@ typedef struct {
     char *name;
     char *icon;
     Template_Fire_Up cb;
+    void *data;
 } Template;
 
 static List_Elem *templates = NULL;
@@ -65,7 +66,7 @@ _insert_item(void) {
 }
 
 const char*
-template_register(char *name, char *icon, Template_Fire_Up fire_up) {
+template_register(char *name, char *icon, Template_Fire_Up fire_up, void *data) {
     Template *temp;
     List_Elem *elem;
     char buf[PATH_MAX];
@@ -84,6 +85,7 @@ template_register(char *name, char *icon, Template_Fire_Up fire_up) {
     temp->name = strdup(name);
     temp->icon = icon ? strdup(icon) : NULL;
     temp->cb = fire_up;
+    temp->data = data;
 
     elem->data = temp;
 
@@ -144,7 +146,7 @@ template_run(const char *id) {
 
     if (!temp) return 0;
 
-    temp->cb();
+    temp->cb(temp->data);
 
     return 1;
 }
