@@ -183,7 +183,7 @@ _init_data(void) {
 
         spawny__server__session__init(sessions[i]);
 
-        if (!session_details(sessions_raw[i], &uid, &sessions[i]->icon, &sessions[i]->name)) {
+        if (!session_details(sessions_raw[i], &uid, &sessions[i]->icon, &sessions[i]->name, NULL)) {
             free(sessions[i]);
             printf("%s %d failed to fetch details\n", sessions_raw[i], i);
             offset ++;

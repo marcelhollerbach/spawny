@@ -34,10 +34,12 @@ session_activate(char *handle) {
 }
 
 int
-session_details(char *handle, uid_t *uid, char **name, char **icon) {
-    if (sd_session_get_uid(handle, uid) < 0 ||
+session_details(char *handle, uid_t *uid, char **name, char **icon, char **tty) {
+    if (sd_session_get_tty(handle, tty) < 0 ||
+        sd_session_get_uid(handle, uid) < 0 ||
         sd_session_get_class(handle, name) < 0)
         return 0;
+
     *icon = NULL;
     return 1;
 }
