@@ -13,11 +13,6 @@ typedef enum {
 static Run_State state;
 
 static void
-sigfunc(int sig) {
-    server_shutdown();
-}
-
-static void
 _spawn_msg(void *data, int success) {
     switch(state){
         case STATE_INIT:
@@ -75,10 +70,6 @@ int
 main(int argc, char **argv)
 {
     init_check();
-
-    signal(SIGINT, sigfunc);
-    signal(SIGSEGV, sigfunc);
-
     config_init();
     manager_init();
 
