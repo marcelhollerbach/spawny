@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <errno.h>
 
 #define WRITE_COM_PATH "/tmp/spawny.write"
 #define READ_COM_PATH "/tmp/spawny.read"
@@ -22,7 +23,7 @@ static Spawny__Server__Data system_data = SPAWNY__SERVER__DATA__INIT;
 static void
 _send_message(Spawny__Server__MessageType type, Spawny__Server__LoginFeedback *fb, Spawny__Server__Data *data) {
     Spawny__Server__Message msg = SPAWNY__SERVER__MESSAGE__INIT;
-    int len;
+    int len = 0;
     void *buf;
 
     msg.type = type;
@@ -35,9 +36,8 @@ _send_message(Spawny__Server__MessageType type, Spawny__Server__LoginFeedback *f
 
     spawny__server__message__pack(&msg, buf);
 
-    if (write(write_file, buf, len) < 1) {
-        printf("Message write failed\n");
-    }
+    if (write(write_file, buf, len) != len)
+      perror("greeter message failed");
 
     free(buf);
 }
@@ -92,18 +92,22 @@ _greeter_data(void *data, int fd) {
 
     len = read(fd, buf, sizeof(buf));
 
-    if (len == 0) {
+    if (len < 0) {
+        //reading from the greeter failed
+        perror("Reading greeter failed");
+    }else if (len == 0) {
+        //greeter has closed the pipe
         printf("Greeter dissapeared!\n");
         //the fd is at the end
         manager_unregister_fd(fd);
         return;
+    }else {
+        //message is ok, read it
+        message = spawny__greeter__message__unpack(NULL, len, buf);
+
+        _greeter_msg_process(message);
+        spawny__greeter__message__free_unpacked(message, NULL);
     }
-
-    message = spawny__greeter__message__unpack(NULL, len, buf);
-
-    _greeter_msg_process(message);
-
-    spawny__greeter__message__free_unpacked(message, NULL);
 }
 
 static void
@@ -118,11 +122,10 @@ _list_users(char ***usernames, unsigned int *numb) {
     *numb = 0;
     *usernames = NULL;
 
-    if (fptr == NULL)
-      {
-         printf("Failed to read passwd\n");
+    if (fptr == NULL) {
+         perror("Failed to read passwd");
          return;
-      }
+    }
 
     while (fgets(line, sizeof(line), fptr)) {
         username = strtok(line, ":");
@@ -213,6 +216,16 @@ _init_data(void) {
     system_data.n_templates = 1;
 }
 
+static int
+_server_fifo_create(void) {
+    if (mkfifo(WRITE_COM_PATH, 0) < 0 ||
+        mkfifo(READ_COM_PATH, 0) < 0) {
+        perror("Failed to create fifos");
+        return 0;
+    }
+    return 1;
+}
+
 int
 server_init(void) {
     struct passwd *pw;
@@ -220,39 +233,34 @@ server_init(void) {
     pw = getpwnam(config->greeter.start_user);
 
     if (!pw) {
-        printf("Failed to fetch greeter user\n");
+        perror("Failed to fetch configured user");
         return 0;
     }
-
-    if (mkfifo(WRITE_COM_PATH, 0) < 0 ||
-        mkfifo(READ_COM_PATH, 0) < 0) {
-         //startup failed
-        unlink(WRITE_COM_PATH);
-        unlink(READ_COM_PATH);
-
-        if (mkfifo(WRITE_COM_PATH, 0) < 0 ||
-            mkfifo(READ_COM_PATH, 0) < 0) {
-            printf("Fifos error failed to repair\n");
-            return 0;
+    if (!_server_fifo_create()) {
+        if (errno == EEXIST) {
+            printf("Fifos already exists, try to repair.\n");
+            unlink(WRITE_COM_PATH);
+            unlink(READ_COM_PATH);
+            _server_fifo_create();
         }
     }
 
     if (chmod(WRITE_COM_PATH, S_IRUSR | S_IWUSR) == -1 ||
         chmod(READ_COM_PATH, S_IRUSR | S_IWUSR) == -1) {
-        perror("Failed to chmod, reason");
+        perror("Failed to chmod");
         return 0;
     }
 
     if (chown(WRITE_COM_PATH, pw->pw_gid, 0) == -1 ||
         chown(READ_COM_PATH, pw->pw_gid, 0) == -1) {
-        perror("Failed to chown, reason");
+        perror("Failed to chown");
         return 0;
     }
 
     //start reading
     read_file = open(READ_COM_PATH, O_RDONLY | O_NONBLOCK);
     if (read_file == -1) {
-        perror("Opening read part of the daemon faild, reason");
+        perror("Opening read part of the daemon faild");
         return 0;
     }
     //register this fd for reading

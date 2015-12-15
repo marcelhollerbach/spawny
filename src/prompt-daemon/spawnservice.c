@@ -132,6 +132,7 @@ spawnservice_spawn(SpawnServiceJobCb job, const char *service,
     spawn_try = calloc(1, sizeof(Spawn_Try));
 
     if (pipe(spawn_try->com.fd) < 0) {
+        perror("Failed to open pipe");
         free(spawn_try);
         spawn_try = NULL;
         return 0;
@@ -190,9 +191,8 @@ _service_message(Spawny__Spawn__MessageType type, char *mmessage, char *session)
 
     spawny__spawn__message__pack(&message, data);
 
-    if (write(spawn_try->com.fd[WRITE], data, len) != len) {
-         printf("Something broke hardly\n");
-    }
+    if (write(spawn_try->com.fd[WRITE], data, len) != len)
+      perror("Failed to write service message");
     free(data);
 }
 
@@ -211,6 +211,8 @@ _session_proc_fire_up(void) {
         //call the client function*/
         if (spawn_try->job.cb)
           spawn_try->job.cb(spawn_try->job.data);
+    } else if (pid == -1) {
+        perror("fork failed");
     } else {
         waitpid(pid, NULL, 0);
     }
