@@ -75,6 +75,7 @@ main(int argc, char **argv)
 
     tty_template_init();
     x11_template_init();
+    wl_template_init();
 
     spawnservice_init(_spawn_msg, NULL);
 
