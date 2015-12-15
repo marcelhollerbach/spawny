@@ -16,6 +16,8 @@ set(SPAWNY-DAEMON-SOURCE
     tty_temp.c
     wl_temp.c
     x11_temp.c
+    desktop_common.c
+    desktop_common.h
     ${PROJECT_SOURCE_DIR}/src/protocol/protocol.h
     ${PROJECT_SOURCE_DIR}/components/inih/ini.h
     ${PROJECT_SOURCE_DIR}/components/inih/ini.c

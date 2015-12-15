@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "spawnservice.h"
+#include "desktop_common.h"
 #include "manager.h"
 #include "sessionmgt.h"
 #include "config.h"
