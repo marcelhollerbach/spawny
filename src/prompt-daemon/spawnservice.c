@@ -173,12 +173,15 @@ _tty_used(char *buf) {
         char *tty;
 
         session_details(sessions[i], NULL, NULL, NULL, &tty);
+        if (!tty) continue;
 
         if (!strcmp(tty, buf))
-            return 1;
+          return 1;
     }
     return 0;
 }
+
+#define DEVICE_PREFIX "/dev/"
 
 static char *
 available_tty(void) {
@@ -188,8 +191,8 @@ available_tty(void) {
         if (tty_counter > LAST_TTY) return NULL;
         tty_counter ++;
 
-        snprintf(buf, sizeof(buf), "/dev/tty%d", tty_counter);
-    } while(!_tty_used(buf));
+        snprintf(buf, sizeof(buf), DEVICE_PREFIX"tty%d", tty_counter);
+    } while(_tty_used(buf + sizeof(DEVICE_PREFIX) - 1));
 
     return strdup(buf);
 }
@@ -245,8 +248,9 @@ child_run(void){
     //check available ttys
     tty = available_tty();
 
-    if (!tty)
-      return -1;
+    if (!tty) {
+        _service_com_exit("Failed to find tty");
+    }
 
     pid = fork();
 
