@@ -176,18 +176,18 @@ _init_data(void) {
 
     sessions = calloc(number, sizeof(Spawny__Server__Session*));
 
-    for (int i = 0;i < number - offset;i ++){
+    for (int i = 0;i < number;i ++){
         uid_t uid;
         struct passwd* user;
         sessions[i - offset] = calloc(1, sizeof(Spawny__Server__Session));
+        spawny__server__session__init(sessions[i - offset]);
 
-        spawny__server__session__init(sessions[i]);
-
-        if (!session_details(sessions_raw[i], &uid, &sessions[i]->icon, &sessions[i]->name, NULL)) {
-            free(sessions[i]);
+        if (!session_details(sessions_raw[i], &uid, &sessions[i - offset]->icon, &sessions[i - offset]->name, NULL)) {
+            free(sessions[i - offset]);
+            sessions[i - offset] = NULL;
             printf("%s %d failed to fetch details\n", sessions_raw[i], i);
             offset ++;
-            sessions = realloc(sessions, number * sizeof(Spawny__Server__Session));
+            sessions = realloc(sessions, (number - offset) * sizeof(Spawny__Server__Session));
             continue;
         }
 
@@ -197,8 +197,8 @@ _init_data(void) {
         sessions[i - offset]->user = user->pw_name;
     }
 
-    system_data.sessions = sessions;
     system_data.n_sessions = number - offset;
+    system_data.sessions = sessions;
 
     template_get(&templates_raw, &number);
 
@@ -213,7 +213,7 @@ _init_data(void) {
     }
 
     system_data.templates = templates;
-    system_data.n_templates = 1;
+    system_data.n_templates = number;
 }
 
 static int
