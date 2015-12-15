@@ -163,15 +163,33 @@ spawnservice_shutdown(void) {
 //the following stuff is 99% into a seperated process,
 //=====================================================
 
+static char
+_tty_used(char *buf) {
+    unsigned int number;
+    char **sessions;
+
+    session_enumerate(&sessions, &number);
+    for(int i = 0; i < number; i++){
+        char *tty;
+
+        session_details(sessions[i], NULL, NULL, NULL, &tty);
+
+        if (!strcmp(tty, buf))
+            return 1;
+    }
+    return 0;
+}
+
 static char *
 available_tty(void) {
     char buf[PATH_MAX];
 
-    if (tty_counter > LAST_TTY) return NULL;
-    tty_counter ++;
+    do {
+        if (tty_counter > LAST_TTY) return NULL;
+        tty_counter ++;
 
-
-    snprintf(buf, sizeof(buf), "/dev/tty%d", tty_counter);
+        snprintf(buf, sizeof(buf), "/dev/tty%d", tty_counter);
+    } while(!_tty_used(buf));
 
     return strdup(buf);
 }
