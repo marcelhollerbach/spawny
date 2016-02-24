@@ -8,6 +8,11 @@ _fire_up_daed(void *data) {
     test = 1;
 }
 
+static void
+_fire_up2(void *data) {
+
+}
+
 START_TEST(test_templatereg_details)
 {
     int ret;
@@ -58,8 +63,8 @@ START_TEST(test_templatereg_unreg)
     char *name = "test";
     char *icon = "icon";
 
-    id1 = template_register("1", "2", NULL, NULL);
-    id2 = template_register("no", "3", NULL, NULL);
+    id1 = template_register("1", "2", _fire_up2, NULL);
+    id2 = template_register("no", "3", _fire_up2, NULL);
     id3 = template_register(name, icon, _fire_up_daed, NULL);
 
 
