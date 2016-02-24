@@ -15,6 +15,8 @@ _cb(Fd_Data *data, uint8_t buf[], int len)
 {
    int *i = data->data;
 
+   manager_unregister_fd(data->fd);
+
    (*i)++;
    _break_cond(*i);
 }
