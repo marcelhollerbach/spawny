@@ -5,13 +5,22 @@
 #include <string.h>
 #include <libgen.h>
 #include <ini.h>
+#include <pwd.h>
 
 #define EXT ".desktop"
 
 
 static void
 _fire_up(void *data) {
-    execl("/usr/bin/startx", "startx", data, NULL);
+    uid_t uid;
+    struct passwd *pwd;
+    char command[PATH_MAX];
+
+    uid = getuid();
+    pwd = getpwuid(uid);
+
+    snprintf(command, sizeof(command), "startx %s", data);
+    execl(pwd->pw_shell, basename(pwd->pw_shell), "-i", "-c", command);
 }
 
 void
