@@ -17,6 +17,8 @@ static int fd_number = 0;
 static Fd_Register *cbs = NULL; //array of length fd_number
 
 static int stop = 0;
+static int global_count = 0;
+static int diff = 0;
 
 void
 manager_init(void) {
@@ -52,6 +54,27 @@ _read_available(Fd_Register *fd)
    }
 }
 
+static void
+_error_available(Fd_Register *fd)
+{
+   printf("Error on %d\n", fd->data.fd);
+   manager_unregister_fd(fd->data.fd);
+}
+
+static int
+_fd_set_check(Fd_Register *reg, fd_set *set, void (*handle)(Fd_Register *reg), int i)
+{
+   //global count to the current runner
+   global_count = i;
+   //diff back to 0
+   diff = 0;
+   //check if set
+   if (FD_ISSET(reg->data.fd, set)) {
+      handle(reg);
+   }
+   return i - diff;
+}
+
 int
 manager_run(void) {
     while (!stop) {
@@ -82,29 +105,14 @@ manager_run(void) {
             _error_handling(result);
             return 0;
         } else if (result >= 0) {
-            //go throuw the set and check if the fd is set
+            //look for errors fd´s
             for(int i = 0; i < fd_number; i ++) {
-                int fd = cbs[i].data.fd;
-                //check if this fd is set
-                if (FD_ISSET(fd, &fds_read)) {
-                    _read_available(&cbs[i]);
-                    //
-                    //fds could be deleted as a result of the callback
+               i = _fd_set_check(&cbs[i], &fds_error, _error_available, i);
+            }
 
-                    //check if we are the end
-                    if (i == fd_number) break;
-                    //if the fd is different than the one at the start the fd is deleted
-                    if (cbs[i].data.fd != fd) {
-                        i --;
-                        continue;
-                    }
-
-                }
-                if (FD_ISSET(fd, &fds_error)) {
-                    //FIXME ugly
-                    printf("Error on %d\n", fd);
-                    manager_unregister_fd(fd);
-                }
+            //look for read fd´s
+            for(int i = 0; i < fd_number; i ++) {
+               i = _fd_set_check(&cbs[i], &fds_read, _read_available, i);
             }
        }
     }
@@ -136,6 +144,15 @@ manager_unregister_fd(int fd) {
         if (cbs[field_index].data.fd == fd)
           break;
     }
+
+    //check if this field is beyond checking right now
+    if (global_count <= field_index) {
+      //increase the difference to the current array
+      diff ++;
+      //lower the global count since we are one deeper now
+      global_count --;
+    }
+
 
     if (field_index == fd_number)
       return; //not found
