@@ -23,7 +23,7 @@
 #define LAST_TTY 63
 #define FIRST_TTY 10 -1
 
-typedef struct {
+struct _Spawn_Try{
     struct {
         int fd[2];
     } com;
@@ -31,69 +31,42 @@ typedef struct {
         SpawnServiceJobCb cb;
         void *data;
     } job;
+    struct {
+        SpawnDoneCb cb;
+        void *data;
+    } done;
     const char *service;
     const char *usr;
     const char *pw;
-} Spawn_Try;
-
-static SpawnDoneCb _done;
-static void *_done_data;
-static Spawn_Try *spawn_try = NULL;
+};
 
 static int tty_counter = FIRST_TTY;
 
-static int child_run(void);
-static int open_tty(char *tty, const char *usr);
-static int pam_auth(char ***env, int tty);
+static int child_run(Spawn_Try *try);
+static int open_tty(Spawn_Try *try, char *tty);
+static int pam_auth(Spawn_Try *try, char ***env, int tty);
 
 static void
-_spawn_try_free(Spawn_Service_State success, const char *error)
+_spawn_try_free(Spawn_Service_State success, const char *error, Spawn_Try *try)
 {
     Spawn_Service_End end;
-    close(spawn_try->com.fd[READ]);
-    close(spawn_try->com.fd[WRITE]);
+    close(try->com.fd[READ]);
+    close(try->com.fd[WRITE]);
 
-    free(spawn_try);
-    spawn_try = NULL;
+    free(try);
 
     end.success = success;
     end.message = error;
 
-    if (_done) _done(_done_data, end);
-}
-static void
-_process_message(Spawny__Spawn__Message *msg)
-{
-    switch(msg->type) {
-        case SPAWNY__SPAWN__MESSAGE__TYPE__CONNECT:
-            //FIXME kill timer for none come up sessions
-        break;
-        case SPAWNY__SPAWN__MESSAGE__TYPE__SETUP_DONE:
-            //we need to activate the passed session
-            printf("Activating session\n");
-            session_activate(msg->session);
-        break;
-        case SPAWNY__SPAWN__MESSAGE__TYPE__SESSION_ACTIVE:
-            //the session is up, and will die now
-            printf("Session is up\n");
-            manager_unregister_fd(spawn_try->com.fd[READ]);
-            _spawn_try_free(SPAWN_SERVICE_SUCCESS, NULL);
-        break;
-        case SPAWNY__SPAWN__MESSAGE__TYPE__ERROR_EXIT:
-            //print the error somewhere
-            printf("Session exit with %s\n", msg->exit);
-            manager_unregister_fd(spawn_try->com.fd[READ]);
-            _spawn_try_free(SPAWN_SERVICE_ERROR, msg->exit);
-        break;
-        default:
-        break;
-    }
+    if (try->done.cb)
+      try->done.cb(try->done.data, end);
 }
 
 static void
 _child_data(Fd_Data *data, uint8_t buffer[], int len)
 {
    Spawny__Spawn__Message *msg = NULL;
+   Spawn_Try *try = data->data;
 
    msg = spawny__spawn__message__unpack(NULL, len, buffer);
 
@@ -102,26 +75,39 @@ _child_data(Fd_Data *data, uint8_t buffer[], int len)
      return;
    }
 
-   _process_message(msg);
-
+   switch(msg->type) {
+       case SPAWNY__SPAWN__MESSAGE__TYPE__CONNECT:
+           //FIXME kill timer for none come up sessions
+       break;
+       case SPAWNY__SPAWN__MESSAGE__TYPE__SETUP_DONE:
+           //we need to activate the passed session
+           printf("Activating session\n");
+           session_activate(msg->session);
+       break;
+       case SPAWNY__SPAWN__MESSAGE__TYPE__SESSION_ACTIVE:
+           //the session is up, and will die now
+           printf("Session is up\n");
+           manager_unregister_fd(try->com.fd[READ]);
+           _spawn_try_free(SPAWN_SERVICE_SUCCESS, NULL, try);
+       break;
+       case SPAWNY__SPAWN__MESSAGE__TYPE__ERROR_EXIT:
+           //print the error somewhere
+           printf("Session exit with %s\n", msg->exit);
+           manager_unregister_fd(try->com.fd[READ]);
+           _spawn_try_free(SPAWN_SERVICE_ERROR, msg->exit, try);
+       break;
+       default:
+       break;
+   }
    spawny__spawn__message__free_unpacked(msg, NULL);
 }
 
-int
-spawnservice_init(SpawnDoneCb done, void *data) {
-    _done_data = data;
-    _done = done;
+Spawn_Try*
+spawnservice_spawn(SpawnDoneCb done, void *data,
+                   SpawnServiceJobCb job, void *jobdata,
+                   const char *service, const char *usr, const char *pw) {
 
-    return 1;
-}
-
-int
-spawnservice_spawn(SpawnServiceJobCb job, const char *service,
-    const char *usr, const char *pw, void *data) {
-
-    if (spawn_try) return 0;
-
-    spawn_try = calloc(1, sizeof(Spawn_Try));
+    Spawn_Try *spawn_try = calloc(1, sizeof(Spawn_Try));
 
     if (pipe(spawn_try->com.fd) < 0) {
         perror("Failed to open pipe");
@@ -131,20 +117,22 @@ spawnservice_spawn(SpawnServiceJobCb job, const char *service,
     }
 
     spawn_try->job.cb = job;
-    spawn_try->job.data = data;
+    spawn_try->job.data = jobdata;
 
     spawn_try->pw = pw;
     spawn_try->usr = usr;
     spawn_try->service = service;
 
+    spawn_try->done.cb = done;
+    spawn_try->done.data = data;
+
     //this will start a client process which is in a new session
     //this will also register the read fd to the manager
-    if (!child_run()) {
-        _spawn_try_free(SPAWN_SERVICE_ERROR, NULL);
-        return 1;
+    if (!child_run(spawn_try)) {
+        _spawn_try_free(SPAWN_SERVICE_ERROR, NULL, spawn_try);
     }
 
-    return 1;
+    return spawn_try;
 }
 
 void
@@ -192,12 +180,12 @@ available_tty(void) {
 }
 
 static void
-_service_message(Spawny__Spawn__MessageType type, char *mmessage, char *session) {
+_service_message(Spawn_Try *try, Spawny__Spawn__MessageType type, const char *mmessage, char *session) {
     int len = 0;
     void *data;
     Spawny__Spawn__Message message = SPAWNY__SPAWN__MESSAGE__INIT;
 
-    message.exit = mmessage;
+    message.exit = (char*)mmessage;
     message.type = type;
     message.session = session;
 
@@ -206,26 +194,26 @@ _service_message(Spawny__Spawn__MessageType type, char *mmessage, char *session)
 
     spawny__spawn__message__pack(&message, data);
 
-    if (write(spawn_try->com.fd[WRITE], data, len) != len)
+    if (write(try->com.fd[WRITE], data, len) != len)
       perror("Failed to write service message");
     free(data);
 }
 
 static void
-_service_com_exit(char *reason) {
-    _service_message(SPAWNY__SPAWN__MESSAGE__TYPE__ERROR_EXIT, reason, 0);
+_service_com_exit(Spawn_Try *try, const char *reason) {
+    _service_message(try, SPAWNY__SPAWN__MESSAGE__TYPE__ERROR_EXIT, reason, 0);
 }
 
 static void
-_session_proc_fire_up(void) {
+_session_proc_fire_up(Spawn_Try *try) {
     pid_t pid;
 
     pid = fork();
 
     if (pid == 0) {
         //call the client function*/
-        if (spawn_try->job.cb)
-          spawn_try->job.cb(spawn_try->job.data);
+        if (try->job.cb)
+          try->job.cb(try->job.data);
     } else if (pid == -1) {
         perror("fork failed");
     } else {
@@ -235,7 +223,7 @@ _session_proc_fire_up(void) {
 }
 
 static int
-child_run(void){
+child_run(Spawn_Try *try){
     pid_t pid;
     char *tty;
 
@@ -243,7 +231,7 @@ child_run(void){
     tty = available_tty();
 
     if (!tty) {
-        _service_com_exit("Failed to find tty");
+        _service_com_exit(try, "Failed to find tty");
     }
 
     pid = fork();
@@ -260,10 +248,10 @@ child_run(void){
         setsid();
 
         //close the read fd
-        close(spawn_try->com.fd[READ]);
+        close(try->com.fd[READ]);
 
         //connect
-        _service_message(SPAWNY__SPAWN__MESSAGE__TYPE__CONNECT, NULL, NULL);
+        _service_message(try, SPAWNY__SPAWN__MESSAGE__TYPE__CONNECT, NULL, NULL);
 
         //we are the child
         close(STDOUT_FILENO);
@@ -271,14 +259,14 @@ child_run(void){
         close(STDERR_FILENO);
 
         //open tty
-        if (!open_tty(tty, spawn_try->usr)) {
+        if (!open_tty(try, tty)) {
              //open tty allready said that we are dead
              exit(-1);
           }
 
 
         //log into pam
-        if (!pam_auth(&env, tty_counter)) {
+        if (!pam_auth(try, &env, tty_counter)) {
              exit(-1);
           }
 
@@ -293,24 +281,24 @@ child_run(void){
         session = current_session_get();
 
         if (!session) {
-           _service_com_exit("session is not valid");
+           _service_com_exit(try, "session is not valid");
            exit(-1);
         }
 
         //tell service that we are alive and happy
         //the service should activate this session next
-        _service_message(SPAWNY__SPAWN__MESSAGE__TYPE__SETUP_DONE, NULL, session);
+        _service_message(try, SPAWNY__SPAWN__MESSAGE__TYPE__SETUP_DONE, NULL, session);
 
         //wait for the session to get active
         wait_session_active(session);
 
-        _service_message(SPAWNY__SPAWN__MESSAGE__TYPE__SESSION_ACTIVE, NULL, NULL);
+        _service_message(try, SPAWNY__SPAWN__MESSAGE__TYPE__SESSION_ACTIVE, NULL, NULL);
 
         //close child fd
-        close(spawn_try->com.fd[WRITE]);
+        close(try->com.fd[WRITE]);
 
 
-        _session_proc_fire_up();
+        _session_proc_fire_up(try);
 
 
         //if we get here we are basically fucked.
@@ -319,16 +307,16 @@ child_run(void){
         exit(-1);
     } else {
         //close the write end of the pipe, we will just hear
-        close(spawn_try->com.fd[WRITE]);
+        close(try->com.fd[WRITE]);
         //register the read fd to the manager so we will get notified if the client sents something
-        manager_register_fd(spawn_try->com.fd[READ], _child_data, NULL);
+        manager_register_fd(try->com.fd[READ], _child_data, try);
         return 1;
     }
 }
 
 //open tty stuff
 static int
-open_tty(char *tty, const char *usr)
+open_tty(Spawn_Try *try, char *tty)
 {
    static struct sigaction sa, osa;
    struct group *gr = NULL;
@@ -343,9 +331,9 @@ open_tty(char *tty, const char *usr)
    sigaction(SIGHUP, &sa, &osa);
 
    /* check if user is found */
-   pwd = getpwnam(usr);
+   pwd = getpwnam(try->usr);
    if (!pwd) {
-        _service_com_exit("Failed to fetch user");
+        _service_com_exit(try, "Failed to fetch user");
         return 0;
    }
 
@@ -353,21 +341,21 @@ open_tty(char *tty, const char *usr)
    gr = getgrnam("tty");
    if (!gr)
      {
-        _service_com_exit("Failed to get group tty!");
+        _service_com_exit(try, "Failed to get group tty!");
         return 0;
      }
 
    /* open the tty */
    if ((fd = open(tty, O_RDWR|O_NOCTTY|O_NONBLOCK, 0)) < 0)
      {
-        _service_com_exit("Failed to open tty");
+        _service_com_exit(try, "Failed to open tty");
         return 0;
      }
 
    /* check if this is really a tty */
    if (!isatty(fd))
      {
-        _service_com_exit("FD is not a tty");
+        _service_com_exit(try, "FD is not a tty");
         return 0;
      }
 
@@ -377,7 +365,7 @@ open_tty(char *tty, const char *usr)
         /* if not try to get it */
         if (ioctl(fd, TIOCSCTTY) == -1)
           {
-             _service_com_exit("Getting control of tty failed");
+             _service_com_exit(try, "Getting control of tty failed");
              //CM("Getting Controlling TTY Failed, Reason: %s", strerror(errno));
              return 0;
           }
@@ -385,13 +373,13 @@ open_tty(char *tty, const char *usr)
    // check if this is really fd 0, 1, 2 if not we have a problem
    if (fd != 0 || dup(fd) != 1 || dup(fd) != 2)
      {
-        _service_com_exit("TTY fd´s where not at place 0, 1 and 2");
+        _service_com_exit(try, "TTY fd´s where not at place 0, 1 and 2");
         return 0;
      }
 
     //reset tty
     if (vhangup() < 0) {
-        _service_com_exit("vhangup failed!\n");
+        _service_com_exit(try, "vhangup failed!\n");
         return 0;
     }
 
@@ -403,7 +391,7 @@ open_tty(char *tty, const char *usr)
     /* Now we reopen every tty*/
     /* open the tty */
     if ((fd = open(tty, O_RDWR|O_NOCTTY, 0)) < 0) {
-        _service_com_exit("Failed to open tty");
+        _service_com_exit(try, "Failed to open tty");
         return 0;
     }
 
@@ -411,7 +399,7 @@ open_tty(char *tty, const char *usr)
     if (((tid = tcgetsid(fd)) < 0) || (pid != tid)) {
         /* if not try to get it */
         if (ioctl(fd, TIOCSCTTY) == -1) {
-             _service_com_exit("Getting control of tty failed");
+             _service_com_exit(try, "Getting control of tty failed");
              //CM("Getting Controlling TTY Failed, Reason: %s", strerror(errno));
              return 0;
           }
@@ -421,19 +409,19 @@ open_tty(char *tty, const char *usr)
     tcflush(STDIN_FILENO, TCIFLUSH);
 
     if (tcsetpgrp(STDIN_FILENO, getpid())) {
-        _service_com_exit("Failed to get foreground proccess");
+        _service_com_exit(try, "Failed to get foreground proccess");
         return 0;
     }
 
     // check if this is really fd 0, 1, 2 if not we have a problem
     if (fd != 0 || dup(fd) != 1 || dup(fd) != 2) {
-        _service_com_exit("TTY fd´s where not at place 0, 1 and 2");
+        _service_com_exit(try, "TTY fd´s where not at place 0, 1 and 2");
         return 0;
     }
 
     /* own the tty device */
     if (chown(tty, pwd->pw_uid, gr->gr_gid) || chmod(tty, (gr->gr_gid ? 0620 : 0600))) {
-        _service_com_exit("Own and mod failed!!!");
+        _service_com_exit(try, "Own and mod failed!!!");
         return 0;
     }
 
@@ -452,7 +440,9 @@ open_tty(char *tty, const char *usr)
 static int
 _pam_conv(int num_msg, const struct pam_message **msg,
          struct pam_response **rp, void *appdata_ptr) {
+   Spawn_Try *try = appdata_ptr;
    int i = 0;
+
    *rp = (struct pam_response *) calloc(num_msg, sizeof(struct pam_response));
    for (i = 0; i < num_msg; i++)
      {
@@ -463,13 +453,13 @@ _pam_conv(int num_msg, const struct pam_message **msg,
                 //_service_com_exit(msg[i]->msg);
                 break;
              case PAM_PROMPT_ECHO_OFF:
-                rp[i]->resp = spawn_try->pw ? strdup(spawn_try->pw) : NULL;
+                rp[i]->resp = try->pw ? strdup(try->pw) : NULL;
                 break;
              case PAM_ERROR_MSG:
-                _service_com_exit((char*)msg[i]->msg);
+                _service_com_exit(try, msg[i]->msg);
                 break;
              case PAM_TEXT_INFO:
-                _service_com_exit((char*)msg[i]->msg);
+                _service_com_exit(try, msg[i]->msg);
                 break;
              default:
 
@@ -480,10 +470,10 @@ _pam_conv(int num_msg, const struct pam_message **msg,
 }
 
 static void
-_handle_error(int ret) {
+_handle_error(Spawn_Try *try, int ret) {
     #define RET_VAL_REG(v, val) \
     case v: \
-        _service_com_exit("Pam error "val" happend"); \
+        _service_com_exit(try, "Pam error "val" happend"); \
         break;
 
     switch(ret){
@@ -497,29 +487,30 @@ _handle_error(int ret) {
         RET_VAL_REG(PAM_MAXTRIES, "PAM_MAX_TRIES");
         RET_VAL_REG(PAM_USER_UNKNOWN, "PAM_USER_UNKNOWN");
         default:
-            _service_com_exit("uncaught state");
+            _service_com_exit(try, "uncaught state");
         break;
     }
     #undef RET_VAL_REG
 }
 
 static int
-pam_auth(char ***env, int vtnr) {
+pam_auth(Spawn_Try *try, char ***env, int vtnr) {
     int ret = 0;
     pam_handle_t *handle;
     struct pam_conv conv;
     struct passwd *pwd;
 
     conv.conv = _pam_conv;
-    pwd = getpwnam(spawn_try->usr);
+    conv.appdata_ptr = try;
+    pwd = getpwnam(try->usr);
 
 #define PAM_CHECK \
       if (ret != PAM_SUCCESS) { \
-        _handle_error(ret); \
+        _handle_error(try, ret); \
         return 0; \
       }
 
-    ret = pam_start(spawn_try->service, spawn_try->usr, &conv, &handle);
+    ret = pam_start(try->service, try->usr, &conv, &handle);
     PAM_CHECK
 
 #define PE(k,v) { \
@@ -554,16 +545,16 @@ pam_auth(char ***env, int vtnr) {
 
     *env = pam_getenvlist(handle);
 
-    if (initgroups(spawn_try->usr, pwd->pw_gid) != 0) {
-        _service_com_exit("init the groups of usr failed");
+    if (initgroups(try->usr, pwd->pw_gid) != 0) {
+        _service_com_exit(try, "init the groups of usr failed");
         return 0;
     }
     if (setgid(pwd->pw_gid) != 0) {
-        _service_com_exit("failed to set gid");
+        _service_com_exit(try, "failed to set gid");
         return 0;
     }
     if (setuid(pwd->pw_uid) != 0) {
-        _service_com_exit("failed to set uid");
+        _service_com_exit(try, "failed to set uid");
         return 0;
     }
     return 1;

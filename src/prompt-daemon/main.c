@@ -5,35 +5,14 @@
 
 #define GREETER_SERVICE "lightdm-greeter"
 
-typedef enum {
-    STATE_INIT = 0,
-    STATE_GREETER_STARTED,
-} Run_State;
-
-static Run_State state;
-
 static void
-_spawn_msg(void *data, Spawn_Service_End end) {
-    switch(state){
-        case STATE_INIT:
-            if (end.success == SPAWN_SERVICE_ERROR) {
-                printf("Panic! The worlrd is on fire!\n");
-                manager_stop();
-                return;
-            } else {
-                printf("Greeter started.\n");
-                state = STATE_GREETER_STARTED;
-            }
-        break;
-        case STATE_GREETER_STARTED:
-            if (end.success == SPAWN_SERVICE_ERROR) {
-                server_spawnservice_feedback(0, end.message);
-            } else {
-                server_spawnservice_feedback(1, "You are logged in!");
-                printf("User Session alive.\n");
-                manager_stop();
-            }
-        break;
+_greeter_done(void *data, Spawn_Service_End end) {
+    if (end.success == SPAWN_SERVICE_ERROR) {
+        printf("Panic! The worlrd is on fire!\n");
+        manager_stop();
+        return;
+    } else {
+        printf("Greeter started.\n");
     }
 }
 
@@ -77,13 +56,12 @@ main(int argc, char **argv)
     x11_template_init();
     wl_template_init();
 
-    spawnservice_init(_spawn_msg, NULL);
-
     if (!server_init()) {
         return -1;
     }
     printf("Init done\n");
-    if (!spawnservice_spawn(_greeter_job, GREETER_SERVICE, config->greeter.start_user, NULL, NULL)) {
+
+    if (!spawnservice_spawn(_greeter_done, NULL, _greeter_job, NULL, GREETER_SERVICE, config->greeter.start_user, NULL)) {
         printf("Starting greeter failed");
         return -1;
     }

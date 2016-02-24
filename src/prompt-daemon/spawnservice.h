@@ -14,29 +14,30 @@ typedef struct {
 typedef void (*SpawnDoneCb)(void *data, Spawn_Service_End success);
 typedef void (*SpawnServiceJobCb)(void *data);
 
-/*
- * Init spawn part, which can be used to start sessions
- *
- * @param done called each time a spawn service was finished
- * @param data passed to the done callback
- */
-int spawnservice_init(SpawnDoneCb done, void *data);
+typedef struct _Spawn_Try Spawn_Try;
+
 
 /*
  * Spawns a new job
  * the lib can always just spawn new jobs if no other is in starting mode
  * If a nother is starting right now 0 is returned
  *
+ * @param done callback called in the process when job is executed
+ * @param data data passed to done
  * @param job the job to execute in a new session,
  *        be carefull, this job will run in a complete
  *        undepended process from the calling process.
+ * @param data passed field to the job
  * @param service name of the pam service to use
  * @param user username to use as user
  * @param pw password used in pam
- * @param data passed field to the job
+
  */
-int spawnservice_spawn(SpawnServiceJobCb job, const char *service,
-    const char *usr, const char *pw, void *data);
+Spawn_Try*
+spawnservice_spawn(SpawnDoneCb done, void *data,
+                   SpawnServiceJobCb job, void *jobdata,
+                   const char *service, const char *usr, const char *pw);
+
 
 /**
  * Shutdown and free all resources

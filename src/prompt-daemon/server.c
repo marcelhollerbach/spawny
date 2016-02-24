@@ -61,6 +61,17 @@ server_spawnservice_feedback(int success, char *message) {
 }
 
 static void
+_session_done(void *data, Spawn_Service_End end) {
+    if (end.success == SPAWN_SERVICE_ERROR) {
+        server_spawnservice_feedback(0, end.message);
+    } else {
+        server_spawnservice_feedback(1, "You are logged in!");
+        printf("User Session alive.\n");
+        manager_stop();
+    }
+}
+
+static void
 _greeter_data(Fd_Data *data, uint8_t buf[], int len) {
     Spawny__Greeter__Message *msg = NULL;
 
@@ -78,7 +89,7 @@ _greeter_data(Fd_Data *data, uint8_t buf[], int len) {
             printf("Greeter session activation\n");
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__LOGIN_TRY:
-            if (!spawnservice_spawn(_session_job, "entrance", msg->login->user, msg->login->password, msg->login->template_id)) {
+            if (!spawnservice_spawn(_session_done, NULL, _session_job, msg->login->template_id, "entrance", msg->login->user, msg->login->password)) {
                 server_spawnservice_feedback(0, "spawn failed.");
             }
             printf("Greeter login try\n");
@@ -215,6 +226,7 @@ server_init(void) {
         perror("Failed to fetch configured user");
         return 0;
     }
+
     if (!_server_fifo_create()) {
         if (errno == EEXIST) {
             printf("Fifos already exists, try to repair.\n");
