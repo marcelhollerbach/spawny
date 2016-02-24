@@ -532,8 +532,6 @@ pam_auth(char ***env, int vtnr) {
     PE("SHELL",pwd->pw_shell);
     PE("USER",pwd->pw_name);
     PE("LOGNAME",pwd->pw_name);
-    PE("XDG_SESSION_TYPE", "tty");
-    PE("XDG_SESSION_CLASS", "greeter");
     PE("XDG_SEAT", "seat0");
 #undef PE
 #define PE(k,v) { \
