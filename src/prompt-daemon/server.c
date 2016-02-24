@@ -61,7 +61,11 @@ server_spawnservice_feedback(int success, char *message) {
 }
 
 static void
-_greeter_msg_process(Spawny__Greeter__Message *msg) {
+_greeter_data(Fd_Data *data, uint8_t buf[], int len) {
+    Spawny__Greeter__Message *msg = NULL;
+
+    msg = spawny__greeter__message__unpack(NULL, len, buf);
+
     switch(msg->type){
         case SPAWNY__GREETER__MESSAGE__TYPE__HELLO:
             write_file = open(WRITE_COM_PATH, O_WRONLY);
@@ -82,32 +86,7 @@ _greeter_msg_process(Spawny__Greeter__Message *msg) {
         default:
         break;
     }
-}
-
-static void
-_greeter_data(void *data, int fd) {
-    uint8_t buf[MAX_MSG_SIZE];
-    Spawny__Greeter__Message *message = NULL;
-    int len = 0;
-
-    len = read(fd, buf, sizeof(buf));
-
-    if (len < 0) {
-        //reading from the greeter failed
-        perror("Reading greeter failed");
-    }else if (len == 0) {
-        //greeter has closed the pipe
-        printf("Greeter dissapeared!\n");
-        //the fd is at the end
-        manager_unregister_fd(fd);
-        return;
-    }else {
-        //message is ok, read it
-        message = spawny__greeter__message__unpack(NULL, len, buf);
-
-        _greeter_msg_process(message);
-        spawny__greeter__message__free_unpacked(message, NULL);
-    }
+    spawny__greeter__message__free_unpacked(msg, NULL);
 }
 
 static void

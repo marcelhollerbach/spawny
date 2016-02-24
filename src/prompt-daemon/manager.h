@@ -1,7 +1,14 @@
 #ifndef MANAGER_H
 #define MANAGER_H
 
-typedef void (*Fd_Data_Cb)(void *data, int fd);
+#include <inttypes.h>
+
+typedef struct {
+    int fd;
+    void *data;
+} Fd_Data;
+
+typedef void (*Fd_Data_Cb)(Fd_Data *data, uint8_t buffer[], int len);
 
 void manager_init(void);
 int manager_run(void);

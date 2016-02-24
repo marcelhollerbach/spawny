@@ -11,12 +11,10 @@ _break_cond(int i)
 }
 
 static void
-_cb(void *data, int fd)
+_cb(Fd_Data *data, uint8_t buf[], int len)
 {
-   char buf[2064];
-   int* i = data;
+   int *i = data->data;
 
-   read(fd, buf, sizeof(buf));
    (*i)++;
    _break_cond(*i);
 }
@@ -50,16 +48,15 @@ START_TEST(test_fd_select)
         close(fds_a[1]);
         close(fds_b[1]);
         exit(0);
-    } //else {
-        close(fds_a[1]);
-        close(fds_b[1]);
-        manager_register_fd(fds_a[0], _cb, &fd_ready_to_read);
-        manager_register_fd(fds_b[0], _cb, &fd_ready_to_read);
-        ck_assert_int_eq(manager_run(), 1);
-        close(fds_a[0]);
-        close(fds_b[0]);
-        ck_assert_int_eq(fd_ready_to_read, 2);
-    //}
+    }
+    close(fds_a[1]);
+    close(fds_b[1]);
+    manager_register_fd(fds_a[0], _cb, &fd_ready_to_read);
+    manager_register_fd(fds_b[0], _cb, &fd_ready_to_read);
+    ck_assert_int_eq(manager_run(), 1);
+    close(fds_a[0]);
+    close(fds_b[0]);
+    ck_assert_int_eq(fd_ready_to_read, 2);
 }
 END_TEST
 

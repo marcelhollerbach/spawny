@@ -91,21 +91,11 @@ _process_message(Spawny__Spawn__Message *msg)
 }
 
 static void
-_child_data(void *data, int fd)
+_child_data(Fd_Data *data, uint8_t buffer[], int len)
 {
-   uint8_t buf[2064];
-   int len = 0;
    Spawny__Spawn__Message *msg = NULL;
 
-   len = read(fd, buf, sizeof(buf));
-
-   if (len == 0) {
-     //we are likly at the end
-     manager_unregister_fd(fd);
-     return;
-   }
-
-   msg = spawny__spawn__message__unpack(NULL, len, buf);
+   msg = spawny__spawn__message__unpack(NULL, len, buffer);
 
    if (!msg) {
      printf("Got a wrong message.\n");
