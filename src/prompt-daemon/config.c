@@ -25,6 +25,7 @@ config_init(void) {
     config->greeter.cmd = PACKAGE_LIB_DIR"/spawny/spawny-clc";
 
     ini_parse(PACKAGE_ETC_DIR"/spawny/spawny.ini", _config_parse, NULL);
+
     return 1;
 }
 

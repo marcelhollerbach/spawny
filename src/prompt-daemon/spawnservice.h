@@ -38,10 +38,4 @@ spawnservice_spawn(SpawnDoneCb done, void *data,
                    SpawnServiceJobCb job, void *jobdata,
                    const char *service, const char *usr, const char *pw);
 
-
-/**
- * Shutdown and free all resources
- */
-void spawnservice_shutdown(void);
-
 #endif

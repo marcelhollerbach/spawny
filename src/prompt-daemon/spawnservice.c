@@ -135,11 +135,6 @@ spawnservice_spawn(SpawnDoneCb done, void *data,
     return spawn_try;
 }
 
-void
-spawnservice_shutdown(void) {
-
-}
-
 //=====================================================
 //BE AWARE
 //the following stuff is 99% into a seperated process,
