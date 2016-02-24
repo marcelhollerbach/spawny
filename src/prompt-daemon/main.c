@@ -13,10 +13,10 @@ typedef enum {
 static Run_State state;
 
 static void
-_spawn_msg(void *data, int success) {
+_spawn_msg(void *data, Spawn_Service_End end) {
     switch(state){
         case STATE_INIT:
-            if (!success) {
+            if (end.success == SPAWN_SERVICE_ERROR) {
                 printf("Panic! The worlrd is on fire!\n");
                 manager_stop();
                 return;
@@ -26,10 +26,10 @@ _spawn_msg(void *data, int success) {
             }
         break;
         case STATE_GREETER_STARTED:
-            if (!success) {
-                server_spawnservice_feedback(0, "char *message");
+            if (end.success == SPAWN_SERVICE_ERROR) {
+                server_spawnservice_feedback(0, end.message);
             } else {
-                server_spawnservice_feedback(1, "char *message");
+                server_spawnservice_feedback(1, "You are logged in!");
                 printf("User Session alive.\n");
                 manager_stop();
             }

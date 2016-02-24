@@ -47,17 +47,19 @@ static int open_tty(char *tty, const char *usr);
 static int pam_auth(char ***env, int tty);
 
 static void
-_spawn_try_free(int success)
+_spawn_try_free(Spawn_Service_State success, const char *error)
 {
+    Spawn_Service_End end;
     close(spawn_try->com.fd[READ]);
     close(spawn_try->com.fd[WRITE]);
 
     free(spawn_try);
     spawn_try = NULL;
 
-    if (success > -1) {
-        if (_done) _done(_done_data, success);
-    }
+    end.success = success;
+    end.message = error;
+
+    if (_done) _done(_done_data, end);
 }
 static void
 _process_message(Spawny__Spawn__Message *msg)
@@ -75,13 +77,13 @@ _process_message(Spawny__Spawn__Message *msg)
             //the session is up, and will die now
             printf("Session is up\n");
             manager_unregister_fd(spawn_try->com.fd[READ]);
-            _spawn_try_free(1);
+            _spawn_try_free(SPAWN_SERVICE_SUCCESS, NULL);
         break;
         case SPAWNY__SPAWN__MESSAGE__TYPE__ERROR_EXIT:
             //print the error somewhere
             printf("Session exit with %s\n", msg->exit);
             manager_unregister_fd(spawn_try->com.fd[READ]);
-            _spawn_try_free(0);
+            _spawn_try_free(SPAWN_SERVICE_ERROR, msg->exit);
         break;
         default:
         break;
@@ -145,9 +147,11 @@ spawnservice_spawn(SpawnServiceJobCb job, const char *service,
     spawn_try->usr = usr;
     spawn_try->service = service;
 
+    //this will start a client process which is in a new session
+    //this will also register the read fd to the manager
     if (!child_run()) {
-        _spawn_try_free(-1);
-        return 0;
+        _spawn_try_free(SPAWN_SERVICE_ERROR, NULL);
+        return 1;
     }
 
     return 1;
@@ -324,8 +328,9 @@ child_run(void){
 
         exit(-1);
     } else {
-        //we are the parent, just return the spawn try will
+        //close the write end of the pipe, we will just hear
         close(spawn_try->com.fd[WRITE]);
+        //register the read fd to the manager so we will get notified if the client sents something
         manager_register_fd(spawn_try->com.fd[READ], _child_data, NULL);
         return 1;
     }
