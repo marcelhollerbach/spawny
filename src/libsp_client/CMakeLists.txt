@@ -21,14 +21,14 @@ set(SPAWNY_CLIENT_LIB
   server.pb-c.h
   greeter.pb-c.c
   greeter.pb-c.h
-  Spawny_Client.h
+  Sp_Client.h
 )
 
-add_library(spawny_client SHARED
+add_library(sp_client SHARED
             ${SPAWNY_CLIENT_LIB})
 
-target_link_libraries (spawny_client
-    spawny_protocol
+target_link_libraries (sp_client
+    protobuf-c
 )
 
-install(TARGETS spawny_client DESTINATION lib)
+install(TARGETS sp_client DESTINATION lib)

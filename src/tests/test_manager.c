@@ -1,7 +1,7 @@
 #include "test.h"
 #include <stdio.h>
 #include <unistd.h>
-#include "../daemon/manager.h"
+#include "../sp-daemon/manager.h"
 
 static void
 _break_cond(int i)

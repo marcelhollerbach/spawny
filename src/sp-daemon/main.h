@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #include "session_spawn.pb-c.h"
-#include "../client/Spawny_Client.h"
+#include "../libsp_client/Sp_Client.h"
 
 #include "spawnservice.h"
 #include "desktop_common.h"

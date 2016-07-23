@@ -6,9 +6,9 @@ enable_testing()
 
 add_definitions("-Wall -O0 -g")
 
-add_subdirectory(src/greeter_start)
-add_subdirectory(src/cli-greeter)
-add_subdirectory(src/daemon)
-add_subdirectory(src/client)
+add_subdirectory(src/libsp_client)
+add_subdirectory(src/sp-fallback-greeter)
+add_subdirectory(src/sp-greeter-start)
+add_subdirectory(src/sp-daemon)
 add_subdirectory(src/tests)
 add_subdirectory(data)

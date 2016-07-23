@@ -1,4 +1,4 @@
-#include "../client/Spawny_Client.h"
+#include "../libsp_client/Sp_Client.h"
 
 int
 main(int argc, char **argv)

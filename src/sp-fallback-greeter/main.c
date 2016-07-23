@@ -1,4 +1,4 @@
-#include "../client/Spawny_Client.h"
+#include "../libsp_client/Sp_Client.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
