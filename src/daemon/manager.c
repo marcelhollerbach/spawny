@@ -27,11 +27,6 @@ manager_init(void) {
 }
 
 static void
-_error_handling(result) {
-    perror("manager failed, reason :");
-}
-
-static void
 _read_available(Fd_Register *reg, int fd)
 {
     //call callback!
@@ -78,6 +73,12 @@ _clear_objects(void)
      }
 }
 
+static int
+_errno_ignore(void) {
+   if (errno == EINTR) return 1;
+   return 0;
+}
+
 int
 manager_run(void) {
     while (!stop) {
@@ -106,8 +107,8 @@ manager_run(void) {
         readout = 1;
 
         //check for error
-        if (result == -1) {
-            _error_handling(result);
+        if (result == -1 && !_errno_ignore()) {
+            perror("Manager failed, reason");
             readout = 0;
             return 0;
         } else if (result >= 0) {
