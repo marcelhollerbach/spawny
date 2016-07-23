@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <netinet/in.h>
+#include <systemd/sd-daemon.h>
 
 #define MAX_MSG_SIZE 4096
 
@@ -91,7 +92,7 @@ _client_data(Fd_Data *data, int fd) {
     switch(msg->type){
         case SPAWNY__GREETER__MESSAGE__TYPE__HELLO:
             _send_message(SPAWNY__SERVER__MESSAGE__TYPE__DATA_UPDATE, NULL, &system_data, fd);
-            printf("Greeter said hello, wrote system_data\n");
+            printf("Greeter said ehllo, wrote system_data\n");
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__SESSION_ACTIVATION:
             session_activate(msg->session);
@@ -233,39 +234,56 @@ _init_data(void) {
     system_data.n_templates = number;
 }
 
-int
-server_init(void) {
-    const char *path;
-    struct passwd *pw;
+static int
+_socket_setup(void)
+{
+    int n;
     struct sockaddr_un address;
 
-    path = sp_service_path_get();
-
-    //just try it ...
-    unlink(path);
-
-    pw = getpwnam(config->greeter.start_user);
-    if (!pw) {
-        perror("Failed to fetch configured user");
+    n = sd_listen_fds(0);
+    if (n > 1) {
+        printf("Error, systemd passed to many fd´s!");
         return 0;
+    } else if (n == 1) {
+        server_sock = SD_LISTEN_FDS_START + 0;
+    } else {
+        const char *path;
+
+        path = sp_service_path_get();
+
+        server_sock = sp_service_socket_create();
+
+        sp_service_address_setup(&address);
+
+        //try to remove the path before binding it
+        unlink(path);
+
+        if (bind(server_sock, (struct sockaddr *) &address, sizeof(struct sockaddr_un)) != 0) {
+            perror("Failed to establish server connection");
+            return 0;
+        }
+
+        if (listen(server_sock, 3) != 0) {
+            perror("Failed to listen on the server");
+            return 0;
+        }
+
+        //set permissions on the socket
+        if (chmod(path, 0777) == -1) {
+          perror("Failed to chmod");
+        }
     }
+    return 1;
+}
 
-    server_sock = sp_service_socket_create();
-    sp_service_address_setup(&address);
+int
+server_init(void) {
 
-    if (bind(server_sock, (struct sockaddr *) &address, sizeof(struct sockaddr_un)) != 0) {
-        perror("Failed to establish server connection");
-        return 0;
-    }
+    //setup server
+    if (!_socket_setup())
+      return 0;
 
-    if (listen(server_sock, 5) != 0) {
-        perror("Failed to listen on the server");
-    }
-
-    if (chmod(path, 0777) == -1) {
-      perror("Failed to chmod");
-    }
-
+    //listen on the socket
     manager_register_fd(server_sock, _accept_ready, NULL);
 
     //initializise data

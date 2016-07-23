@@ -1,0 +1,5 @@
+[Socket]
+ListenStream=/tmp/spawny.socket
+
+[Install]
+WantedBy=sockets.target
