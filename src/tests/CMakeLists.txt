@@ -1,3 +1,9 @@
+include_directories(
+    ${PROJECT_SOURCE_DIR}/components/inih/
+    ${PROJECT_SOURCE_DIR}/src/libsp_client/
+    ${PROJECT_SOURCE_DIR}/src/config/
+)
+
 set(SPAWNY-DAEMON-TEST-SOURCE
     test.c
     test.h

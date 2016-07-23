@@ -100,7 +100,7 @@ _client_data(Fd_Data *data, int fd) {
             close(fd);
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__LOGIN_TRY:
-            if (!spawnservice_spawn(_session_done, (void*)(intptr_t) fd, _session_job, msg->login->template_id, "entrance", msg->login->user, msg->login->password)) {
+            if (!spawnservice_spawn(_session_done, (void*)(intptr_t) fd, _session_job, msg->login->template_id, PAM_SERVICE, msg->login->user, msg->login->password)) {
                 server_spawnservice_feedback(0, "spawn failed.", fd);
             }
             printf("Greeter login try\n");

@@ -1,11 +1,11 @@
 #include "Sp_Client.h"
 
+#include "config.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/socket.h>
-
-#define SERVER_SOCKET "/tmp/spawny.socket"
 
 const char*
 sp_service_path_get(void)

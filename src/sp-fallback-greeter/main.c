@@ -1,4 +1,4 @@
-#include "../libsp_client/Sp_Client.h"
+#include "Sp_Client.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>

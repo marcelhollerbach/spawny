@@ -2,10 +2,6 @@
 #include <libgen.h>
 #include <unistd.h>
 
-#define GREETER_SERVICE "lightdm-greeter"
-#define FALLBACK_GREETER PACKAGE_LIB_DIR"/spawny/sp-fallback-greeter";
-
-
 static int fallback = 0;
 
 static Spawn_Try *greeter;
@@ -70,5 +66,5 @@ activate_greeter(void)
     }
 
     greeter = spawnservice_spawn(_greeter_start_done, NULL, _greeter_job, NULL,
-                                 GREETER_SERVICE, config->greeter.start_user, NULL);
+                                 PAM_SERVICE_GREETER, config->greeter.start_user, NULL);
 }

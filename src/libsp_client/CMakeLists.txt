@@ -1,3 +1,7 @@
+include_directories(
+    ${PROJECT_SOURCE_DIR}/src/config/
+)
+
 set(PROTOCOL_FILES
     greeter
     server
@@ -31,4 +35,4 @@ target_link_libraries (sp_client
     protobuf-c
 )
 
-install(TARGETS sp_client DESTINATION lib)
+install(TARGETS sp_client DESTINATION ${CMAKE_INSTALL_LIBDIR})

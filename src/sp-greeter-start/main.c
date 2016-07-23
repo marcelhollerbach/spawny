@@ -1,4 +1,4 @@
-#include "../libsp_client/Sp_Client.h"
+#include "Sp_Client.h"
 
 int
 main(int argc, char **argv)

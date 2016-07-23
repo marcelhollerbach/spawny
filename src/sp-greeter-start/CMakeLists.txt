@@ -1,15 +1,15 @@
-set(SPAWNY-GREETER-START
-    main.c
+include_directories(
+    ${PROJECT_SOURCE_DIR}/src/libsp_client/
 )
 
-include_directories(
-    ../client/
+set(SPAWNY-GREETER-START
+    main.c
 )
 
 add_executable(sp-greeter-start ${SPAWNY-GREETER-START})
 
 target_link_libraries (sp-greeter-start
-    protobuf-c
-    spawny_protocol
     spawny_client
 )
+
+install(TARGETS sp-greeter-start DESTINATION ${CMAKE_INSTALL_BINDIR}/spawny/)

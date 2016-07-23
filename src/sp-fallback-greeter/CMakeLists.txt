@@ -1,3 +1,7 @@
+include_directories(
+    ${PROJECT_SOURCE_DIR}/src/libsp_client/
+)
+
 set(SPAWNY-CLC-SOURCE
     main.c
 )
@@ -5,9 +9,7 @@ set(SPAWNY-CLC-SOURCE
 add_executable(sp-fallback-greeter ${SPAWNY-CLC-SOURCE})
 
 target_link_libraries (sp-fallback-greeter
-    protobuf-c
-    spawny_protocol
     spawny_client
 )
 
-install(TARGETS sp-fallback-greeter DESTINATION ${CMAKE_INSTALL_LIBDIR}/spawny/)
+install(TARGETS sp-fallback-greeter DESTINATION ${FALLBACK_GREETER_PATH})

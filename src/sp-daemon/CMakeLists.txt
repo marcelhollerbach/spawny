@@ -1,3 +1,9 @@
+include_directories(
+    ${PROJECT_SOURCE_DIR}/components/inih/
+    ${PROJECT_SOURCE_DIR}/src/libsp_client/
+    ${PROJECT_SOURCE_DIR}/src/config/
+)
+
 set(PROTOCOL_FILES
     session_spawn
 )
@@ -15,8 +21,8 @@ endforeach()
 
 set(SPAWNY-DAEMON-SOURCE
     main.c
-    config.c
-    config.h
+    app_config.c
+    app_config.h
     manager.h
     manager.c
     spawnservice.c
@@ -41,10 +47,6 @@ set(SPAWNY-DAEMON-SOURCE
     session_spawn.pb-c.h
     ${PROJECT_SOURCE_DIR}/components/inih/ini.h
     ${PROJECT_SOURCE_DIR}/components/inih/ini.c
-)
-
-include_directories(
-    ${PROJECT_SOURCE_DIR}/components/inih/
 )
 
 add_executable(sp-daemon ${SPAWNY-DAEMON-SOURCE})
