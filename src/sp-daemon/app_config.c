@@ -24,7 +24,7 @@ config_init(void) {
     config->greeter.start_user = "spawny";
     config->greeter.cmd = NULL;
 
-    ini_parse(PACKAGE_ETC_DIR"/spawny/spawny.ini", _config_parse, NULL);
+    ini_parse(PACKAGE_CONFIG, _config_parse, NULL);
 
     return 1;
 }

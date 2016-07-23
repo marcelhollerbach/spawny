@@ -1,5 +1,5 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef APP_CONFIG_H
+#define APP_CONFIG_H
 
 typedef struct {
     struct {
