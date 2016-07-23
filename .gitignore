@@ -1,4 +1,4 @@
-build
+./build
 *.sublime-*
 *.pb-c.c
 *.pb-c.h
