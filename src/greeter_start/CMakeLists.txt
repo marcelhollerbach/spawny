@@ -6,9 +6,9 @@ include_directories(
     ../client/
 )
 
-add_executable(spawny-greeter-start ${SPAWNY-GREETER-START})
+add_executable(sp-greeter-start ${SPAWNY-GREETER-START})
 
-target_link_libraries (spawny-greeter-start
+target_link_libraries (sp-greeter-start
     protobuf-c
     spawny_protocol
     spawny_client

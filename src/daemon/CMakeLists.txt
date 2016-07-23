@@ -47,17 +47,17 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/components/inih/
 )
 
-add_executable(spawny-daemon ${SPAWNY-DAEMON-SOURCE})
+add_executable(sp-daemon ${SPAWNY-DAEMON-SOURCE})
 
-target_link_libraries (spawny-daemon
+target_link_libraries (sp-daemon
     protobuf-c
     pam
     systemd
     spawny_client
 )
 
-set_property(TARGET spawny-daemon PROPERTY COMPILE_DEFINITIONS
+set_property(TARGET sp-daemon PROPERTY COMPILE_DEFINITIONS
     PACKAGE_LIB_DIR="${CMAKE_INSTALL_FULL_LIBDIR}"
     PACKAGE_ETC_DIR="${CMAKE_INSTALL_FULL_SYSCONFDIR}")
 
-install(TARGETS spawny-daemon DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS sp-daemon DESTINATION ${CMAKE_INSTALL_BINDIR})
