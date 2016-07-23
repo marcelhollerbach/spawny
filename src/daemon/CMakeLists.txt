@@ -50,9 +50,9 @@ include_directories(
 add_executable(spawny-daemon ${SPAWNY-DAEMON-SOURCE})
 
 target_link_libraries (spawny-daemon
+    protobuf-c
     pam
     systemd
-    spawny_protocol
     spawny_client
 )
 
