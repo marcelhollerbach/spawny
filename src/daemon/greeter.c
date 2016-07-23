@@ -3,14 +3,18 @@
 #include <unistd.h>
 
 #define GREETER_SERVICE "lightdm-greeter"
+#define FALLBACK_GREETER PACKAGE_LIB_DIR"/spawny/sp-fallback-greeter";
+
+
+static int fallback = 0;
 
 static Spawn_Try *greeter;
-
 static char *session;
 static pid_t pid;
 
 static void
 _greeter_done(void *data, int status, pid_t pid) {
+    //TODO check if this greeter session is at the end.
     pid = -1;
     free(session);
     session = NULL;
@@ -37,7 +41,13 @@ _greeter_start_done(void *data, Spawn_Service_End end) {
 //runs in a seperated process
 static void
 _greeter_job(void *data) {
-    char *cmd, *cmdpath = (char*)config->greeter.cmd;
+    char *cmd, *cmdpath;
+
+    if (!fallback)
+        cmdpath = (char*)config->greeter.cmd;
+
+    if (fallback || !cmdpath)
+        cmdpath = FALLBACK_GREETER;
 
     cmd = basename(cmdpath);
 

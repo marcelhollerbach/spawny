@@ -22,7 +22,7 @@ config_init(void) {
     config = calloc(1, sizeof(Config));
 
     config->greeter.start_user = "spawny";
-    config->greeter.cmd = PACKAGE_LIB_DIR"/spawny/sp-fallback-greeter";
+    config->greeter.cmd = NULL;
 
     ini_parse(PACKAGE_ETC_DIR"/spawny/spawny.ini", _config_parse, NULL);
 
