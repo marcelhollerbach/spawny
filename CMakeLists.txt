@@ -7,9 +7,10 @@ enable_testing()
 add_definitions("-Wall -O0 -g")
 
 set(FALLBACK_GREETER_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/spawny )
+set(PACKAGE_CONFIG_DIR ${CMAKE_INSTALL_FULL_SYSCONFDIR}/spawny)
 
-set(PAM_SERVICE_GREETER \"lightdm-greeter\")
-set(PAM_SERVICE \"lightdm\")
+set(PAM_SERVICE_GREETER \"spawny-greeter\")
+set(PAM_SERVICE \"spawny\")
 
 set(FALLBACK_GREETER \"${FALLBACK_GREETER_PATH}/sp-fallback-greeter\")
 set(SERVER_SOCKET \"/tmp/spawny.socket\")
@@ -17,7 +18,7 @@ set(SERVER_SOCKET \"/tmp/spawny.socket\")
 set(PACKAGE_DATA_DIR \"${CMAKE_INSTALL_FULL_DATADIR}/efm/\")
 set(PACKAGE_LIB_DIR \"${CMAKE_INSTALL_FULL_LIBDIR}\")
 set(PACKAGE_BIN_DIR \"${CMAKE_INSTALL_FULL_BINDIR}\")
-set(PACKAGE_CONFIG \"${CMAKE_INSTALL_FULL_SYSCONFDIR}/spawny/spawny.ini\")
+set(PACKAGE_CONFIG \"${PACKAGE_CONFIG_DIR}/spawny.ini\")
 
 add_subdirectory(src/libsp_client)
 add_subdirectory(src/sp-fallback-greeter)
