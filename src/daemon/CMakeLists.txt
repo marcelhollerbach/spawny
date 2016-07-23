@@ -1,3 +1,18 @@
+set(PROTOCOL_FILES
+    session_spawn
+)
+
+#compile protobuf files
+
+foreach(part ${PROTOCOL_FILES})
+    add_custom_command(
+       OUTPUT ${PROJECT_SOURCE_DIR}/src/daemon/${part}.pb-c.c
+       OUTPUT ${PROJECT_SOURCE_DIR}/src/daemon/${part}.pb-c.h
+       COMMAND cd ${PROJECT_SOURCE_DIR}/src/daemon && protoc-c ${part}.proto --c_out=${PROJECT_SOURCE_DIR}/src/daemon
+       DEPENDS ${part}.proto
+    )
+endforeach()
+
 set(SPAWNY-DAEMON-SOURCE
     main.c
     config.c
@@ -6,6 +21,10 @@ set(SPAWNY-DAEMON-SOURCE
     manager.c
     spawnservice.c
     spawnservice.h
+    spawnregistery.c
+    spawnregistery.h
+    greeter.c
+    greeter.h
     sessionmgt.h
     sessionmgt_logind.c
     server.c
@@ -18,7 +37,8 @@ set(SPAWNY-DAEMON-SOURCE
     x11_temp.c
     desktop_common.c
     desktop_common.h
-    ${PROJECT_SOURCE_DIR}/src/protocol/protocol.h
+    session_spawn.pb-c.c
+    session_spawn.pb-c.h
     ${PROJECT_SOURCE_DIR}/components/inih/ini.h
     ${PROJECT_SOURCE_DIR}/components/inih/ini.c
 )
@@ -33,6 +53,7 @@ target_link_libraries (spawny-daemon
     pam
     systemd
     spawny_protocol
+    spawny_client
 )
 
 set_property(TARGET spawny-daemon PROPERTY COMPILE_DEFINITIONS

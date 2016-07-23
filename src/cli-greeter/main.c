@@ -1,8 +1,7 @@
-#include "main.h"
+#include "../client/Spawny_Client.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <string.h>
 
 #define PATH_MAX 4096
 
@@ -41,16 +40,26 @@ login(void) {
         }
     }while(!templates);
 
-    client_login(username, password, templates);
+    sp_client_login(username, password, templates);
     PROMPT("Waiting for feedback\n");
 }
 
 static void
 listsessions(void) {
+    char session[PATH_MAX];
+
+    printf("Sessions:\n");
     for(int i = 0; i < data->n_sessions; i++){
-        printf("Session %s - %s\n", data->sessions[i]->id, data->sessions[i]->name);
+        printf("    %s - %s\n", data->sessions[i]->id, data->sessions[i]->name);
     }
-    prompt_run();
+
+    PROMPT("Spawny session activation:\n");
+
+    PROMPT("Session :");
+    scanf("%s", session);
+
+    sp_client_session_activate(session);
+    PROMPT("Waiting for activation\n");
 }
 
 static int
@@ -121,7 +130,8 @@ int main(int argc, char **argv) {
     printf("#########################################\n");
     printf("# Spawny Command line greeter interface #\n");
     printf("#########################################\n");
-    client_init(_data_cb, _login_cb);
-    client_run();
-    client_shutdown();
+    sp_client_init(SP_CLIENT_LOGIN_PURPOSE_GREETER_JOB);
+    sp_client_hello(_data_cb, _login_cb);
+    sp_client_run();
+    sp_client_shutdown();
 }

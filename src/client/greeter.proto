@@ -4,6 +4,7 @@ enum Message_Type {
     HELLO = 0;
     LOGIN_TRY = 1;
     SESSION_ACTIVATION = 2;
+    GREETER_START = 3;
 }
 
 message Login {

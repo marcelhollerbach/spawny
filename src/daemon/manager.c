@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
+#include <string.h>
 
 typedef struct {
     Fd_Data_Cb cb;
@@ -17,8 +18,8 @@ static int fd_number = 0;
 static Fd_Register *cbs = NULL; //array of length fd_number
 
 static int stop = 0;
-static int global_count = 0;
-static int diff = 0;
+static int changes = 0;
+static int readout = 0;
 
 void
 manager_init(void) {
@@ -31,48 +32,50 @@ _error_handling(result) {
 }
 
 static void
-_read_available(Fd_Register *fd)
+_read_available(Fd_Register *reg, int fd)
 {
-   uint8_t buffer[MAX_BUFFER_SIZE];
-   int len = 0;
+    //call callback!
+    reg->cb(&reg->data, fd);
+}
 
-   //read
-   len = read(fd->data.fd, buffer, sizeof(buffer));
+static void
+_error_available(Fd_Register *reg, int fd)
+{
+   printf("Error on %d\n", reg->data.fd);
+   manager_unregister_fd(reg->data.fd);
+}
 
-   if (len < 0) {
-       //check for errors
-       perror("Reading greeter failed");
-   }else if (len == 0) {
-       //check if empty
-       printf("Fd %d disappeared\n", fd->data.fd);
-       //the fd is at the end
-       manager_unregister_fd(fd->data.fd);
-       return;
-   }else {
-       //call callback!
-       fd->cb(&fd->data, buffer, len);
+static void
+_fd_set_check(Fd_Register *reg, fd_set *set, void (*handle)(Fd_Register *reg, int fd), int i)
+{
+   //check if set
+   if (FD_ISSET(reg->data.fd, set)) {
+      handle(reg, reg->data.fd);
    }
 }
 
 static void
-_error_available(Fd_Register *fd)
+_clear_objects(void)
 {
-   printf("Error on %d\n", fd->data.fd);
-   manager_unregister_fd(fd->data.fd);
-}
-
-static int
-_fd_set_check(Fd_Register *reg, fd_set *set, void (*handle)(Fd_Register *reg), int i)
-{
-   //global count to the current runner
-   global_count = i;
-   //diff back to 0
-   diff = 0;
-   //check if set
-   if (FD_ISSET(reg->data.fd, set)) {
-      handle(reg);
-   }
-   return i - diff;
+   int result = 0;
+   int mode = 0;
+   for (int i = 0; i < fd_number; i++)
+     {
+        if (mode == 0 && !cbs[i].cb)
+          {
+             result = 1;
+             mode = 1;
+          }
+        else if (mode == 1)
+          {
+             cbs[i - 1] = cbs[i];
+          }
+     }
+   if (result)
+     {
+        fd_number --;
+        cbs = realloc(cbs, fd_number*sizeof(Fd_Register));
+     }
 }
 
 int
@@ -100,21 +103,31 @@ manager_run(void) {
         //read the fds
         result = select(max_fd + 1, &fds_read, NULL, &fds_error, &timeout);
 
+        readout = 1;
+
         //check for error
         if (result == -1) {
             _error_handling(result);
+            readout = 0;
             return 0;
         } else if (result >= 0) {
             //look for errors fd´s
             for(int i = 0; i < fd_number; i ++) {
-               i = _fd_set_check(&cbs[i], &fds_error, _error_available, i);
+               _fd_set_check(&cbs[i], &fds_error, _error_available, i);
             }
 
             //look for read fd´s
             for(int i = 0; i < fd_number; i ++) {
-               i = _fd_set_check(&cbs[i], &fds_read, _read_available, i);
+               _fd_set_check(&cbs[i], &fds_read, _read_available, i);
             }
        }
+       readout = 0;
+
+       //flush out the changes
+       for(; changes > 0; changes --)
+         {
+            _clear_objects();
+         }
     }
     return 1;
 }
@@ -135,6 +148,7 @@ manager_register_fd(int fd, Fd_Data_Cb cb, void *data) {
     cbs[fd_number - 1].data.fd = fd;
 }
 
+
 void
 manager_unregister_fd(int fd) {
     int field_index;
@@ -142,30 +156,13 @@ manager_unregister_fd(int fd) {
     //search for the fd
     for(field_index = 0; field_index < fd_number; field_index ++) {
         if (cbs[field_index].data.fd == fd)
-          break;
+          {
+             cbs[field_index].cb = NULL;
+          }
     }
 
-    //check if this field is beyond checking right now
-    if (global_count <= field_index) {
-      //increase the difference to the current array
-      diff ++;
-      //lower the global count since we are one deeper now
-      global_count --;
-    }
-
-
-    if (field_index == fd_number)
-      return; //not found
-
-    if (field_index < fd_number - 1) {
-        //we are not the last item we need to swap
-        cbs[field_index].cb = cbs[fd_number -1].cb;
-        cbs[field_index].data.fd = cbs[fd_number -1].data.fd;
-    }
-
-    //one less fd
-    fd_number --;
-
-    //this will cut of the last valid item
-    cbs = realloc(cbs, fd_number*sizeof(Fd_Register));
+    if (!readout)
+      _clear_objects();
+    else
+      changes ++;
 }

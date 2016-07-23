@@ -3,25 +3,25 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <sys/types.h>
 #include <pwd.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
-
-#define WRITE_COM_PATH "/tmp/spawny.write"
-#define READ_COM_PATH "/tmp/spawny.read"
+#include <netinet/in.h>
 
 #define MAX_MSG_SIZE 4096
 
-static int read_file = 0;
-static int write_file = 0;
+static int server_sock;
 
 static Spawny__Server__Data system_data = SPAWNY__SERVER__DATA__INIT;
 
 static void
-_send_message(Spawny__Server__MessageType type, Spawny__Server__LoginFeedback *fb, Spawny__Server__Data *data) {
+_send_message(Spawny__Server__MessageType type, Spawny__Server__LoginFeedback *fb, Spawny__Server__Data *data, int fd) {
     Spawny__Server__Message msg = SPAWNY__SERVER__MESSAGE__INIT;
     int len = 0;
     void *buf;
@@ -36,7 +36,7 @@ _send_message(Spawny__Server__MessageType type, Spawny__Server__LoginFeedback *f
 
     spawny__server__message__pack(&msg, buf);
 
-    if (write(write_file, buf, len) != len)
+    if (write(fd, buf, len) != len)
       perror("greeter message failed");
 
     free(buf);
@@ -49,50 +49,66 @@ _session_job(void *data) {
 }
 
 void
-server_spawnservice_feedback(int success, char *message) {
+server_spawnservice_feedback(int success, const char *message, int fd) {
     Spawny__Server__LoginFeedback msg = SPAWNY__SERVER__LOGIN__FEEDBACK__INIT;
 
-    if (!write_file) return;
-
     msg.login_success = success;
-    msg.msg = message;
+    msg.msg = (char*) message;
 
-    _send_message(SPAWNY__SERVER__MESSAGE__TYPE__LOGIN_FEEDBACK, &msg, NULL);
+    _send_message(SPAWNY__SERVER__MESSAGE__TYPE__LOGIN_FEEDBACK, &msg, NULL, fd);
 }
 
 static void
 _session_done(void *data, Spawn_Service_End end) {
+    int fd = (int)data;
     if (end.success == SPAWN_SERVICE_ERROR) {
-        server_spawnservice_feedback(0, end.message);
+        server_spawnservice_feedback(0, end.message, fd);
     } else {
-        server_spawnservice_feedback(1, "You are logged in!");
+        server_spawnservice_feedback(1, "You are logged in!", fd);
         printf("User Session alive.\n");
-        manager_stop();
+        manager_unregister_fd(fd);
+        close(fd);
     }
+
 }
 
 static void
-_greeter_data(Fd_Data *data, uint8_t buf[], int len) {
+_client_data(Fd_Data *data, int fd) {
     Spawny__Greeter__Message *msg = NULL;
+    uint8_t buf[PATH_MAX];
+    int len = 0;
+
+    len = read(fd, buf, sizeof(buf));
+
+    if (!len)
+      {
+         manager_unregister_fd(fd);
+         return;
+      }
 
     msg = spawny__greeter__message__unpack(NULL, len, buf);
 
     switch(msg->type){
         case SPAWNY__GREETER__MESSAGE__TYPE__HELLO:
-            write_file = open(WRITE_COM_PATH, O_WRONLY);
-            _send_message(SPAWNY__SERVER__MESSAGE__TYPE__DATA_UPDATE, NULL, &system_data);
+            _send_message(SPAWNY__SERVER__MESSAGE__TYPE__DATA_UPDATE, NULL, &system_data, fd);
             printf("Greeter said hello, wrote system_data\n");
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__SESSION_ACTIVATION:
             session_activate(msg->session);
-            manager_stop();
-            printf("Greeter session activation\n");
+            printf("Greeter session activation %s\n", msg->session);
+            manager_unregister_fd(fd);
+            close(fd);
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__LOGIN_TRY:
-            if (!spawnservice_spawn(_session_done, NULL, _session_job, msg->login->template_id, "entrance", msg->login->user, msg->login->password)) {
-                server_spawnservice_feedback(0, "spawn failed.");
+            if (!spawnservice_spawn(_session_done, (void*)(intptr_t) fd, _session_job, msg->login->template_id, "entrance", msg->login->user, msg->login->password)) {
+                server_spawnservice_feedback(0, "spawn failed.", fd);
             }
             printf("Greeter login try\n");
+        break;
+        case SPAWNY__GREETER__MESSAGE__TYPE__GREETER_START:
+            activate_greeter();
+            manager_unregister_fd(fd);
+            close(fd);
         break;
         default:
         break;
@@ -100,6 +116,17 @@ _greeter_data(Fd_Data *data, uint8_t buf[], int len) {
     spawny__greeter__message__free_unpacked(msg, NULL);
 }
 
+static void
+_accept_ready(Fd_Data *data, int fd)
+{
+   struct sockaddr clientname;
+   socklen_t size;
+   int client;
+
+   client = accept(fd, &clientname, &size);
+
+   manager_register_fd(client, _client_data, NULL);
+}
 static void
 _list_users(char ***usernames, unsigned int *numb) {
     FILE *fptr;
@@ -206,56 +233,40 @@ _init_data(void) {
     system_data.n_templates = number;
 }
 
-static int
-_server_fifo_create(void) {
-    if (mkfifo(WRITE_COM_PATH, 0) < 0 ||
-        mkfifo(READ_COM_PATH, 0) < 0) {
-        perror("Failed to create fifos");
-        return 0;
-    }
-    return 1;
-}
-
 int
 server_init(void) {
+    const char *path;
     struct passwd *pw;
+    struct sockaddr_un address;
+
+    path = sp_service_path_get();
+
+    //just try it ...
+    unlink(path);
 
     pw = getpwnam(config->greeter.start_user);
-
     if (!pw) {
         perror("Failed to fetch configured user");
         return 0;
     }
 
-    if (!_server_fifo_create()) {
-        if (errno == EEXIST) {
-            printf("Fifos already exists, try to repair.\n");
-            unlink(WRITE_COM_PATH);
-            unlink(READ_COM_PATH);
-            _server_fifo_create();
-        }
-    }
+    server_sock = sp_service_socket_create();
+    sp_service_address_setup(&address);
 
-    if (chmod(WRITE_COM_PATH, S_IRUSR | S_IWUSR) == -1 ||
-        chmod(READ_COM_PATH, S_IRUSR | S_IWUSR) == -1) {
-        perror("Failed to chmod");
+    if (bind(server_sock, (struct sockaddr *) &address, sizeof(struct sockaddr_un)) != 0) {
+        perror("Failed to establish server connection");
         return 0;
     }
 
-    if (chown(WRITE_COM_PATH, pw->pw_gid, 0) == -1 ||
-        chown(READ_COM_PATH, pw->pw_gid, 0) == -1) {
-        perror("Failed to chown");
-        return 0;
+    if (listen(server_sock, 5) != 0) {
+        perror("Failed to listen on the server");
     }
 
-    //start reading
-    read_file = open(READ_COM_PATH, O_RDONLY | O_NONBLOCK);
-    if (read_file == -1) {
-        perror("Opening read part of the daemon faild");
-        return 0;
+    if (chmod(path, 0777) == -1) {
+      perror("Failed to chmod");
     }
-    //register this fd for reading
-    manager_register_fd(read_file, _greeter_data, NULL);
+
+    manager_register_fd(server_sock, _accept_ready, NULL);
 
     //initializise data
     _init_data();
@@ -273,20 +284,13 @@ server_init(void) {
 
 void
 server_shutdown(void) {
+    const char *path;
+
+    path = sp_service_path_get();
+
     IT_FREE(system_data.n_users, system_data.users);
     IT_FREE(system_data.n_sessions, system_data.sessions);
     IT_FREE(system_data.n_templates, system_data.templates);
-
-    if (write_file) {
-      printf("Shutdown greeter\n");
-      _send_message(SPAWNY__SERVER__MESSAGE__TYPE__LEAVE, NULL, NULL);
-    }
-
-    if (read_file)
-      close(read_file);
-    if (write_file)
-      close(write_file);
-
-    unlink(WRITE_COM_PATH);
-    unlink(READ_COM_PATH);
+    close(server_sock);
+    unlink(path);
 }

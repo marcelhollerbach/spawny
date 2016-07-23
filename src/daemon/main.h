@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "session_spawn.pb-c.h"
+#include "../client/Spawny_Client.h"
+
 #include "spawnservice.h"
 #include "desktop_common.h"
 #include "manager.h"
@@ -13,5 +16,7 @@
 #include "server.h"
 #include "templatereg.h"
 #include "templates.h"
-#include "../protocol/protocol.h"
+#include "spawnregistery.h"
+#include "greeter.h"
+
 #endif

@@ -1,5 +1,5 @@
 #include "test.h"
-#include "../prompt-daemon/templatereg.h"
+#include "../daemon/templatereg.h"
 
 int test = 0;
 

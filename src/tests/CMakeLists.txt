@@ -3,15 +3,16 @@ set(SPAWNY-DAEMON-TEST-SOURCE
     test.h
     test_manager.c
     test_templatereg.c
-    ../prompt-daemon/manager.h
-    ../prompt-daemon/manager.c
-    ../prompt-daemon/spawnservice.c
-    ../prompt-daemon/spawnservice.h
-    ../prompt-daemon/sessionmgt.h
-    ../prompt-daemon/sessionmgt_logind.c
-    ../prompt-daemon/templatereg.h
-    ../prompt-daemon/templatereg.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/protocol.h
+    ../daemon/manager.h
+    ../daemon/manager.c
+    ../daemon/spawnservice.c
+    ../daemon/spawnservice.h
+    ../daemon/spawnregistery.c
+    ../daemon/spawnregistery.h
+    ../daemon/sessionmgt.h
+    ../daemon/sessionmgt_logind.c
+    ../daemon/templatereg.h
+    ../daemon/templatereg.c
 )
 
 add_executable(test_spawny_daemon ${SPAWNY-DAEMON-TEST-SOURCE})

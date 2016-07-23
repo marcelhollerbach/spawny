@@ -21,24 +21,7 @@
 #define READ 0
 
 #define LAST_TTY 63
-#define FIRST_TTY 10 -1
-
-struct _Spawn_Try{
-    struct {
-        int fd[2];
-    } com;
-    struct {
-        SpawnServiceJobCb cb;
-        void *data;
-    } job;
-    struct {
-        SpawnDoneCb cb;
-        void *data;
-    } done;
-    const char *service;
-    const char *usr;
-    const char *pw;
-};
+#define FIRST_TTY 10
 
 static int tty_counter = FIRST_TTY;
 
@@ -47,26 +30,39 @@ static int open_tty(Spawn_Try *try, char *tty);
 static int pam_auth(Spawn_Try *try, char ***env, int tty);
 
 static void
-_spawn_try_free(Spawn_Service_State success, const char *error, Spawn_Try *try)
+_spawn_try_free(Spawn_Try *try)
 {
     Spawn_Service_End end;
+
     close(try->com.fd[READ]);
     close(try->com.fd[WRITE]);
 
-    free(try);
-
-    end.success = success;
-    end.message = error;
+    end.success = try->exit.success;
+    end.message = try->exit.error_msg;
 
     if (try->done.cb)
       try->done.cb(try->done.data, end);
+
+    if (try->exit.error_msg)
+      free(try->exit.error_msg);
+
+    if (try->session)
+      free(try->session);
+
+    spawnregistery_unlisten(try->pid);
+
+    free(try);
 }
 
 static void
-_child_data(Fd_Data *data, uint8_t buffer[], int len)
+_child_data(Fd_Data *data, int fd)
 {
    Spawny__Spawn__Message *msg = NULL;
    Spawn_Try *try = data->data;
+   uint8_t buffer[PATH_MAX];
+   int len;
+
+   len = read(fd, buffer, sizeof(buffer));
 
    msg = spawny__spawn__message__unpack(NULL, len, buffer);
 
@@ -82,19 +78,22 @@ _child_data(Fd_Data *data, uint8_t buffer[], int len)
        case SPAWNY__SPAWN__MESSAGE__TYPE__SETUP_DONE:
            //we need to activate the passed session
            printf("Activating session\n");
+           try->session = strdup(msg->session);
            session_activate(msg->session);
        break;
        case SPAWNY__SPAWN__MESSAGE__TYPE__SESSION_ACTIVE:
            //the session is up, and will die now
            printf("Session is up\n");
            manager_unregister_fd(try->com.fd[READ]);
-           _spawn_try_free(SPAWN_SERVICE_SUCCESS, NULL, try);
+           try->exit.success = SPAWN_SERVICE_SUCCESS;
+           _spawn_try_free(try);
        break;
        case SPAWNY__SPAWN__MESSAGE__TYPE__ERROR_EXIT:
            //print the error somewhere
            printf("Session exit with %s\n", msg->exit);
            manager_unregister_fd(try->com.fd[READ]);
-           _spawn_try_free(SPAWN_SERVICE_ERROR, msg->exit, try);
+           try->exit.error_msg = strdup(msg->exit);
+           _spawn_try_free(try);
        break;
        default:
        break;
@@ -108,6 +107,9 @@ spawnservice_spawn(SpawnDoneCb done, void *data,
                    const char *service, const char *usr, const char *pw) {
 
     Spawn_Try *spawn_try = calloc(1, sizeof(Spawn_Try));
+
+    //setting it to error, if the process dies before sending anything, a error should be emitted
+    spawn_try->exit.success = SPAWN_SERVICE_ERROR;
 
     if (pipe(spawn_try->com.fd) < 0) {
         perror("Failed to open pipe");
@@ -129,10 +131,22 @@ spawnservice_spawn(SpawnDoneCb done, void *data,
     //this will start a client process which is in a new session
     //this will also register the read fd to the manager
     if (!child_run(spawn_try)) {
-        _spawn_try_free(SPAWN_SERVICE_ERROR, NULL, spawn_try);
+        _spawn_try_free(spawn_try);
     }
 
     return spawn_try;
+}
+
+void
+_child_exit(int signal)
+{
+   spawnregistery_eval();
+}
+
+void
+spawnservice_init(void)
+{
+   signal(SIGCHLD, _child_exit);
 }
 
 //=====================================================
@@ -215,6 +229,16 @@ _session_proc_fire_up(Spawn_Try *try) {
         waitpid(pid, NULL, 0);
     }
     exit(1);
+}
+
+static void
+_spawned_session_disappear(void *data, int signal, pid_t pid)
+{
+   Spawn_Try *try;
+
+   try = data;
+
+   _spawn_try_free(try);
 }
 
 static int
@@ -305,6 +329,9 @@ child_run(Spawn_Try *try){
         close(try->com.fd[WRITE]);
         //register the read fd to the manager so we will get notified if the client sents something
         manager_register_fd(try->com.fd[READ], _child_data, try);
+        //listen for the process to disappear
+        spawnregistery_listen(pid, _spawned_session_disappear, try);
+        try->pid = pid;
         return 1;
     }
 }

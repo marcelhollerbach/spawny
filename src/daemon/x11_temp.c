@@ -20,7 +20,9 @@ _fire_up(void *data) {
     pwd = getpwuid(uid);
 
     snprintf(command, sizeof(command), "startx %s", data);
-    execl(pwd->pw_shell, basename(pwd->pw_shell), "-i", "-c", command);
+
+    execl(pwd->pw_shell, basename(pwd->pw_shell), "-i", "-c", command, NULL);
+    perror("Command didnt take up");
 }
 
 void

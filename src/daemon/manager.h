@@ -8,7 +8,7 @@ typedef struct {
     void *data;
 } Fd_Data;
 
-typedef void (*Fd_Data_Cb)(Fd_Data *data, uint8_t buffer[], int len);
+typedef void (*Fd_Data_Cb)(Fd_Data *data, int fd);
 
 void manager_init(void);
 int manager_run(void);

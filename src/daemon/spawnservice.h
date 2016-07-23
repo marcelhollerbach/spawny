@@ -14,7 +14,30 @@ typedef struct {
 typedef void (*SpawnDoneCb)(void *data, Spawn_Service_End success);
 typedef void (*SpawnServiceJobCb)(void *data);
 
-typedef struct _Spawn_Try Spawn_Try;
+typedef struct _Spawn_Try{
+    struct {
+        int fd[2];
+    } com;
+    struct {
+        SpawnServiceJobCb cb;
+        void *data;
+    } job;
+    struct {
+        SpawnDoneCb cb;
+        void *data;
+    } done;
+    const char *service;
+    const char *usr;
+    const char *pw;
+
+    char *session;
+    struct {
+      char *error_msg;
+      Spawn_Service_State success;
+    } exit;
+
+    pid_t pid;
+} Spawn_Try;
 
 
 /*
@@ -37,5 +60,7 @@ Spawn_Try*
 spawnservice_spawn(SpawnDoneCb done, void *data,
                    SpawnServiceJobCb job, void *jobdata,
                    const char *service, const char *usr, const char *pw);
+
+void spawnservice_init(void);
 
 #endif

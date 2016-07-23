@@ -1,0 +1,34 @@
+set(PROTOCOL_FILES
+    greeter
+    server
+)
+
+#compile protobuf files
+
+foreach(part ${PROTOCOL_FILES})
+    add_custom_command(
+       OUTPUT ${PROJECT_SOURCE_DIR}/src/client/${part}.pb-c.c
+       OUTPUT ${PROJECT_SOURCE_DIR}/src/client/${part}.pb-c.h
+       COMMAND cd ${PROJECT_SOURCE_DIR}/src/client && protoc-c ${part}.proto --c_out=${PROJECT_SOURCE_DIR}/src/client
+       DEPENDS ${part}.proto
+    )
+endforeach()
+
+set(SPAWNY_CLIENT_LIB
+  client.c
+  socket_creation.c
+  server.pb-c.c
+  server.pb-c.h
+  greeter.pb-c.c
+  greeter.pb-c.h
+  Spawny_Client.h
+)
+
+add_library(spawny_client SHARED
+            ${SPAWNY_CLIENT_LIB})
+
+target_link_libraries (spawny_client
+    spawny_protocol
+)
+
+install(TARGETS spawny_client DESTINATION lib)

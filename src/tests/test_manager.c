@@ -1,7 +1,7 @@
 #include "test.h"
 #include <stdio.h>
 #include <unistd.h>
-#include "../prompt-daemon/manager.h"
+#include "../daemon/manager.h"
 
 static void
 _break_cond(int i)
@@ -11,7 +11,7 @@ _break_cond(int i)
 }
 
 static void
-_cb(Fd_Data *data, uint8_t buf[], int len)
+_cb(Fd_Data *data, int fd)
 {
    int *i = data->data;
 
