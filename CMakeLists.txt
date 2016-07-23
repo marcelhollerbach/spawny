@@ -27,5 +27,4 @@ add_subdirectory(src/sp-daemon)
 add_subdirectory(src/tests)
 add_subdirectory(data)
 
-
 configure_file(${CMAKE_SOURCE_DIR}/src/config/config.h.cmake ${CMAKE_SOURCE_DIR}/src/config/config.h)

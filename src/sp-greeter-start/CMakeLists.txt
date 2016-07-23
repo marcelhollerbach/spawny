@@ -12,4 +12,4 @@ target_link_libraries (sp-greeter-start
     spawny_client
 )
 
-install(TARGETS sp-greeter-start DESTINATION ${CMAKE_INSTALL_BINDIR}/spawny/)
+install(TARGETS sp-greeter-start DESTINATION ${CMAKE_INSTALL_BINDIR})
