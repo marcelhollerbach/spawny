@@ -20,11 +20,11 @@ static void
 _greeter_start_done(void *data, Spawn_Service_End end) {
     if (end.success == SPAWN_SERVICE_ERROR) {
         printf("Panic! The worlrd is on fire!\n");
-        manager_stop();
+        //TODO fallback to commandline, or dont do anything
         return;
     } else {
         printf("Greeter started.\n");
-        //keel track of the session
+        //keep track of the session
         session = strdup(greeter->session);
         pid = greeter->pid;
 
