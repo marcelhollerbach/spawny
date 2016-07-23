@@ -13,7 +13,7 @@ _tty_fire_up(void *data) {
     pwd = getpwuid(uid);
 
     execl(pwd->pw_shell, basename(pwd->pw_shell), NULL);
-    printf("If you can read this its bad\n");
+    perror("Execl failed");
 }
 
 void

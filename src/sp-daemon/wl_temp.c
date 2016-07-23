@@ -14,6 +14,7 @@ _fire_up(void *data) {
     pwd = getpwuid(uid);
 
     execl(pwd->pw_shell, basename(pwd->pw_shell), "-i", "-c", data, NULL);
+    perror("Execl failed");
 }
 
 void
