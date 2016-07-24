@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include "main.h"
 
 #include <sys/types.h>
@@ -11,11 +13,17 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <netinet/in.h>
 #include <systemd/sd-daemon.h>
 
 #define MAX_MSG_SIZE 4096
+
+typedef struct {
+    int fd;
+    struct ucred client_info;
+} Client;
 
 static int server_sock;
 
@@ -60,25 +68,32 @@ server_spawnservice_feedback(int success, const char *message, int fd) {
 }
 
 static void
-_session_done(void *data, Spawn_Service_End end) {
-    int fd = (int)data;
-    if (end.success == SPAWN_SERVICE_ERROR) {
-        server_spawnservice_feedback(0, end.message, fd);
-    } else {
-        server_spawnservice_feedback(1, "You are logged in!", fd);
-        printf("User Session alive.\n");
-        manager_unregister_fd(fd);
-        close(fd);
-    }
+client_free(Client *client) {
+    manager_unregister_fd(client->fd);
+    close(client->fd);
+}
 
+static void
+_session_done(void *data, Spawn_Service_End end) {
+    Client *client = data;
+    if (end.success == SPAWN_SERVICE_ERROR) {
+        server_spawnservice_feedback(0, end.message, client->fd);
+    } else {
+        server_spawnservice_feedback(1, "You are logged in!", client->fd);
+        printf("User Session alive.\n");
+
+    }
+    client_free(data);
 }
 
 static void
 _client_data(Fd_Data *data, int fd) {
+    Client *client;
     Spawny__Greeter__Message *msg = NULL;
     uint8_t buf[PATH_MAX];
     int len = 0;
 
+    client = data->data;
     len = read(fd, buf, sizeof(buf));
 
     if (!len)
@@ -97,19 +112,18 @@ _client_data(Fd_Data *data, int fd) {
         case SPAWNY__GREETER__MESSAGE__TYPE__SESSION_ACTIVATION:
             session_activate(msg->session);
             printf("Greeter session activation %s\n", msg->session);
-            manager_unregister_fd(fd);
-            close(fd);
+            client_free(client);
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__LOGIN_TRY:
-            if (!spawnservice_spawn(_session_done, (void*)(intptr_t) fd, _session_job, msg->login->template_id, PAM_SERVICE, msg->login->user, msg->login->password)) {
+            if (!spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, PAM_SERVICE, msg->login->user, msg->login->password)) {
                 server_spawnservice_feedback(0, "spawn failed.", fd);
             }
             printf("Greeter login try\n");
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__GREETER_START:
-            activate_greeter();
-            manager_unregister_fd(fd);
-            close(fd);
+            activate_greeter());
+            client_free(client);
+            client = NULL;
         break;
         default:
         break;
@@ -117,16 +131,41 @@ _client_data(Fd_Data *data, int fd) {
     spawny__greeter__message__free_unpacked(msg, NULL);
 }
 
+
+static Client*
+client_connect(int fd)
+{
+    Client *client;
+    socklen_t len;
+
+    client = calloc(1, sizeof(Client));
+
+    len = sizeof(client->client_info);
+
+    if (getsockopt (fd, SOL_SOCKET, SO_PEERCRED, &client->client_info, &len) != 0 || len != sizeof(client->client_info)) {
+        perror("Failed to fetch client info");
+        free(client);
+        return NULL;
+    }
+
+    client->fd = fd;
+
+    return client;
+}
+
 static void
 _accept_ready(Fd_Data *data, int fd)
 {
-   struct sockaddr clientname;
-   socklen_t size;
-   int client;
+    socklen_t size;
+    int client;
+    Client *inst;
+    client = accept(fd,(struct sockaddr*) NULL, &size);
 
-   client = accept(fd, &clientname, &size);
+    inst = client_connect(client);
 
-   manager_register_fd(client, _client_data, NULL);
+    if (!inst) return;
+
+    manager_register_fd(client, _client_data, inst);
 }
 static void
 _list_users(char ***usernames, unsigned int *numb) {
