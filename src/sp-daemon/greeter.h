@@ -2,6 +2,7 @@
 #define GREETER_H
 
 /*activates a greeter */
-void activate_greeter(void);
+void greeter_activate(const char *seat);
+void greeter_lockout(const char *seat);
 
 #endif

@@ -79,6 +79,7 @@ _session_done(void *data, Spawn_Service_End end) {
     if (end.success == SPAWN_SERVICE_ERROR) {
         server_spawnservice_feedback(0, end.message, client->fd);
     } else {
+        greeter_lockout(seat_get(client->client_info.pid));
         server_spawnservice_feedback(1, "You are logged in!", client->fd);
         printf("User Session alive.\n");
 
@@ -92,6 +93,7 @@ _client_data(Fd_Data *data, int fd) {
     Spawny__Greeter__Message *msg = NULL;
     uint8_t buf[PATH_MAX];
     int len = 0;
+    const char *seat;
 
     client = data->data;
     len = read(fd, buf, sizeof(buf));
@@ -111,6 +113,7 @@ _client_data(Fd_Data *data, int fd) {
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__SESSION_ACTIVATION:
             session_activate(msg->session);
+            greeter_lockout(seat_get(client->client_info.pid));
             printf("Greeter session activation %s\n", msg->session);
             client_free(client);
         break;
@@ -121,7 +124,9 @@ _client_data(Fd_Data *data, int fd) {
             printf("Greeter login try\n");
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__GREETER_START:
-            activate_greeter());
+            seat = seat_get(client->client_info.pid);
+            if (!seat) seat = "seat0";
+            greeter_activate(seat);
             client_free(client);
             client = NULL;
         break;
