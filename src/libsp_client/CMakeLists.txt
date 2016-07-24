@@ -11,9 +11,9 @@ set(PROTOCOL_FILES
 
 foreach(part ${PROTOCOL_FILES})
     add_custom_command(
-       OUTPUT ${PROJECT_SOURCE_DIR}/src/client/${part}.pb-c.c
-       OUTPUT ${PROJECT_SOURCE_DIR}/src/client/${part}.pb-c.h
-       COMMAND cd ${PROJECT_SOURCE_DIR}/src/client && protoc-c ${part}.proto --c_out=${PROJECT_SOURCE_DIR}/src/client
+       OUTPUT ${PROJECT_SOURCE_DIR}/src/libsp_client/${part}.pb-c.c
+       OUTPUT ${PROJECT_SOURCE_DIR}/src/libsp_client/${part}.pb-c.h
+       COMMAND cd ${PROJECT_SOURCE_DIR}/src/libsp_client && protoc-c ${part}.proto --c_out=${PROJECT_SOURCE_DIR}/src/libsp_client
        DEPENDS ${part}.proto
     )
 endforeach()

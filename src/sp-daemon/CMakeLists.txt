@@ -12,9 +12,9 @@ set(PROTOCOL_FILES
 
 foreach(part ${PROTOCOL_FILES})
     add_custom_command(
-       OUTPUT ${PROJECT_SOURCE_DIR}/src/daemon/${part}.pb-c.c
-       OUTPUT ${PROJECT_SOURCE_DIR}/src/daemon/${part}.pb-c.h
-       COMMAND cd ${PROJECT_SOURCE_DIR}/src/daemon && protoc-c ${part}.proto --c_out=${PROJECT_SOURCE_DIR}/src/daemon
+       OUTPUT ${PROJECT_SOURCE_DIR}/src/sp-daemon/${part}.pb-c.c
+       OUTPUT ${PROJECT_SOURCE_DIR}/src/sp-daemon/${part}.pb-c.h
+       COMMAND cd ${PROJECT_SOURCE_DIR}/src/sp-daemon && protoc-c ${part}.proto --c_out=${PROJECT_SOURCE_DIR}/src/sp-daemon
        DEPENDS ${part}.proto
     )
 endforeach()
