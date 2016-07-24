@@ -3,15 +3,35 @@
 #include <systemd/sd-login.h>
 #include <errno.h>
 
-char*
-current_session_get(void) {
-    pid_t pid = getpid();
+char *
+sesison_get(pid_t pid) {
     char *result;
 
     if (sd_pid_get_session(pid, &result) < 0)
       return NULL;
 
     return result;
+}
+
+char*
+seat_get(pid_t pid) {
+    char *session;
+    char *result;
+
+    session = sesison_get(pid);
+
+    if (!session) return NULL;
+    if (sd_session_get_seat(session, &result) < 0) {
+        result = NULL;
+    }
+    free(session);
+    return result;
+}
+
+char*
+current_session_get(void) {
+    pid_t pid = getpid();
+    return sesison_get(pid);
 }
 
 void
