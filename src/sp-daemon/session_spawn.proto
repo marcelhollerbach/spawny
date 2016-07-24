@@ -10,5 +10,4 @@ enum Message_Type {
 message Message {
   required Message_Type type = 1;
   optional string exit = 2;
-  optional string session = 3;
 }

@@ -78,8 +78,8 @@ _child_data(Fd_Data *data, int fd)
        case SPAWNY__SPAWN__MESSAGE__TYPE__SETUP_DONE:
            //we need to activate the passed session
            printf("Activating session\n");
-           try->session = strdup(msg->session);
-           session_activate(msg->session);
+           try->session = sesison_get(try->pid);
+           session_activate(try->session);
        break;
        case SPAWNY__SPAWN__MESSAGE__TYPE__SESSION_ACTIVE:
            //the session is up, and will die now
@@ -196,7 +196,6 @@ _service_message(Spawn_Try *try, Spawny__Spawn__MessageType type, const char *mm
 
     message.exit = (char*)mmessage;
     message.type = type;
-    message.session = session;
 
     len = spawny__spawn__message__get_packed_size(&message);
     data = malloc(len);
