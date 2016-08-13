@@ -5,6 +5,8 @@
 
 #define PATH_MAX 4096
 
+static Sp_Client_Context *ctx;
+
 int prompted = 0;
 Spawny__Server__Data *data;
 
@@ -40,7 +42,7 @@ login(void) {
         }
     }while(!templates);
 
-    sp_client_login(username, password, templates);
+    sp_client_login(ctx, username, password, templates);
     PROMPT("Waiting for feedback\n");
 }
 
@@ -58,7 +60,7 @@ listsessions(void) {
     PROMPT("Session :");
     scanf("%s", session);
 
-    sp_client_session_activate(session);
+    sp_client_session_activate(ctx, session);
     PROMPT("Waiting for activation\n");
 }
 
@@ -124,14 +126,30 @@ _login_cb(int success, char *msg) {
     }
 }
 
+static Sp_Client_Interface interface = {
+    _data_cb,
+    _login_cb
+};
 
 int main(int argc, char **argv) {
+    Sp_Client_Read_Result res;
+
     //eat all the stuff which is in stdin
     printf("#########################################\n");
     printf("# Spawny Command line greeter interface #\n");
     printf("#########################################\n");
-    sp_client_init(SP_CLIENT_LOGIN_PURPOSE_GREETER_JOB);
-    sp_client_hello(_data_cb, _login_cb);
-    sp_client_run();
-    sp_client_shutdown();
+    ctx = sp_client_init(SP_CLIENT_LOGIN_PURPOSE_GREETER_JOB);
+
+    while(1) {
+        res = sp_client_read(ctx, &interface);
+
+        if (res == SP_CLIENT_READ_RESULT_EXIT || res == SP_CLIENT_READ_RESULT_FAILURE)
+            break;
+
+    }
+
+    sp_client_free(ctx);
+    ctx = NULL;
+
+    return res == SP_CLIENT_READ_RESULT_SUCCESS ? EXIT_SUCCESS : EXIT_FAILURE;
 }

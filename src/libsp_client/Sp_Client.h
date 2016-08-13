@@ -2,6 +2,7 @@
 #define SOCKET_CREATION_H
 
 #include <sys/un.h>
+#include <stdbool.h>
 
 #include "greeter.pb-c.h"
 #include "server.pb-c.h"
@@ -12,38 +13,46 @@ typedef enum {
     SP_CLIENT_LOGIN_PURPOSE_LAST = 2
 } Sp_Client_Login_Purpose;
 
+typedef enum {
+    SP_CLIENT_READ_RESULT_SUCCESS = 0,
+    SP_CLIENT_READ_RESULT_FAILURE = 1,
+    SP_CLIENT_READ_RESULT_EXIT = 2,
+    SP_CLIENT_READ_RESULT_LAST = 3
+} Sp_Client_Read_Result;
+
 typedef void (*Sp_Client_Data_Cb)(Spawny__Server__Data *data);
 typedef void (*Sp_Client_Login_Feedback_Cb)(int succes, char *msg);
 
-/**
- * Init the library for the purpose passed in
- *
- * @param purpose if purpose is SPAWNY_CLIENT_LOGIN_PURPOSE_START_GREETER
- *                only client_start_greeter is valid
- * @return 0 on failure 1 on success
- *
- */
-int sp_client_init(Sp_Client_Login_Purpose purpose);
+typedef struct {
+    Sp_Client_Data_Cb data_cb;
+    Sp_Client_Login_Feedback_Cb feedback_cb;
+} Sp_Client_Interface;
+
+typedef struct _Sp_Client_Context Sp_Client_Context;
 
 /**
- * Shutdown the library
- * Apis can only be called after another init call
+ * Create a new context
+ *
+ * @param purpose if purpose is SP_CLIENT_LOGIN_PURPOSE_START_GREETER
+                  the function ALWAYS returns NULL and sends the start
+                  greeter to the daemon
+                  Otherwise it connects to the client and waits for commands.
+ *
+ * @return a new context on success NULL on failure if purpose is not START_GREETER.
+ *
  */
-int sp_client_shutdown(void);
+Sp_Client_Context* sp_client_init(Sp_Client_Login_Purpose purpose);
 
 /**
- * Setup the callbacks and sent the hello messages to the daemon
+ * Free the context
  *
- * @param _data_cb The callback which is called when data arrives from the daemon
- *
- * @param _login_cb The callback is called after feedback of a client_login arrives
- *
- * @return 0 on failure 1 on success
  */
-int sp_client_hello(Sp_Client_Data_Cb _data_cb, Sp_Client_Login_Feedback_Cb _login_cb);
+bool sp_client_free(Sp_Client_Context *ctx);
 
 /**
  * Sent a Login message to the daemon
+ *
+ * @param ctx Context to use
  *
  * @param usr must be a valid user which was offered by _data_cb
  *
@@ -53,30 +62,31 @@ int sp_client_hello(Sp_Client_Data_Cb _data_cb, Sp_Client_Login_Feedback_Cb _log
  *
  * @return 0 on faliure 1 on success
  */
-int sp_client_login(char *usr, char *pw, char *template);
+bool sp_client_login(Sp_Client_Context *ctx, char *usr, char *pw, char *template);
 
 /**
  * Sent a Session activation command to the daemon.
  *
  * No more api-calls are possible after that.
  *
+ * @param ctx Context to use
+ *
  * @param session the session to activate, the session handle should be from the data callback
  *
  * @return 0 on faliure 1 on success
  */
-int sp_client_session_activate(char *session);
+bool sp_client_session_activate(Sp_Client_Context *ctx, char *session);
 
 /**
- * Run the polling loop to get events.
- */
-int sp_client_run(void);
-
-/**
- * Sent a start greeter message
+ * Read from the context fd and call the callbacks according to the interfaces struct.
  *
- * This will either start a new greeter or activate the session of a running one
+ * @param ctx Context to use
+ *
+ * @param interface to call for callbacks
+ *
+ * @return SUCCESS on success EXIT if the daemon requests to exit and FAILURE if the read fails
  */
-int sp_client_start_greeter(void);
+Sp_Client_Read_Result sp_client_read(Sp_Client_Context *ctx, Sp_Client_Interface *interface);
 
 /**
  * Apis to get access to the service socket
