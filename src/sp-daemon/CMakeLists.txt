@@ -55,7 +55,7 @@ target_link_libraries (sp-daemon
     protobuf-c
     pam
     systemd
-    spawny_client
+    sp_client
 )
 
 set_property(TARGET sp-daemon PROPERTY COMPILE_DEFINITIONS

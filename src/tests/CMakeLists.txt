@@ -11,8 +11,6 @@ set(SPAWNY-DAEMON-TEST-SOURCE
     test_templatereg.c
     ../sp-daemon/manager.h
     ../sp-daemon/manager.c
-    ../sp-daemon/spawnservice.c
-    ../sp-daemon/spawnservice.h
     ../sp-daemon/spawnregistery.c
     ../sp-daemon/spawnregistery.h
     ../sp-daemon/sessionmgt.h
@@ -27,7 +25,6 @@ target_link_libraries (test_spawny_daemon
     pam
     systemd
     protobuf-c
-    spawny_protocol
 )
 
 add_test(test_spawny_daemon ${CMAKE_CURRENT_BINARY_DIR}/test_spawny_daemon)

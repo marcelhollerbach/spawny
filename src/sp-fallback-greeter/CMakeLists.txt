@@ -9,7 +9,7 @@ set(SPAWNY-CLC-SOURCE
 add_executable(sp-fallback-greeter ${SPAWNY-CLC-SOURCE})
 
 target_link_libraries (sp-fallback-greeter
-    spawny_client
+    sp_client
 )
 
 install(TARGETS sp-fallback-greeter DESTINATION ${FALLBACK_GREETER_PATH})
