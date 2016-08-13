@@ -77,8 +77,8 @@ _child_data(Fd_Data *data, int fd)
        break;
        case SPAWNY__SPAWN__MESSAGE__TYPE__SETUP_DONE:
            //we need to activate the passed session
-           printf("Activating session\n");
            try->session = sesison_get(try->pid);
+           printf("Activating session %s\n", try->session);
            session_activate(try->session);
        break;
        case SPAWNY__SPAWN__MESSAGE__TYPE__SESSION_ACTIVE:
