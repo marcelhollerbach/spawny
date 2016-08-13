@@ -47,24 +47,19 @@ spawnregistery_eval(void)
 {
    int status;
    pid_t pid;
-   Waiting *waiter;
-   waiter = NULL;
 
-   while ((pid = waitpid(-1, &status, WNOHANG)) != -1) {
+   while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+       printf("Looks like %d has terminated\n", pid);
        for(int i = 0; i < len; i++)
          {
             if (pending_process[i].pid == pid)
               {
-                 waiter = &pending_process[i];
+                 pending_process[i].handler(pending_process[i].data, status, pid);
+                 spawnregistery_unlisten(pid);
+
                  break;
               }
          }
-
-       if (!waiter) return;
-
-       waiter->handler(waiter->data, status, pid);
-
-       spawnregistery_unlisten(pid);
     }
 
 }
