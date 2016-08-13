@@ -140,6 +140,8 @@ spawnservice_spawn(SpawnDoneCb done, void *data,
 void
 _child_exit(int signal)
 {
+   if (signal != SIGCHLD) return;
+
    spawnregistery_eval();
 }
 
