@@ -140,6 +140,8 @@ int main(int argc, char **argv) {
     printf("#########################################\n");
     ctx = sp_client_init(SP_CLIENT_LOGIN_PURPOSE_GREETER_JOB);
 
+    if (!ctx) return EXIT_FAILURE;
+
     while(1) {
         res = sp_client_read(ctx, &interface);
 
