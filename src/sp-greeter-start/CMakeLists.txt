@@ -9,7 +9,7 @@ set(SPAWNY-GREETER-START
 add_executable(sp-greeter-start ${SPAWNY-GREETER-START})
 
 target_link_libraries (sp-greeter-start
-    sp_client
+    SpClient
 )
 
 install(TARGETS sp-greeter-start DESTINATION ${CMAKE_INSTALL_BINDIR})
