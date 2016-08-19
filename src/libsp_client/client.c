@@ -160,6 +160,12 @@ end:
     return NULL;
 }
 
+int
+sp_client_fd_get(Sp_Client_Context *ctx)
+{
+   return ctx->server_sock;
+}
+
 bool
 sp_client_free(Sp_Client_Context *ctx) {
     close(ctx->server_sock);

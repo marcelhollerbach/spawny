@@ -44,6 +44,11 @@ typedef struct _Sp_Client_Context Sp_Client_Context;
 Sp_Client_Context* sp_client_init(Sp_Client_Login_Purpose purpose);
 
 /**
+ * Get the fd from the context
+ */
+int sp_client_fd_get(Sp_Client_Context *ctx);
+
+/**
  * Free the context
  *
  */
