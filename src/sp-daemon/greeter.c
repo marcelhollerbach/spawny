@@ -170,5 +170,11 @@ greeter_lockout(const char *seat) {
     Seat_Greeter *greeter;
 
     greeter = _greeter_search(seat);
+
+    if (!greeter) {
+        printf("Failed to lockout greeter for seat %s\n", seat);
+        return;
+    }
+
     greeter->end = 1;
 }
