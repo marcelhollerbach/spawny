@@ -82,9 +82,9 @@ _session_done(void *data, Spawn_Service_End end) {
         greeter_lockout(seat_get(client->client_info.pid));
         server_spawnservice_feedback(1, "You are logged in!", client->fd);
         printf("User Session alive.\n");
-
+        client_free(data);
     }
-    client_free(data);
+
 }
 
 static void
