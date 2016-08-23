@@ -67,7 +67,7 @@ bool sp_client_free(Sp_Client_Context *ctx);
  *
  * @return 0 on faliure 1 on success
  */
-bool sp_client_login(Sp_Client_Context *ctx, char *usr, char *pw, char *template);
+bool sp_client_login(Sp_Client_Context *ctx, const char *usr, const char *pw, const char *template);
 
 /**
  * Sent a Session activation command to the daemon.

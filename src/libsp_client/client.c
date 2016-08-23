@@ -100,7 +100,7 @@ sp_client_session_activate(Sp_Client_Context *ctx, char *session) {
 }
 
 bool
-sp_client_login(Sp_Client_Context *ctx, char *usr, char *pw, char *template) {
+sp_client_login(Sp_Client_Context *ctx, const char *usr, const char *pw, const char *template) {
     API_ENTRY(SP_CLIENT_LOGIN_PURPOSE_GREETER_JOB)
     API_CALLBACK_CHECK()
 
@@ -110,9 +110,9 @@ sp_client_login(Sp_Client_Context *ctx, char *usr, char *pw, char *template) {
     msg.type = SPAWNY__GREETER__MESSAGE__TYPE__LOGIN_TRY;
     msg.login = &login;
 
-    msg.login->password = pw;
-    msg.login->user = usr;
-    msg.login->template_id = template;
+    msg.login->password = (char*) pw;
+    msg.login->user = (char*) usr;
+    msg.login->template_id = (char*) template;
 
     WRITE(ctx, &msg);
 
