@@ -23,6 +23,10 @@ A different greeter from the sp-fallback-greeter can be configured in the config
 The repository also brings ints own greeter, it just uses the command line and no graphics.
 It is used as fallback-greeter if the configured one fails.
 
+The fallback greeter looks like that:
+
+![Fallback greeter](https://cloud.githubusercontent.com/assets/1415748/17888029/6235d18a-6929-11e6-9f77-87d934d70be0.png)
+
 ##sp-greeter-start
 
 Requests the daemon to start a greeter on the same seat where this process is in.
