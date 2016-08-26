@@ -1,6 +1,5 @@
 #include "Sp_Client.h"
-
-#include "config.h"
+#include "sp_client_private.h"
 
 #include <stdlib.h>
 #include <stdio.h>

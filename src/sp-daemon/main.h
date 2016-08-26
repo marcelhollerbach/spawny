@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "Sp_Client.h"
+#include "../libsp_client/sp_client_private.h"
 #include "config.h"
 
 #include "session_spawn.pb-c.h"

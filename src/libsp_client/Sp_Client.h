@@ -1,11 +1,7 @@
 #ifndef SOCKET_CREATION_H
 #define SOCKET_CREATION_H
 
-#include <sys/un.h>
 #include <stdbool.h>
-
-#include "greeter.pb-c.h"
-#include "server.pb-c.h"
 
 typedef enum {
     SP_CLIENT_LOGIN_PURPOSE_START_GREETER = 0,
@@ -20,7 +16,52 @@ typedef enum {
     SP_CLIENT_READ_RESULT_LAST = 3
 } Sp_Client_Read_Result;
 
-typedef void (*Sp_Client_Data_Cb)(Spawny__Server__Data *data);
+/*
+ * Generic type for communcating with arrays with a length
+ */
+
+typedef struct {
+  int length;
+  void *data;
+} Numbered_Array;
+
+/**
+ * Accesses a given array struct,
+ *
+ * @param array should be a pointer
+ *
+ * @param type the type which is saved in the array
+ *
+ * @param pos the position which should be accessed (NOT bound checked)
+ */
+#define ARRAY_ACCESS(array, type, pos) ((type*)(array)->data)[pos]
+
+typedef struct {
+  int id;
+  char *icon;
+  char *name;
+} Template;
+
+#define TEMPLATE_ARRAY(array, pos) ARRAY_ACCESS(array, Template*, pos)
+
+typedef struct {
+  int id;
+  char *icon;
+  char *name;
+} User;
+
+#define USER_ARRAY(array, pos) ARRAY_ACCESS(array, User*, pos)
+
+typedef struct {
+  int id;
+  char *icon;
+  char *user;
+  char *name;
+} Session;
+
+#define Session_ARRAY(array, pos) ARRAY_ACCESS(array, Session*, pos)
+
+typedef void (*Sp_Client_Data_Cb)(void);
 typedef void (*Sp_Client_Login_Feedback_Cb)(int succes, char *msg);
 
 typedef struct {
@@ -44,6 +85,19 @@ typedef struct _Sp_Client_Context Sp_Client_Context;
 Sp_Client_Context* sp_client_init(Sp_Client_Login_Purpose purpose);
 
 /**
+ * Get the data. Can return empty stuff if nothing is here right now
+ *
+ * @param ctx Context to use
+ *
+ * @param sessions pointer to a valid Numbered_Array instance, which will be filled.
+ *
+ * @param templates same as sessions just for templates
+ *
+ * @param templates same as sessions just for users
+ */
+void sp_client_data_get(Sp_Client_Context *ctx, Numbered_Array *sessions, Numbered_Array *templates, Numbered_Array *users);
+
+/**
  * Get the fd from the context
  */
 int sp_client_fd_get(Sp_Client_Context *ctx);
@@ -63,11 +117,11 @@ bool sp_client_free(Sp_Client_Context *ctx);
  *
  * @param pw the password for the user to auth with
  *
- * @param template the string must be one of the handles submitted by the data callback
+ * @param template id of the template to use to start
  *
  * @return 0 on faliure 1 on success
  */
-bool sp_client_login(Sp_Client_Context *ctx, const char *usr, const char *pw, const char *template);
+bool sp_client_login(Sp_Client_Context *ctx, const char *usr, const char *pw, int template);
 
 /**
  * Sent a Session activation command to the daemon.
@@ -76,11 +130,11 @@ bool sp_client_login(Sp_Client_Context *ctx, const char *usr, const char *pw, co
  *
  * @param ctx Context to use
  *
- * @param session the session to activate, the session handle should be from the data callback
+ * @param session The session id to activate
  *
  * @return 0 on faliure 1 on success
  */
-bool sp_client_session_activate(Sp_Client_Context *ctx, char *session);
+bool sp_client_session_activate(Sp_Client_Context *ctx, int session);
 
 /**
  * Read from the context fd and call the callbacks according to the interfaces struct.
@@ -92,14 +146,5 @@ bool sp_client_session_activate(Sp_Client_Context *ctx, char *session);
  * @return SUCCESS on success EXIT if the daemon requests to exit and FAILURE if the read fails
  */
 Sp_Client_Read_Result sp_client_read(Sp_Client_Context *ctx, Sp_Client_Interface *interface);
-
-/**
- * Apis to get access to the service socket
- */
-
-const char* sp_service_path_get(void);
-int sp_service_socket_create(void);
-void sp_service_address_setup(struct sockaddr_un *in);
-int sp_service_connect(void);
 
 #endif

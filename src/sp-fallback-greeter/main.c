@@ -8,7 +8,10 @@
 static Sp_Client_Context *ctx;
 
 int prompted = 0;
-Spawny__Server__Data *data;
+
+Numbered_Array templates;
+Numbered_Array sessions;
+Numbered_Array users;
 
 #define PROMPT(...) printf(__VA_ARGS__);
 
@@ -17,7 +20,7 @@ static int prompt_run(void);
 static void
 login(void) {
     char username[PATH_MAX], template[PATH_MAX], *password;
-    char *templates = NULL;
+    int temp = 0;
 
     PROMPT("Spawny login! (Inputs are without echo)\n");
 
@@ -33,34 +36,42 @@ login(void) {
         printf("\n");
         if (template[0] == 'l') {
             //list templates
-            for (int i = 0; i < data->n_templates; i++){
-                printf("%s\t - \t%s\n", data->templates[i]->id, data->templates[i]->name);
+            for (int i = 0; i < templates.length; i++){
+                Template template = T(templates)[i];
+                printf("%d\t - \t%s\n", template.id + 1, template.name);
             }
-        } else if (template[0] == 't') {
-            //TODO test if template is real
-            templates = template;
+        } else if (atoi(template) != 0) {
+            temp = atoi(template);
         }
-    }while(!templates);
+    }while(temp < 1 || temp > templates.length);
 
-    sp_client_login(ctx, username, password, templates);
+    sp_client_login(ctx, username, password, temp - 1);
     PROMPT("Waiting for feedback\n");
 }
 
 static void
 listsessions(void) {
-    char session[PATH_MAX];
+    int id;
 
     printf("Sessions:\n");
-    for(int i = 0; i < data->n_sessions; i++){
-        printf("    %s - %s\n", data->sessions[i]->id, data->sessions[i]->name);
+
+    for(int i = 0; i < sessions.length; i++){
+        Session session = S(sessions)[i];
+        printf("    %d - %s\n", session.id + 1, session.name);
     }
 
     PROMPT("Spawny session activation:\n");
 
     PROMPT("Session :");
-    scanf("%s", session);
 
-    sp_client_session_activate(ctx, session);
+    do {
+        char session[PATH_MAX];
+
+        scanf("%s", session);
+        id = atoi(session);
+    } while(id < 1 || id > sessions.length);
+
+    sp_client_session_activate(ctx, id - 1);
     PROMPT("Waiting for activation\n");
 }
 
@@ -104,8 +115,9 @@ prompt_run(void) {
 }
 
 static void
-_data_cb(Spawny__Server__Data *msg) {
-    data = msg;
+_data_cb(void) {
+
+    sp_client_data_get(ctx, &sessions, &templates, &users);
 
     if (!prompted) {
         if (!prompt_run()) {
