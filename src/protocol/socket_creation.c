@@ -1,10 +1,10 @@
-#include "Sp_Client.h"
-#include "sp_client_private.h"
+#include "sp_protocol.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <string.h>
 
 const char*
 sp_service_path_get(void)

@@ -37,7 +37,7 @@ login(void) {
         if (template[0] == 'l') {
             //list templates
             for (int i = 0; i < templates.length; i++){
-                Template template = T(templates)[i];
+                Template template = TEMPLATE_ARRAY(&templates,i);
                 printf("%d\t - \t%s\n", template.id + 1, template.name);
             }
         } else if (atoi(template) != 0) {
@@ -56,7 +56,7 @@ listsessions(void) {
     printf("Sessions:\n");
 
     for(int i = 0; i < sessions.length; i++){
-        Session session = S(sessions)[i];
+        Session session = SESSION_ARRAY(&sessions, i);
         printf("    %d - %s\n", session.id + 1, session.name);
     }
 
