@@ -62,10 +62,9 @@ listsessions(void) {
 
     PROMPT("Spawny session activation:\n");
 
-    PROMPT("Session :");
-
     do {
         char session[PATH_MAX];
+        PROMPT("Session :");
 
         scanf("%s", session);
         id = atoi(session);
