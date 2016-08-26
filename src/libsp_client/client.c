@@ -40,7 +40,7 @@ struct _Sp_Client_Context{
    int server_sock;
    Spawny__Server__Data server_data;
    Numbered_Array sessions;
-   Numbered_Array private_session;
+   Numbered_Array private_sessions;
    Numbered_Array templates;
    Numbered_Array private_templates;
    Numbered_Array users;
@@ -109,9 +109,9 @@ sp_client_session_activate(Sp_Client_Context *ctx, int session) {
     API_ENTRY(SP_CLIENT_LOGIN_PURPOSE_GREETER_JOB)
     API_CALLBACK_CHECK()
 
-    if (session < 0 || session >= ctx->private_session.length) return false;
+    if (session < 0 || session >= ctx->private_sessions.length) return false;
 
-    Private_Session ps = ARRAY_ACCESS(&ctx->private_session, Private_Session, session);
+    Private_Session ps = ARRAY_ACCESS(&ctx->private_sessions, Private_Session, session);
 
     Spawny__Greeter__Message msg = SPAWNY__GREETER__MESSAGE__INIT;
 
@@ -257,112 +257,77 @@ sp_client_data_get(Sp_Client_Context *ctx, Numbered_Array *sessions, Numbered_Ar
 }
 
 
+//=============================================================
+// Code for converting protoobjects to normal objects follows
+//=============================================================
+
+typedef void (*free_func)(void *data);
+typedef void (*convert_func)(void *data, void *goal, int id);
+
 #define FREE_S(n) if (n) free(n); \
                   n = NULL;
 
 #define STRDUP_S(n, v) if (n) v = strdup(n);
 
-static void
-_template_convert(void *data2, void *goal, int id)
-{
-    Spawny__Server__SessionTemplate *data = data2;
-    Template *template = goal;
-
-    template->id = id;
-    STRDUP_S(data->icon, template->icon);
-    STRDUP_S(data->name, template->name);
+#define FREE_CONVERT(name, type, proto_type, conv, free) \
+static void \
+name ##s_convert(void *data, void *goal, int id) { \
+    proto_type proto = data; \
+    type name = goal; \
+    conv \
+} \
+static void \
+name ##s_free(void *data) { \
+    type name = data; \
+    free \
 }
 
-static void
-_template_free(void *data)
-{
-    Template *template = data;
+FREE_CONVERT(template, Template*, Spawny__Server__SessionTemplate*, {
+        template->id = id;
+        STRDUP_S(proto->icon, template->icon);
+        STRDUP_S(proto->name, template->name);
+    },{
+        FREE_S(template->name);
+        FREE_S(template->icon);
+    })
 
-    FREE_S(template->name);
-    FREE_S(template->icon);
-}
+FREE_CONVERT(session, Session*, Spawny__Server__Session*, {
+        session->id = id;
+        STRDUP_S(proto->icon, session->icon);
+        STRDUP_S(proto->name, session->name);
+        STRDUP_S(proto->user, session->user);
+    },{
+        FREE_S(session->icon);
+        FREE_S(session->name);
+        FREE_S(session->user);
+    })
 
-static void
-_session_convert(void *data2, void *goal, int id)
-{
-    Spawny__Server__Session *data = data2;
-    Session *session = goal;
+FREE_CONVERT(user, User*, Spawny__Server__User*, {
+        user->id = id;
+        STRDUP_S(proto->icon, user->icon);
+        STRDUP_S(proto->name, user->name);
+    },{
+        FREE_S(user->icon);
+        FREE_S(user->name);
+    })
 
-    session->id = id;
-    STRDUP_S(data->icon, session->icon);
-    STRDUP_S(data->name, session->name);
-    STRDUP_S(data->user, session->user);
-}
+FREE_CONVERT(private_session, Private_Session*, Spawny__Server__Session*,{
+        private_session->id = id;
+        STRDUP_S(proto->id, private_session->session_id);
+    },{
+        FREE_S(private_session->session_id);
+    })
 
-static void
-_session_free(void *data)
-{
-    Session *session = data;
+FREE_CONVERT(private_template, Private_Template*, Spawny__Server__SessionTemplate*, {
+        private_template->id = id;
+        STRDUP_S(proto->id, private_template->template_id);
+    },{
+        FREE_S(private_template->template_id);
+    })
 
-    FREE_S(session->icon);
-    FREE_S(session->name);
-    FREE_S(session->user);
-}
-
-static void
-_user_convert(void *data2, void *goal, int id)
-{
-    Spawny__Server__User *data = data2;
-    User *user = goal;
-
-    user->id = id;
-    STRDUP_S(data->icon, user->icon);
-    STRDUP_S(data->name, user->name);
-}
-
-static void
-_user_free(void *data)
-{
-    User *user = data;
-
-    FREE_S(user->icon);
-    FREE_S(user->name);
-}
-
-static void
-_private_session_convert(void *data2, void *goal, int id)
-{
-    Spawny__Server__Session *data = data2;
-    Private_Session *session = goal;
-
-    session->id = id;
-    STRDUP_S(data->id, session->session_id);
-    printf("%s\n", data->id);
-}
-
-static void
-_private_session_free(void *data)
-{
-    Private_Session *session = data;
-
-    FREE_S(session->session_id);
-}
-
-static void
-_private_template_convert(void *data2, void *goal, int id)
-{
-    Spawny__Server__SessionTemplate *data = data2;
-    Private_Template *template = goal;
-
-    template->id = id;
-    STRDUP_S(data->id, template->template_id);
-}
-
-static void
-_private_template_free(void *data)
-{
-    Private_Template *template = data;
-
-    FREE_S(template->template_id);
-}
-
-typedef void (*free_func)(void *data);
-typedef void (*convert_func)(void *data, void *goal, int id);
+#undef FREE_CONVERT
+#undef STRDUP_S
+#undef FREE_S
 
 static void
 _fill_array(Numbered_Array *array, size_t type_size, void *data, unsigned int n_data, size_t data_type_size, free_func ff, convert_func cf)
@@ -388,33 +353,20 @@ _fill_array(Numbered_Array *array, size_t type_size, void *data, unsigned int n_
       }
 }
 
-#define CONVERT_ARRAY(array, array_type, data, n_data, data_type, ff, cf) \
-    _fill_array(&array, sizeof(array_type), data, n_data, sizeof(data_type), ff, cf)
-
-
 static void
 _data_convert(Sp_Client_Context *ctx, Spawny__Server__Data *data)
 {
-    printf("Sessions\n");
-    CONVERT_ARRAY(ctx->sessions, Session,
-                   data->sessions, data->n_sessions, Spawny__Server__Session*,
-                   _session_free, _session_convert);
-    printf("Private Sessions\n");
-    CONVERT_ARRAY(ctx->private_session, Private_Session,
-                   data->sessions, data->n_sessions, Spawny__Server__Session*,
-                   _private_session_free, _private_session_convert);
-    printf("Users\n");
-    CONVERT_ARRAY(ctx->users, User,
-                   data->users, data->n_users, Spawny__Server__User*,
-                   _user_free, _user_convert);
-    printf("Templates\n");
-    CONVERT_ARRAY(ctx->templates, Template,
-                   data->templates, data->n_templates, Spawny__Server__SessionTemplate*,
-                   _template_free, _template_convert);
 
-    printf("Private Template\n");
-    CONVERT_ARRAY(ctx->private_templates, Private_Template,
-                   data->templates, data->n_templates, Spawny__Server__SessionTemplate*,
-                   _private_template_free, _private_template_convert);
+#define CONVERT_ARRAY_P(name, data_name, array_type, data_type) \
+    _fill_array(&ctx->name, sizeof(array_type), data->data_name, data->n_ ##data_name, sizeof(data_type), name ##_free, name ##_convert)
+#define CONVERT_ARRAY(name, array_type, data_type) CONVERT_ARRAY_P(name, name, array_type, data_type)
 
+    CONVERT_ARRAY(sessions, Session, Spawny__Server__Session*);
+    CONVERT_ARRAY(users, User, Spawny__Server__User*);
+    CONVERT_ARRAY(templates, Template, Spawny__Server__SessionTemplate*);
+    CONVERT_ARRAY_P(private_sessions, sessions, Private_Session, Spawny__Server__Session*);
+    CONVERT_ARRAY_P(private_templates, templates, Private_Template, Spawny__Server__SessionTemplate*);
+
+#undef CONVERT_ARRAY
+#undef CONVERT_ARRAY_P
 }

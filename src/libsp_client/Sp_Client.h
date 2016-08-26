@@ -42,7 +42,7 @@ typedef struct {
   char *name;
 } Template;
 
-#define TEMPLATE_ARRAY(array, pos) ARRAY_ACCESS(array, Template*, pos)
+#define TEMPLATE_ARRAY(array, pos) ARRAY_ACCESS(array, Template, pos)
 
 typedef struct {
   int id;
@@ -50,7 +50,7 @@ typedef struct {
   char *name;
 } User;
 
-#define USER_ARRAY(array, pos) ARRAY_ACCESS(array, User*, pos)
+#define USER_ARRAY(array, pos) ARRAY_ACCESS(array, User, pos)
 
 typedef struct {
   int id;
@@ -59,7 +59,7 @@ typedef struct {
   char *name;
 } Session;
 
-#define Session_ARRAY(array, pos) ARRAY_ACCESS(array, Session*, pos)
+#define SESSION_ARRAY(array, pos) ARRAY_ACCESS(array, Session, pos)
 
 typedef void (*Sp_Client_Data_Cb)(void);
 typedef void (*Sp_Client_Login_Feedback_Cb)(int succes, char *msg);
