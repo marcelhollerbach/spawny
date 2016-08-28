@@ -41,6 +41,10 @@ sp_service_connect(void) {
 
     server_sock = sp_service_socket_create();
 
+    if (server_sock < 0) {
+        return -1;
+    }
+
     sp_service_address_setup(&address);
 
     if (connect(server_sock, (struct sockaddr *) &address, sizeof(address)) != 0) {

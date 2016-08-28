@@ -20,7 +20,7 @@ set(PACKAGE_LIB_DIR \"${CMAKE_INSTALL_FULL_LIBDIR}\")
 set(PACKAGE_BIN_DIR \"${CMAKE_INSTALL_FULL_BINDIR}\")
 set(PACKAGE_CONFIG \"${PACKAGE_CONFIG_DIR}/spawny.ini\")
 
-add_subdirectory(src/protocol)
+add_subdirectory(src/sp-protocol)
 add_subdirectory(src/libsp_client)
 add_subdirectory(src/sp-fallback-greeter)
 add_subdirectory(src/sp-greeter-start)
