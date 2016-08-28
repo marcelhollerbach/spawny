@@ -1,6 +1,7 @@
 include(CMakePackageConfigHelpers)
 include_directories(
     ${PROJECT_SOURCE_DIR}/src/config/
+    ${PROJECT_SOURCE_DIR}/src/sp-protocol/
 )
 
 set(SPAWNY_CLIENT_LIB
