@@ -9,9 +9,9 @@ _config_parse(void* user, const char* section,
               const char* name, const char* value) {
     if (!strcmp(section, "greeter")) {
         if (!strcmp(name, "user"))
-          config->greeter.start_user = value;
+          config->greeter.start_user = strdup(value);
         if (!strcmp(name, "cmd"))
-          config->greeter.cmd = value;
+          config->greeter.cmd = strdup(value);
     }
 
     return 1;
