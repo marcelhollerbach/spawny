@@ -29,6 +29,8 @@ static int child_run(Spawn_Try *try);
 static int open_tty(Spawn_Try *try, char *tty);
 static int pam_auth(Spawn_Try *try, char ***env, int tty);
 
+static void _spawned_session_disappear(void *data, int signal, pid_t pid);
+
 static void
 _spawn_try_free(Spawn_Try *try)
 {

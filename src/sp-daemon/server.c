@@ -172,34 +172,6 @@ _accept_ready(Fd_Data *data, int fd)
 
     manager_register_fd(client, _client_data, inst);
 }
-static void
-_list_users(char ***usernames, unsigned int *numb) {
-    FILE *fptr;
-    char line[PATH_MAX];
-    char *username;
-    char **names = NULL;
-
-    fptr = fopen("/etc/passwd","r");
-
-    *numb = 0;
-    *usernames = NULL;
-
-    if (fptr == NULL) {
-         perror("Failed to read passwd");
-         return;
-    }
-
-    while (fgets(line, sizeof(line), fptr)) {
-        username = strtok(line, ":");
-
-        (*numb) ++;
-
-        names = realloc(names, (*numb) * sizeof(char*));
-        names[(*numb) - 1] = strdup(username);
-    }
-    *usernames = names;
-    fclose(fptr);
-}
 
 static void
 _init_data(void) {
@@ -210,24 +182,29 @@ _init_data(void) {
     unsigned int number;
     unsigned int offset = 0;
 
-    _list_users(&usernames,&number);
+    number = user_db_users_iterate(&usernames);
 
     user = calloc(number, sizeof(Spawny__Server__User*));
 
     for(int i = 0; i < number; i++) {
         struct passwd *pass;
+        const char *field;
 
         user[i] = calloc(1, sizeof(Spawny__Server__User));
 
         spawny__server__user__init(user[i]);
 
         pass = getpwnam(usernames[i]);
+        field = user_db_field_get(usernames[i], "icon");
 
-        free(usernames[i]);
+        if (field)
+          user[i]->icon = strdup(field);
+        else
+          user[i]->icon = NULL;
 
-        user[i]->icon = NULL;
         user[i]->uid = pass->pw_uid;
         user[i]->name = pass->pw_name;
+        free(usernames[i]);
     }
     free(usernames);
 
@@ -327,6 +304,8 @@ server_init(void) {
     if (!_socket_setup())
       return 0;
 
+    user_db_init();
+
     //listen on the socket
     manager_register_fd(server_sock, _accept_ready, NULL);
 
@@ -353,6 +332,7 @@ server_shutdown(void) {
     IT_FREE(system_data.n_users, system_data.users);
     IT_FREE(system_data.n_sessions, system_data.sessions);
     IT_FREE(system_data.n_templates, system_data.templates);
+    user_db_shutdown();
     close(server_sock);
     unlink(path);
 }

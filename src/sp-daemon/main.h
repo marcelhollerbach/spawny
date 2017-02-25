@@ -19,5 +19,6 @@
 #include "templates.h"
 #include "spawnregistery.h"
 #include "greeter.h"
+#include "user_db.h"
 
 #endif

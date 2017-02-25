@@ -25,6 +25,8 @@ add_subdirectory(src/libsp_client)
 add_subdirectory(src/sp-fallback-greeter)
 add_subdirectory(src/sp-greeter-start)
 add_subdirectory(src/sp-daemon)
+add_subdirectory(src/sp-user-db)
+add_subdirectory(src/sp-user-db-util)
 add_subdirectory(src/tests)
 add_subdirectory(data)
 

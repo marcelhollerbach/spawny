@@ -1,6 +1,7 @@
 include_directories(
     ${PROJECT_SOURCE_DIR}/components/inih/
     ${PROJECT_SOURCE_DIR}/src/sp-protocol/
+    ${PROJECT_SOURCE_DIR}/src/sp-user-db/
     ${PROJECT_SOURCE_DIR}/src/config/
 )
 
@@ -56,6 +57,7 @@ target_link_libraries (sp-daemon
     pam
     systemd
     SpProtocol
+    SpUserDb
 )
 
 set_property(TARGET sp-daemon PROPERTY COMPILE_DEFINITIONS

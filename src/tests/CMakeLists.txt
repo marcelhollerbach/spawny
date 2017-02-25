@@ -2,6 +2,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/components/inih/
     ${PROJECT_SOURCE_DIR}/src/libsp_client/
     ${PROJECT_SOURCE_DIR}/src/sp-protocol/
+    ${PROJECT_SOURCE_DIR}/src/sp-user-db/
     ${PROJECT_SOURCE_DIR}/src/config/
 )
 

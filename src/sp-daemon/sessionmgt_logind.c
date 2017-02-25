@@ -83,7 +83,7 @@ session_details(char *handle, uid_t *uid, char **name, char **icon, char **tty) 
 
     GET_FIELD(sd_session_get_tty, tty, NULL)
     GET_FIELD(sd_session_get_uid, uid, 0)
-    GET_FIELD(sd_session_get_class, name, NULL)
+    GET_FIELD(sd_session_get_desktop, name, NULL)
 
     if (icon)
       *icon = NULL;

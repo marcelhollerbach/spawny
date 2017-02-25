@@ -10,8 +10,12 @@ _config_parse(void* user, const char* section,
     if (!strcmp(section, "greeter")) {
         if (!strcmp(name, "user"))
           config->greeter.start_user = strdup(value);
-        if (!strcmp(name, "cmd"))
+        else if (!strcmp(name, "cmd"))
           config->greeter.cmd = strdup(value);
+        else
+          return 0;
+    } else {
+      return 0;
     }
 
     return 1;
@@ -24,7 +28,7 @@ config_init(void) {
     config->greeter.start_user = "spawny";
     config->greeter.cmd = NULL;
 
-    ini_parse(PACKAGE_CONFIG, _config_parse, NULL);
+    parse_ini_verbose(PACKAGE_CONFIG, _config_parse, NULL);
 
     return 1;
 }
