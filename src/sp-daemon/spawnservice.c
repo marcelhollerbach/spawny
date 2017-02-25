@@ -49,7 +49,8 @@ _spawn_try_free(Spawn_Try *try)
     if (try->session)
       free(try->session);
 
-    spawnregistery_unlisten(try->pid);
+    spawnregistery_unlisten(try->pid, _spawned_session_disappear, try);
+    try->pid = -1;
 
     free(try);
 }
