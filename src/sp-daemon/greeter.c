@@ -151,7 +151,6 @@ greeter_activate(const char *seat) {
         session = sesison_get(greeter->run.try->pid);
     } else if (greeter->run.pid != -1) { /* pid 0 can NEVER be a greeter */
         session = sesison_get(greeter->run.pid);
-        return;
     }
 
     if (session) {
