@@ -21,7 +21,7 @@ _fire_up(void *data) {
 
     snprintf(command, sizeof(command), "startx %s", data);
 
-    execl(pwd->pw_shell, basename(pwd->pw_shell), "-i", "-c", command, NULL);
+    execl(pwd->pw_shell, basename(pwd->pw_shell), "--login", "-c", command, NULL);
     perror("Execl failed");
 }
 
