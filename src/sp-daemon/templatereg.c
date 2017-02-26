@@ -1,13 +1,6 @@
 #include "main.h"
 #include <string.h>
 
-typedef struct List_Elem_ List_Elem;
-
-struct List_Elem_ {
-    List_Elem *next;
-    void *data;
-} ;
-
 typedef struct {
     char *id;
     char *name;
@@ -16,121 +9,81 @@ typedef struct {
     void *data;
 } Template;
 
-static List_Elem *templates = NULL;
-static int count = 0;
+ARRAY_API(Template)
+
+static Array *array = NULL;
+static unsigned int counter = 0;
+
+static void
+template_init(void)
+{
+    if (!array)
+      array = array_Template_new();
+}
+
 
 static Template*
-find_temp(const char *id) {
-    List_Elem *walker = templates;
+find_temp(const char *id, unsigned int *array_id) {
 
-    while(walker) {
-        Template *temp = walker->data;
+    for (int i = 0; i < array_len_get(array); ++i)
+    {
+        Template *t;
 
-        if (!strcmp(id, temp->id)) {
-            return temp;
-        }
-        walker = walker->next;
+        t = array_Template_get(array, i);
+
+        if (!strcmp(id, t->id))
+          {
+             if (array_id) *array_id = i;
+             return t;
+          }
     }
+    if (array_id) *array_id = 0;
     return NULL;
-}
-
-static List_Elem*
-last_template(void) {
-    List_Elem *walker = templates;
-
-    if (!walker)
-      return NULL;
-
-    while(walker->next) {
-        walker = walker->next;
-    }
-
-    return walker;
-}
-
-static List_Elem*
-_insert_item(void) {
-    List_Elem *elem;
-    List_Elem *last;
-
-    elem = calloc(1, sizeof(List_Elem));
-
-    last = last_template();
-
-    if (!last) {
-        templates = elem;
-    } else {
-        last->next = elem;
-    }
-    return elem;
 }
 
 const char*
 template_register(char *name, char *icon, Template_Fire_Up fire_up, void *data) {
     Template *temp;
-    List_Elem *elem;
     char buf[PATH_MAX];
 
     if (!name) return NULL;
     if (!fire_up) return NULL;
 
-    elem = _insert_item();
+    snprintf(buf, sizeof(buf), "t%d", counter);
+    counter ++;
 
-    snprintf(buf, sizeof(buf), "t%d", count);
-    count ++;
+    template_init();
 
-    temp = calloc(1, sizeof(Template));
-
+    temp = array_Template_add(array);
     temp->id = strdup(buf);
     temp->name = strdup(name);
     temp->icon = icon ? strdup(icon) : NULL;
     temp->cb = fire_up;
     temp->data = data;
 
-    elem->data = temp;
-
     return temp->id;
 }
 
 int
 template_unregister(const char *id) {
-    Template *temp = find_temp(id);
+    unsigned int i;
+    Template *temp = find_temp(id, &i);
 
     if (!temp) return 0;
-
-    //clean out our stack
-    {
-        List_Elem *walker = templates;
-
-        if (walker->data == temp) {
-            free(walker);
-            templates = NULL;
-            walker = NULL;
-        }
-
-        while (walker) {
-            List_Elem *next = walker->next;
-            if (next && next->data == temp) {
-                //we need to cut out next
-                walker->next = next->next;
-                free(next);
-            }
-            walker = next;
-        }
-    }
 
     //free template
     free(temp->id);
     free(temp->name);
     free(temp->icon);
-    free(temp);
+
+    array_Template_del(array, i);
 
     return 1;
 }
 
 int
 template_details_get(const char *id, const char **name, const char **icon) {
-    Template *temp = find_temp(id);
+    Template *temp = find_temp(id, NULL);
 
     if (!temp) return 0;
 
@@ -142,7 +95,7 @@ template_details_get(const char *id, const char **name, const char **icon) {
 
 int
 template_run(const char *id) {
-    Template *temp = find_temp(id);
+    Template *temp = find_temp(id, NULL);
 
     if (!temp) return 0;
 
@@ -153,19 +106,23 @@ template_run(const char *id) {
 
 int
 template_get(char ***template_ids, unsigned int *num) {
-    List_Elem *walker = templates;
-    char **temps = NULL;
+    int count = array_len_get(array);
+    char **result;
 
-    *num = 0;
+    result = calloc(count, sizeof(char*));
 
-    while(walker) {
-        (*num) ++;
+    for (int i = 0; i < count; i++)
+      {
+         Template *t;
 
-        temps = realloc(temps, (*num) * sizeof(char*));
-        temps[*num - 1] = ((Template*)walker->data)->id;
-        walker = walker->next;
-    }
-    *template_ids = temps;
+         t = array_Template_get(array, i);
+
+         if (!t) continue;
+
+         result[i] = t->id;
+      }
+    *template_ids = result;
+    *num = count;
 
     return 1;
 }

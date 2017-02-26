@@ -22,6 +22,8 @@ endforeach()
 
 set(SPAWNY-DAEMON-SOURCE
     main.c
+    array.h
+    array.c
     app_config.c
     app_config.h
     manager.h
