@@ -1,4 +1,4 @@
-#include "manager.h"
+#include "main.h"
 
 #include <inttypes.h>
 #include <stdlib.h>
@@ -12,10 +12,11 @@ typedef struct {
     Fd_Data data;
 } Fd_Register;
 
+ARRAY_API(Fd_Register)
+
 #define MAX_BUFFER_SIZE 2048
 
-static int fd_number = 0;
-static Fd_Register *cbs = NULL; //array of length fd_number
+static Array* fds;
 
 static int stop = 0;
 static int changes = 0;
@@ -23,7 +24,7 @@ static int readout = 0;
 
 void
 manager_init(void) {
-
+   fds = array_Fd_Register_new();
 }
 
 static void
@@ -49,34 +50,21 @@ _fd_set_check(Fd_Register *reg, fd_set *set, void (*handle)(Fd_Register *reg, in
    }
 }
 
-static void
-_clear_objects(void)
-{
-   int result = 0;
-   int mode = 0;
-   for (int i = 0; i < fd_number; i++)
-     {
-        if (mode == 0 && !cbs[i].cb)
-          {
-             result = 1;
-             mode = 1;
-          }
-        else if (mode == 1)
-          {
-             cbs[i - 1] = cbs[i];
-          }
-     }
-   if (result)
-     {
-        fd_number --;
-        cbs = realloc(cbs, fd_number*sizeof(Fd_Register));
-     }
-}
-
 static int
 _errno_ignore(void) {
    if (errno == EINTR) return 1;
    return 0;
+}
+
+static void
+_clear_objects(void) {
+   for(int i = 0; i < array_len_get(fds); i++){
+      Fd_Register *reg = array_Fd_Register_get(fds, i);
+      if (!reg->cb) {
+        array_Fd_Register_del(fds, i);
+        return;
+      }
+   }
 }
 
 int
@@ -92,10 +80,13 @@ manager_run(void) {
         FD_ZERO(&fds_error);
 
         //init sets with new fds
-        for(int i = 0; i < fd_number; i ++) {
-            if (cbs[i].data.fd > max_fd) max_fd = cbs[i].data.fd;
-            FD_SET(cbs[i].data.fd, &fds_read);
-            FD_SET(cbs[i].data.fd, &fds_error);
+        for(int i = 0; i < array_len_get(fds); i ++) {
+            Fd_Register *reg;
+
+            reg = array_Fd_Register_get(fds, i);
+            if (reg->data.fd > max_fd) max_fd = reg->data.fd;
+            FD_SET(reg->data.fd, &fds_read);
+            FD_SET(reg->data.fd, &fds_error);
         }
         //set timeout to one second
         timeout.tv_sec = 1;
@@ -113,13 +104,13 @@ manager_run(void) {
             return 0;
         } else if (result >= 0) {
             //look for errors fd´s
-            for(int i = 0; i < fd_number; i ++) {
-               _fd_set_check(&cbs[i], &fds_error, _error_available, i);
+            for(int i = 0; i < array_len_get(fds); i ++) {
+               _fd_set_check(array_Fd_Register_get(fds, i), &fds_error, _error_available, i);
             }
 
             //look for read fd´s
-            for(int i = 0; i < fd_number; i ++) {
-               _fd_set_check(&cbs[i], &fds_read, _read_available, i);
+            for(int i = 0; i < array_len_get(fds); i ++) {
+               _fd_set_check(array_Fd_Register_get(fds, i), &fds_read, _read_available, i);
             }
        }
        readout = 0;
@@ -140,25 +131,25 @@ manager_stop(void) {
 
 void
 manager_register_fd(int fd, Fd_Data_Cb cb, void *data) {
-    //we have a new fd
-    fd_number ++;
+   Fd_Register *r;
 
-    cbs = realloc(cbs, fd_number*sizeof(Fd_Register));
-    cbs[fd_number - 1].cb = cb;
-    cbs[fd_number - 1].data.data = data;
-    cbs[fd_number - 1].data.fd = fd;
+   r = array_Fd_Register_add(fds);
+
+   r->cb = cb;
+   r->data.data = data;
+   r->data.fd = fd;
 }
 
 
 void
 manager_unregister_fd(int fd) {
-    int field_index;
 
     //search for the fd
-    for(field_index = 0; field_index < fd_number; field_index ++) {
-        if (cbs[field_index].data.fd == fd)
+    for(int field_index = 0; field_index < array_len_get(fds); field_index ++) {
+        Fd_Register *reg = array_Fd_Register_get(fds, field_index);
+        if (reg->data.fd == fd)
           {
-             cbs[field_index].cb = NULL;
+             reg->cb = NULL;
           }
     }
 
