@@ -26,6 +26,7 @@ main(int argc, char **argv)
     config_init();
     manager_init();
     spawnservice_init();
+    spawnregistery_init();
 
     tty_template_init();
     x11_template_init();

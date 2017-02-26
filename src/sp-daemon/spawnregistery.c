@@ -6,43 +6,43 @@ typedef struct {
    void *data;
 } Waiting;
 
-static Waiting *pending_process = NULL;
-static int len = 0;
+ARRAY_API(Waiting)
+
+static Array* pending_process;
+
 static bool eval_mode;
+
+void
+spawnregistery_init(void)
+{
+   pending_process = array_Waiting_new();
+}
 
 void
 spawnregistery_listen(pid_t pid, void(*handler)(void *data, int status, pid_t pid), void *data)
 {
-   len ++;
-   pending_process = realloc(pending_process, len * sizeof(Waiting));
+   Waiting *w;
 
-   pending_process[len - 1].pid = pid;
-   pending_process[len - 1].handler = handler;
-   pending_process[len - 1].data = data;
+   w = array_Waiting_add(pending_process);
+
+   w->pid = pid;
+   w->handler = handler;
+   w->data = data;
 }
 
 bool
 _spawnregistery_cleanup_step(void)
 {
-   bool found = false;
-
-   for (int i = 0; i < len; i ++)
+   for (int i = 0; i < array_len_get(pending_process); i ++)
      {
-        if (pending_process[i].handler == NULL)
-          {
-             //we have found a empty handler
-             //move all Waiting structs one index higher
-             int move_len = 0;
-             move_len = len - (i + 1);
-             memmove(&pending_process[i], &pending_process[i + 1], move_len * sizeof(Waiting));
-             len --;
-             pending_process = realloc(pending_process, len * sizeof(Waiting));
-             found = true;
-             break;
-          }
+        Waiting *w = array_Waiting_get(pending_process, i);
+        if (w->handler) continue;
+
+        array_Waiting_del(pending_process, i);
+        return true;
      }
 
-   return found;
+   return false;
 }
 
 static void
@@ -56,12 +56,12 @@ _spawnregistery_cleanup(void)
 void
 spawnregistery_unlisten(pid_t pid, void(*handler)(void *data, int status, pid_t pid), void *data)
 {
-   for (int i = 0; i < len; i ++)
+   for (int i = 0; i < array_len_get(pending_process); i ++)
      {
-        Waiting *w = &pending_process[i];
+        Waiting *w = array_Waiting_get(pending_process, i);
         if (w->pid == pid && w->handler == handler && w->data == data )
           {
-             memset(&pending_process[i], 0, sizeof(Waiting));
+             memset(w, 0, sizeof(Waiting));
           }
      }
 
@@ -81,12 +81,13 @@ spawnregistery_eval(void)
 
    while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
        printf("Looks like %d has terminated\n", pid);
-       for(int i = 0; i < len; i++)
+       for(int i = 0; i < array_len_get(pending_process); i++)
          {
-            if (pending_process[i].pid == pid)
+            Waiting *w = array_Waiting_get(pending_process, i);
+            if (w->pid == pid)
               {
-                 pending_process[i].handler(pending_process[i].data, status, pid);
-                 spawnregistery_unlisten(pid, pending_process[i].handler, pending_process[i].data);
+                 w->handler(w->data, status, pid);
+                 spawnregistery_unlisten(pid, w->handler, w->data);
               }
          }
     }
