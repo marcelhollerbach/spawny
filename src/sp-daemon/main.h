@@ -20,5 +20,5 @@
 #include "spawnregistery.h"
 #include "greeter.h"
 #include "user_db.h"
-
+#include "array.h"
 #endif

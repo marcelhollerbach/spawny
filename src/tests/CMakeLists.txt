@@ -9,8 +9,11 @@ include_directories(
 set(SPAWNY-DAEMON-TEST-SOURCE
     test.c
     test.h
+    test_array.c
     test_manager.c
     test_templatereg.c
+    ../sp-daemon/array.h
+    ../sp-daemon/array.c
     ../sp-daemon/manager.h
     ../sp-daemon/manager.c
     ../sp-daemon/spawnregistery.c

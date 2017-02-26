@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <check.h>
 
-Suite * manager_suite(void);
-Suite * template_suite(void);
+void array_suite(Suite *spawny_suite);
+void manager_suite(Suite *spawny_suite);
+void template_suite(Suite *spawny_suite);
+
 #endif

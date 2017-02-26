@@ -83,12 +83,9 @@ START_TEST(test_templatereg_unreg)
 }
 END_TEST
 
-Suite * template_suite(void)
+void template_suite(Suite *s)
 {
-    Suite *s;
     TCase *tc_core;
-
-    s = suite_create("Template Registry");
 
     /* Core test case */
     tc_core = tcase_create("template registry");
@@ -97,7 +94,5 @@ Suite * template_suite(void)
     tcase_add_test(tc_core, test_templatereg_details);
     tcase_add_test(tc_core, test_templatereg_unreg);
     suite_add_tcase(s, tc_core);
-
-    return s;
 }
 

@@ -62,19 +62,14 @@ START_TEST(test_fd_select)
 }
 END_TEST
 
-Suite * manager_suite(void)
+void manager_suite(Suite *s)
 {
-    Suite *s;
     TCase *tc_core;
-
-    s = suite_create("Manager");
 
     /* Core test case */
     tc_core = tcase_create("fd select");
 
     tcase_add_test(tc_core, test_fd_select);
     suite_add_tcase(s, tc_core);
-
-    return s;
 }
 
