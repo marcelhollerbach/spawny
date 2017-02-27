@@ -174,22 +174,22 @@ spawnservice_init(void)
 //the following stuff is 99% into a seperated process,
 //=====================================================
 
-static char
-_tty_used(char *buf) {
+static bool
+_vt_used(unsigned int vtnr) {
     unsigned int number;
     char **sessions;
 
     session_enumerate(&sessions, &number);
     for(int i = 0; i < number; i++){
-        char *tty = NULL;
+        int session_vtnr = -1;
 
-        session_details(sessions[i], NULL, NULL, NULL, &tty);
-        if (!tty) continue;
-
-        if (!strcmp(tty, buf))
-          return 1;
+        session_details(sessions[i], NULL, NULL, NULL, &session_vtnr);
+        if (vtnr == session_vtnr)
+          {
+             return true;
+          }
     }
-    return 0;
+    return false;
 }
 
 #define DEVICE_PREFIX "/dev/"
@@ -202,8 +202,9 @@ available_tty(void) {
         if (tty_counter > LAST_TTY) return NULL;
         tty_counter ++;
 
-        snprintf(buf, sizeof(buf), DEVICE_PREFIX"tty%d", tty_counter);
-    } while(_tty_used(buf + sizeof(DEVICE_PREFIX) - 1));
+    } while(_vt_used(tty_counter));
+
+    snprintf(buf, sizeof(buf), DEVICE_PREFIX"tty%d", tty_counter);
 
     return strdup(buf);
 }
@@ -271,6 +272,7 @@ child_run(Spawn_Try *try){
 
     if (!tty) {
         _service_com_exit(try, "Failed to find tty");
+        return false;
     }
 
     pid = fork();

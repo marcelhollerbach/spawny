@@ -78,10 +78,15 @@ session_activate(char *handle) {
     }
 
 int
-session_details(char *handle, uid_t *uid, char **name, char **icon, char **tty) {
-    int ret;
+session_details(char *handle, uid_t *uid, char **name, char **icon, int *vtnr) {
+    int ret = -1;
+    unsigned int vtnr_raw;
 
-    GET_FIELD(sd_session_get_tty, tty, NULL)
+    GET_FIELD(sd_session_get_vt, &vtnr_raw, 0)
+    if (ret < 0)
+      *vtnr = -1;
+    else if (vtnr)
+      *vtnr = vtnr_raw;
     GET_FIELD(sd_session_get_uid, uid, 0)
     GET_FIELD(sd_session_get_desktop, name, NULL)
 
