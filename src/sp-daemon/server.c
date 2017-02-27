@@ -106,6 +106,13 @@ _client_data(Fd_Data *data, int fd) {
 
     msg = spawny__greeter__message__unpack(NULL, len, buf);
 
+    if (!msg)
+      {
+         ERR("Failed to receive message from %d.", fd);
+         manager_unregister_fd(fd);
+         return;
+      }
+
     switch(msg->type){
         case SPAWNY__GREETER__MESSAGE__TYPE__HELLO:
             _send_message(SPAWNY__SERVER__MESSAGE__TYPE__DATA_UPDATE, NULL, &system_data, fd);
