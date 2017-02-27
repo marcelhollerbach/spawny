@@ -31,7 +31,8 @@ static void
 _read_available(Fd_Register *reg, int fd)
 {
     //call callback!
-    reg->cb(&reg->data, fd);
+    if (reg->cb)
+      reg->cb(&reg->data, fd);
 }
 
 static void
@@ -84,6 +85,9 @@ manager_run(void) {
             Fd_Register *reg;
 
             reg = array_Fd_Register_get(fds, i);
+
+            if (!reg->cb) continue;
+
             if (reg->data.fd > max_fd) max_fd = reg->data.fd;
             FD_SET(reg->data.fd, &fds_read);
             FD_SET(reg->data.fd, &fds_error);
@@ -112,14 +116,14 @@ manager_run(void) {
             for(int i = 0; i < array_len_get(fds); i ++) {
                _fd_set_check(array_Fd_Register_get(fds, i), &fds_read, _read_available, i);
             }
-       }
-       readout = 0;
+        }
+        readout = 0;
 
-       //flush out the changes
-       for(; changes > 0; changes --)
-         {
-            _clear_objects();
-         }
+        //flush out the changes
+        for(; changes > 0; changes --)
+          {
+             _clear_objects();
+          }
     }
     return 1;
 }
