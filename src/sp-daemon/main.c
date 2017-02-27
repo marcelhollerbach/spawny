@@ -7,14 +7,14 @@ init_check(void) {
     const char *session;
 
     if (getuid() != 0) {
-        printf("You can only run this as root.\n");
+        ERR("You can only run this as root.");
         exit(-1);
     }
 
     session = current_session_get();
 
     if (session != NULL) {
-        printf("You must start this out of a session. This is in session %s\n", session);
+        ERR("You must start this out of a session. This is in session %s", session);
         exit(-1);
     }
 }
@@ -22,9 +22,11 @@ init_check(void) {
 int
 main(int argc, char **argv)
 {
+    log_init();
     init_check();
     config_init();
     manager_init();
+    greeter_init();
     spawnservice_init();
     spawnregistery_init();
 
@@ -36,9 +38,9 @@ main(int argc, char **argv)
         return -1;
     }
 
-    printf("Init done\n");
     manager_run();
 
     server_shutdown();
+    greeter_shutdown();
     config_shutdown();
 }

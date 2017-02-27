@@ -37,7 +37,7 @@ current_session_get(void) {
 void
 session_enumerate(char ***handles, unsigned int *len) {
     if ((*len = sd_seat_get_sessions("seat0", handles, NULL, NULL)) <= 0) {
-        printf("Failed to get sessions.\n");
+        ERR("Failed to get sessions.");
         *handles = NULL;
         *len = 0;
     }
@@ -59,19 +59,19 @@ session_activate(char *handle) {
         ret = func(handle, field); \
         switch(ret){ \
             case -ENXIO: \
-                printf("Error, The specified session does not exist.\n"); \
+                INF("Error, The specified session does not exist."); \
                 *field = errval; \
             break; \
             case -ENODATA: \
-                printf("Error, The given field is not specified for the described session.\n"); \
+                INF("Error, The given field is not specified for the described session."); \
                 *field = errval; \
             break; \
             case -EINVAL: \
-                printf("Error, An input parameter was invalid (out of range, or NULL, where that is not accepted).\n"); \
+                INF("Error, An input parameter was invalid (out of range, or NULL, where that is not accepted)."); \
                 *field = errval; \
             break; \
             case -ENOMEM: \
-                printf("Error, Memory allocation failed.\n"); \
+                INF("Error, Memory allocation failed."); \
                 *field = errval; \
             break; \
         }\

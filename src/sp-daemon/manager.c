@@ -37,7 +37,7 @@ _read_available(Fd_Register *reg, int fd)
 static void
 _error_available(Fd_Register *reg, int fd)
 {
-   printf("Error on %d\n", reg->data.fd);
+   ERR("Error on %d", reg->data.fd);
    manager_unregister_fd(reg->data.fd);
 }
 

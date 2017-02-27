@@ -80,7 +80,7 @@ spawnregistery_eval(void)
    eval_mode = true;
 
    while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
-       printf("Looks like %d has terminated\n", pid);
+       INF("Looks like %d has terminated", pid);
        for(int i = 0; i < array_len_get(pending_process); i++)
          {
             Waiting *w = array_Waiting_get(pending_process, i);

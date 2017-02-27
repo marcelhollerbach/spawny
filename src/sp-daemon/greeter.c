@@ -15,22 +15,35 @@ typedef struct {
     int end; /* set if this is meant to be closed */
 } Seat_Greeter;
 
-static Seat_Greeter *greeters;
-static int len = 0;
+static Array *greeters;
 
+ARRAY_API(Seat_Greeter)
+
+void
+greeter_init(void)
+{
+   greeters = array_Seat_Greeter_new();
+}
+
+void
+greeter_shutdown(void)
+{
+   array_free(greeters);
+   greeters = NULL;
+}
 
 #define FALLBACK_RUN_GENERATION 5
 
 static Seat_Greeter*
 _greeter_add(const char *seat) {
-   len++;
+   Seat_Greeter *greeter;
 
-   greeters = realloc(greeters, len * sizeof(Seat_Greeter));
-   memset(&greeters[len - 1], 0, sizeof(Seat_Greeter));
-   greeters[len - 1].seat = strdup(seat);
-   greeters[len - 1].run.pid = -1;
+   greeter = array_Seat_Greeter_add(greeters);
 
-   return &greeters[len - 1];
+   memset(greeter, 0, sizeof(Seat_Greeter));
+   greeter->seat = strdup(seat);
+   greeter->run.pid = -1;
+   return greeter;
 }
 
 static void
@@ -41,9 +54,10 @@ _greeter_run_reset(Seat_Greeter *greeter) {
 
 static Seat_Greeter*
 _greeter_search(const char *seat) {
-    for (int i = 0; i < len; i++) {
-        if (!strcmp(greeters[i].seat, seat))
-            return &greeters[i];
+    for (int i = 0; i < array_len_get(greeters); i++) {
+        Seat_Greeter *greeter = array_Seat_Greeter_get(greeters, i);
+        if (!strcmp(greeter->seat, seat))
+            return greeter;
     }
 
     return NULL;
@@ -51,23 +65,14 @@ _greeter_search(const char *seat) {
 
 static void
 _greeter_del(const char *seat) {
-    int mode = 0;
-
-    for (int i = 0; i < len; i++) {
-        switch(mode){
-            case 0:
-                if (!strcmp(greeters[i].seat, seat))
-                  mode = 1;
-            break;
-            case 1:
-                greeters[i - 1] = greeters[i];
-            break;
-        }
+    for (int i = 0; i < array_len_get(greeters); i++) {
+        Seat_Greeter *greeter = array_Seat_Greeter_get(greeters, i);
+        if (!strcmp(greeter->seat, seat))
+          {
+             array_Seat_Greeter_del(greeters, i);
+             return;
+          }
     }
-
-    //realloc
-    len --;
-    greeters = realloc(greeters, len * sizeof(Seat_Greeter));
 }
 
 
@@ -79,14 +84,14 @@ _greeter_done(void *data, int status, pid_t pid) {
     if (!greeter->end) {
         greeter->run_gen ++;
 
-        printf("Greeter exited unexpected\n");
+        ERR("Greeter exited unexpected");
 
         _greeter_run_reset(greeter);
         greeter_activate(greeter->seat);
 
     } else {
 
-        printf("Greeter shutted down!\n");
+        INF("Greeter shutted down!");
         _greeter_del(greeter->seat);
     }
 }
@@ -98,13 +103,13 @@ _greeter_start_done(void *data, Spawn_Service_End end) {
     greeter = data;
 
     if (end.success == SPAWN_SERVICE_ERROR) {
-        printf("Greeter died, reexecute! %s\n", end.message);
+        ERR("Greeter died, reexecute! %s", end.message);
 
         _greeter_run_reset(greeter);
         greeter_activate(greeter->seat);
         return;
     } else {
-        printf("Greeter started.\n");
+        INF("Greeter started.");
 
         //keep track of the session
         greeter->run.pid = greeter->run.try->pid;
@@ -133,7 +138,7 @@ _greeter_job(void *data) {
 
     cmd = basename(cmdpath);
 
-    printf("Starting greeter app %s\n", cmdpath);
+    printf("Starting greeter app %s", cmdpath);
     execl(cmdpath, cmd, NULL);
     exit(1);
 }
@@ -171,7 +176,7 @@ greeter_lockout(const char *seat) {
     greeter = _greeter_search(seat);
 
     if (!greeter) {
-        printf("Failed to lockout greeter for seat %s\n", seat);
+        ERR("Failed to lockout greeter for seat %s", seat);
         return;
     }
 

@@ -21,6 +21,8 @@ foreach(part ${PROTOCOL_FILES})
 endforeach()
 
 set(SPAWNY-DAEMON-SOURCE
+    log.c
+    log.h
     main.c
     array.h
     array.c

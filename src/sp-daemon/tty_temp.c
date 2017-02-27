@@ -20,5 +20,5 @@ void
 tty_template_init(void) {
     const char *temp;
     if (!(temp = template_register("tty", "utilities-terminal", _tty_fire_up, NULL)))
-      printf("Failed to register template\n");
+      ERR("Failed to register template");
 }

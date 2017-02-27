@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "log.h"
 #include "sp_protocol.h"
 #include "config.h"
 

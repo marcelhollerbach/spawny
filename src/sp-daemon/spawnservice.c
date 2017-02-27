@@ -70,7 +70,7 @@ _child_data(Fd_Data *data, int fd)
    msg = spawny__spawn__message__unpack(NULL, len, buffer);
 
    if (!msg) {
-     printf("Got a wrong message.\n");
+     ERR("Got a wrong message.");
      return;
    }
 
@@ -81,19 +81,19 @@ _child_data(Fd_Data *data, int fd)
        case SPAWNY__SPAWN__MESSAGE__TYPE__SETUP_DONE:
            //we need to activate the passed session
            try->session = sesison_get(try->pid);
-           printf("Activating session %s\n", try->session);
+           INF("Activating session %s", try->session);
            session_activate(try->session);
        break;
        case SPAWNY__SPAWN__MESSAGE__TYPE__SESSION_ACTIVE:
            //the session is up, and will die now
-           printf("Session is up\n");
+           INF("Session is up");
            manager_unregister_fd(try->com.fd[READ]);
            try->exit.success = SPAWN_SERVICE_SUCCESS;
            _spawn_try_free(try);
        break;
        case SPAWNY__SPAWN__MESSAGE__TYPE__ERROR_EXIT:
            //print the error somewhere
-           printf("Session exit with %s\n", msg->exit);
+           INF("Session exit with %s", msg->exit);
            manager_unregister_fd(try->com.fd[READ]);
            try->exit.error_msg = strdup(msg->exit);
            _spawn_try_free(try);
@@ -325,7 +325,7 @@ child_run(Spawn_Try *try){
 
 
         //if we get here we are basically fucked.
-        printf("Job didnt take the process, exiting!\n");
+        ERR("Job didnt take the process, exiting!");
 
         exit(-1);
     } else {
@@ -456,7 +456,7 @@ open_tty(Spawn_Try *try, char *tty)
     /* clear everything */
     printf("\033[r\033[H\033[J");
 
-    printf("\\o/ tty is alive!\n");
+    printf("\\o/ tty is alive!");
 
    return 1;
 }

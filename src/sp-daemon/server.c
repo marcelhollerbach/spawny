@@ -54,7 +54,7 @@ _send_message(Spawny__Server__MessageType type, Spawny__Server__LoginFeedback *f
 static void
 _session_job(void *data) {
     if (!template_run(data))
-      printf("Failed to run template, template not found");
+      ERR("Failed to run template, template not found");
 }
 
 void
@@ -81,7 +81,7 @@ _session_done(void *data, Spawn_Service_End end) {
     } else {
         greeter_lockout(seat_get(client->client_info.pid));
         server_spawnservice_feedback(1, "You are logged in!", client->fd);
-        printf("User Session alive.\n");
+        INF("User Session alive.");
         client_free(data);
     }
 
@@ -109,19 +109,19 @@ _client_data(Fd_Data *data, int fd) {
     switch(msg->type){
         case SPAWNY__GREETER__MESSAGE__TYPE__HELLO:
             _send_message(SPAWNY__SERVER__MESSAGE__TYPE__DATA_UPDATE, NULL, &system_data, fd);
-            printf("Greeter said ehllo, wrote system_data\n");
+            INF("Greeter said ehllo, wrote system_data");
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__SESSION_ACTIVATION:
             session_activate(msg->session);
             greeter_lockout(seat_get(client->client_info.pid));
-            printf("Greeter session activation %s\n", msg->session);
+            INF("Greeter session activation %s", msg->session);
             client_free(client);
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__LOGIN_TRY:
             if (!spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, PAM_SERVICE, msg->login->user, msg->login->password)) {
                 server_spawnservice_feedback(0, "spawn failed.", fd);
             }
-            printf("Greeter login try\n");
+            INF("Greeter login try");
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__GREETER_START:
             seat = seat_get(client->client_info.pid);
@@ -224,7 +224,7 @@ _init_data(void) {
         if (!session_details(sessions_raw[i], &uid, &sessions[i - offset]->icon, &sessions[i - offset]->name, NULL)) {
             free(sessions[i - offset]);
             sessions[i - offset] = NULL;
-            printf("%s %d failed to fetch details\n", sessions_raw[i], i);
+            ERR("%s %d failed to fetch details", sessions_raw[i], i);
             offset ++;
             sessions = realloc(sessions, (number - offset) * sizeof(Spawny__Server__Session));
             continue;
@@ -263,7 +263,7 @@ _socket_setup(void)
 
     n = sd_listen_fds(0);
     if (n > 1) {
-        printf("Error, systemd passed to many fd´s!");
+        ERR("Error, systemd passed to many fd´s!");
         return 0;
     } else if (n == 1) {
         server_sock = SD_LISTEN_FDS_START + 0;

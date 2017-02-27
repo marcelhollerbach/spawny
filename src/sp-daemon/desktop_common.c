@@ -35,22 +35,22 @@ _parse_file(const char *file, Template_Fire_Up fire_up) {
     X11_Session session = { NULL };
 
     if (!parse_ini_verbose(file, _parse_file_handler, &session)) {
-        printf("Failed to parse %s\n", file);
+        ERR("Failed to parse %s", file);
         return;
     }
 
     if (!session.name) {
-        printf("Session name not found %s\n", file);
+        ERR("Session name not found %s", file);
         goto not_register;
     }
 
     if (!session.exec) {
-        printf("Session exec not found %s\n", session.name);
+        ERR("Session exec not found %s", session.name);
         goto not_register;
     }
 
     if (!session.icon) {
-        printf("Session icon not set for %s.\n", session.name);
+        INF("Session icon not set for %s.", session.name);
     }
 
     template_register(session.name, session.icon, fire_up, session.exec);
@@ -97,11 +97,11 @@ parse_ini_verbose(const char* filename, ini_handler handler, void* user) {
     if (!ret) return 1; /* yey no error */
 
     if (ret == -1) {
-        fprintf(stderr, "Failed to open %s\n", filename);
+        ERR("Failed to open %s", filename);
     } else if (ret == -2) {
-        fprintf(stderr, "Failed to allocate memory on parsing %s.\n", filename);
+        ERR("Failed to allocate memory on parsing %s.", filename);
     } else {
-        fprintf(stderr, "Failed to parse %s. Error on line %d\n", filename, ret);
+        ERR("Failed to parse %s. Error on line %d", filename, ret);
     }
     return 0;
 }

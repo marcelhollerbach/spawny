@@ -12,6 +12,8 @@ set(SPAWNY-DAEMON-TEST-SOURCE
     test_array.c
     test_manager.c
     test_templatereg.c
+    ../sp-daemon/log.h
+    ../sp-daemon/log.c
     ../sp-daemon/array.h
     ../sp-daemon/array.c
     ../sp-daemon/manager.h
