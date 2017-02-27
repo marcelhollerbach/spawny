@@ -36,6 +36,8 @@ _spawn_try_free(Spawn_Try *try)
 {
     Spawn_Service_End end;
 
+    manager_unregister_fd(try->com.fd[READ]);
+
     close(try->com.fd[READ]);
     close(try->com.fd[WRITE]);
 
@@ -58,6 +60,14 @@ _spawn_try_free(Spawn_Try *try)
 }
 
 static void
+_force_quit(Spawn_Try *try)
+{
+   if (try->pid > 0) {
+      kill(try->pid, SIGKILL);
+   }
+}
+
+static void
 _child_data(Fd_Data *data, int fd)
 {
    Spawny__Spawn__Message *msg = NULL;
@@ -70,7 +80,9 @@ _child_data(Fd_Data *data, int fd)
    msg = spawny__spawn__message__unpack(NULL, len, buffer);
 
    if (!msg) {
-     ERR("Got a wrong message.");
+     ERR("%p: Got a wrong message.");
+     manager_unregister_fd(fd);
+     _force_quit(try);
      return;
    }
 
@@ -81,22 +93,25 @@ _child_data(Fd_Data *data, int fd)
        case SPAWNY__SPAWN__MESSAGE__TYPE__SETUP_DONE:
            //we need to activate the passed session
            try->session = sesison_get(try->pid);
-           INF("Activating session %s", try->session);
+           if (!try->session)
+             {
+                ERR("Failed to fetch session of %d killing it", try->pid);
+                _force_quit(try);
+             }
+           INF("%p: Activating session %s", data->data, try->session);
            session_activate(try->session);
        break;
        case SPAWNY__SPAWN__MESSAGE__TYPE__SESSION_ACTIVE:
            //the session is up, and will die now
-           INF("Session is up");
+           INF("%p: Session is up", data->data);
            manager_unregister_fd(try->com.fd[READ]);
            try->exit.success = SPAWN_SERVICE_SUCCESS;
-           _spawn_try_free(try);
        break;
        case SPAWNY__SPAWN__MESSAGE__TYPE__ERROR_EXIT:
            //print the error somewhere
-           INF("Session exit with %s", msg->exit);
+           INF("%p: Session exit with %s", data->data, msg->exit);
            manager_unregister_fd(try->com.fd[READ]);
            try->exit.error_msg = strdup(msg->exit);
-           _spawn_try_free(try);
        break;
        default:
        break;
@@ -242,6 +257,7 @@ _spawned_session_disappear(void *data, int signal, pid_t pid)
 
    try = data;
 
+   INF("Spawn session %p disappeared", try);
    _spawn_try_free(try);
 }
 
