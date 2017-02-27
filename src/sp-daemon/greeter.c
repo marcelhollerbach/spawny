@@ -103,7 +103,7 @@ _greeter_start_done(void *data, Spawn_Service_End end) {
     greeter = data;
 
     if (end.success == SPAWN_SERVICE_ERROR) {
-        ERR("Greeter died, reexecute! %s", end.message);
+        ERR("Greeter died reason: (%s), reexecute!", end.message);
 
         _greeter_run_reset(greeter);
         greeter_activate(greeter->seat);
