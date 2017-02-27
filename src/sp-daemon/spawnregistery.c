@@ -86,8 +86,11 @@ spawnregistery_eval(void)
             Waiting *w = array_Waiting_get(pending_process, i);
             if (w->pid == pid)
               {
+                 void(*handler)(void *data, int status, pid_t pid) = w->handler;
+                 void *data = w->data;
+
                  w->handler(w->data, status, pid);
-                 spawnregistery_unlisten(pid, w->handler, w->data);
+                 spawnregistery_unlisten(pid, handler, data);
               }
          }
     }
