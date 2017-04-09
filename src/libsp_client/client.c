@@ -21,17 +21,17 @@ static void _data_convert(Sp_Client_Context *ctx, Spawny__Server__Data *data);
 
 #define API_ENTRY(purpose_value) \
     if (!ctx) { \
-        printf("Library not initializied\n"); \
+        ERR("Library not initializied\n"); \
         return 0; \
     }  \
     if (ctx->purpose != purpose_value) { \
-        printf("Library in wrong purpose-state\n"); \
+        ERR("Library in wrong purpose-state\n"); \
         return 0; \
     }
 
 #define API_CALLBACK_CHECK() \
     if (!ctx) { \
-        printf("Library not initializied\n"); \
+        ERR("Library not initializied\n"); \
         return 0; \
     }
 
@@ -46,7 +46,7 @@ struct _Sp_Client_Context{
    Numbered_Array users;
 };
 
-#define WRITE(c, m) if (!_write_msg(c, m)) return false;
+#define WRITE(c, m) if (!_write_msg(c, m)) { ERR("Write failed.") return false; }
 
 //Helper functions
 
@@ -68,11 +68,11 @@ static bool
 _interface_check(Sp_Client_Interface *interface) {
     if (!interface) return 0;
     if (!interface->feedback_cb) {
-        printf("feedback_cb cannot be NULL\n");
+        ERR("feedback_cb cannot be NULL\n");
         return false;
     }
     if (!interface->data_cb) {
-        printf("data_cb cannot be NULL\n");
+        ERR("data_cb cannot be NULL\n");
         return false;
     }
     return true;
@@ -109,7 +109,11 @@ sp_client_session_activate(Sp_Client_Context *ctx, int session) {
     API_ENTRY(SP_CLIENT_LOGIN_PURPOSE_GREETER_JOB)
     API_CALLBACK_CHECK()
 
-    if (session < 0 || session >= ctx->private_sessions.length) return false;
+    if (session < 0 || session >= ctx->private_sessions.length)
+      {
+         ERR("The session(%d) is invalid!\n", session);
+         return false;
+      }
 
     Private_Session ps = ARRAY_ACCESS(&ctx->private_sessions, Private_Session, session);
 
@@ -128,7 +132,11 @@ sp_client_login(Sp_Client_Context *ctx, const char *usr, const char *pw, int tem
     API_ENTRY(SP_CLIENT_LOGIN_PURPOSE_GREETER_JOB)
     API_CALLBACK_CHECK()
 
-    if (template < 0 || template >= ctx->private_templates.length) return false;
+    if (template < 0 || template >= ctx->private_templates.length)
+      {
+         ERR("The template(%d) is invalid!\n", template);
+         return false;
+      }
 
     Private_Template pt = ARRAY_ACCESS(&ctx->private_templates, Private_Template, template);
 
@@ -156,7 +164,7 @@ sp_client_init(Sp_Client_Login_Purpose purpose) {
     ctx = calloc(1, sizeof(Sp_Client_Context));
 
     if (purpose < SP_CLIENT_LOGIN_PURPOSE_START_GREETER || purpose >= SP_CLIENT_LOGIN_PURPOSE_LAST) {
-        printf("Invalid purpose!\n");
+        ERR("Invalid purpose!\n");
         goto end;
     }
 
@@ -223,7 +231,7 @@ sp_client_read(Sp_Client_Context *ctx, Sp_Client_Interface *interface) {
     msg = spawny__server__message__unpack(NULL, len, buf);
 
     if (!msg) {
-        printf("Invalid data object\n");
+        ERR("Invalid data object\n");
         return SP_CLIENT_READ_RESULT_FAILURE;
     }
 

@@ -7,6 +7,7 @@ include_directories(
 set(SPAWNY_CLIENT_LIB
   client.c
   Sp_Client.h
+  ../sp-daemon/log.c
 )
 
 add_library(SpClient SHARED

@@ -1,6 +1,8 @@
-#include "main.h"
+#include "log.h"
 #include <libgen.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 static int min_log_level;
 

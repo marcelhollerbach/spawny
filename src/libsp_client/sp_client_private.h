@@ -5,6 +5,9 @@
 #include "server.pb-c.h"
 #include "config.h"
 
+//lets steal the log.c and log.h from the sp-daemon
+#include "../sp-daemon/log.h"
+
 #include <sys/un.h>
 
 const char* sp_service_path_get(void);

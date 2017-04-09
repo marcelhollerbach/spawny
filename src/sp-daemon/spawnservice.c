@@ -564,6 +564,7 @@ pam_auth(Spawn_Try *try, char ***env, int vtnr) {
      PAM_CHECK }
 
     PE("HOME",pwd->pw_dir);
+    PE("PWD",pwd->pw_dir);
     PE("SHELL",pwd->pw_shell);
     PE("USER",pwd->pw_name);
     PE("LOGNAME",pwd->pw_name);
