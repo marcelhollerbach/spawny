@@ -82,6 +82,8 @@ parse_dir(const char *directory_path, Template_Fire_Up fire_up) {
             _parse_file(path, fire_up);
         }
     }
+
+    closedir(directory);
 }
 
 /**
