@@ -83,10 +83,11 @@ session_details(char *handle, uid_t *uid, char **name, char **icon, int *vtnr) {
     unsigned int vtnr_raw;
 
     GET_FIELD(sd_session_get_vt, &vtnr_raw, 0)
-    if (ret < 0)
-      *vtnr = -1;
-    else if (vtnr)
-      *vtnr = vtnr_raw;
+    if (ret < 0) {
+      if (vtnr) {*vtnr = -1;}
+    } else if (vtnr) {
+      if (vtnr) {*vtnr = vtnr_raw;}
+    }
     GET_FIELD(sd_session_get_uid, uid, 0)
     GET_FIELD(sd_session_get_desktop, name, NULL)
 
