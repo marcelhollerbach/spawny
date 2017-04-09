@@ -281,6 +281,8 @@ _load_file(const char *filename)
         return;
     }
 
+    fclose(file);
+
     listuser = _user_add();
     memcpy(listuser, &user, sizeof(User));
 }
@@ -304,6 +306,8 @@ _load_from_fs(void) {
             _load_file(filename);
         }
     }
+
+    closedir(od);
 }
 
 bool
@@ -334,6 +338,8 @@ user_db_sync(void) {
 
         _put_user(&tmp_usr);
     }
+
+    free(users);
 
     if (!damage) return true;
 
