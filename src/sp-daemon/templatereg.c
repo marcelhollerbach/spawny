@@ -126,3 +126,12 @@ template_get(char ***template_ids, unsigned int *num) {
 
     return 1;
 }
+
+void
+template_shutdown(void)
+{
+    while(array_len_get(array)) {
+        Template *t = array_get(array, 0);
+        template_unregister(t->id);
+    }
+}

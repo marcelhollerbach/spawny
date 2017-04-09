@@ -259,6 +259,8 @@ _init_data(void) {
         template_details_get(templates_raw[i], (const char**)&templates[i]->name, (const char**)&templates[i]->icon);
     }
 
+    free(templates_raw);
+
     system_data.templates = templates;
     system_data.n_templates = number;
 }

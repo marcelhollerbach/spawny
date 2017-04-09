@@ -42,5 +42,6 @@ main(int argc, char **argv)
 
     server_shutdown();
     greeter_shutdown();
+    template_shutdown();
     config_shutdown();
 }
