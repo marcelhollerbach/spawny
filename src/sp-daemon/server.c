@@ -115,22 +115,23 @@ _client_data(Fd_Data *data, int fd) {
 
     switch(msg->type){
         case SPAWNY__GREETER__MESSAGE__TYPE__HELLO:
-            _send_message(SPAWNY__SERVER__MESSAGE__TYPE__DATA_UPDATE, NULL, &system_data, fd);
             INF("Greeter said ehllo, wrote system_data");
+            _send_message(SPAWNY__SERVER__MESSAGE__TYPE__DATA_UPDATE, NULL, &system_data, fd);
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__SESSION_ACTIVATION:
+            INF("Greeter session activation %s", msg->session);
             session_activate(msg->session);
             greeter_lockout(seat_get(client->client_info.pid));
-            INF("Greeter session activation %s", msg->session);
             client_free(client);
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__LOGIN_TRY:
+            INF("Greeter login try");
             if (!spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, PAM_SERVICE, msg->login->user, msg->login->password)) {
                 server_spawnservice_feedback(0, "spawn failed.", fd);
             }
-            INF("Greeter login try");
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__GREETER_START:
+            INF("Greeter start");
             seat = seat_get(client->client_info.pid);
             if (!seat) seat = "seat0";
             greeter_activate(seat);
