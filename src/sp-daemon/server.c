@@ -187,7 +187,7 @@ _init_data(void) {
     Spawny__Server__User **user;
     Spawny__Server__Session **sessions;
     Spawny__Server__SessionTemplate **templates;
-    unsigned int number;
+    unsigned int number = 0;
     unsigned int offset = 0;
 
     number = user_db_users_iterate(&usernames);
