@@ -588,6 +588,8 @@ pam_auth(Spawn_Try *try, char ***env, int vtnr) {
 
 #undef PAM_CHECK
 
+    chdir(pwd->pw_dir);
+
     *env = pam_getenvlist(handle);
 
     if (initgroups(try->usr, pwd->pw_gid) != 0) {
