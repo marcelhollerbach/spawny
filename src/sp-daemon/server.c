@@ -26,6 +26,7 @@ typedef struct {
 } Client;
 
 static int server_sock;
+static void _load_data(void);
 
 static Spawny__Server__Data system_data = SPAWNY__SERVER__DATA__INIT;
 
@@ -116,6 +117,8 @@ _client_data(Fd_Data *data, int fd) {
     switch(msg->type){
         case SPAWNY__GREETER__MESSAGE__TYPE__HELLO:
             INF("Greeter said ehllo, wrote system_data");
+            //load the newesr available data
+            _load_data();
             _send_message(SPAWNY__SERVER__MESSAGE__TYPE__DATA_UPDATE, NULL, &system_data, fd);
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__SESSION_ACTIVATION:
@@ -182,13 +185,47 @@ _accept_ready(Fd_Data *data, int fd)
 }
 
 static void
-_init_data(void) {
-    char **usernames, **sessions_raw, **templates_raw;
-    Spawny__Server__User **user;
+_load_sessions(void)
+{
+    unsigned int offset = 0, number = 0;
     Spawny__Server__Session **sessions;
-    Spawny__Server__SessionTemplate **templates;
-    unsigned int number = 0;
-    unsigned int offset = 0;
+    char **sessions_raw;
+
+    session_enumerate(&sessions_raw, &number);
+
+    sessions = calloc(number, sizeof(Spawny__Server__Session*));
+
+    for (int i = 0;i < number;i ++){
+        uid_t uid;
+        struct passwd* user;
+        sessions[i - offset] = calloc(1, sizeof(Spawny__Server__Session));
+        spawny__server__session__init(sessions[i - offset]);
+
+        if (!session_details(sessions_raw[i], &uid, &sessions[i - offset]->icon, &sessions[i - offset]->name, NULL)) {
+            free(sessions[i - offset]);
+            sessions[i - offset] = NULL;
+            ERR("%s %d failed to fetch details", sessions_raw[i], i);
+            offset ++;
+            sessions = realloc(sessions, (number - offset) * sizeof(Spawny__Server__Session));
+            continue;
+        }
+
+        user = getpwuid(uid);
+
+        sessions[i - offset]->id = sessions_raw[i];
+        sessions[i - offset]->user = user->pw_name;
+    }
+
+    system_data.n_sessions = number - offset;
+    system_data.sessions = sessions;
+}
+
+static void
+_load_users(void)
+{
+    Spawny__Server__User **user;
+    char **usernames;
+    unsigned int number;
 
     number = user_db_users_iterate(&usernames);
 
@@ -219,33 +256,15 @@ _init_data(void) {
     system_data.users = user;
     system_data.n_users = number;
 
-    session_enumerate(&sessions_raw, &number);
+}
 
-    sessions = calloc(number, sizeof(Spawny__Server__Session*));
+static void
+_load_templates(void)
+{
+    char **templates_raw;
 
-    for (int i = 0;i < number;i ++){
-        uid_t uid;
-        struct passwd* user;
-        sessions[i - offset] = calloc(1, sizeof(Spawny__Server__Session));
-        spawny__server__session__init(sessions[i - offset]);
-
-        if (!session_details(sessions_raw[i], &uid, &sessions[i - offset]->icon, &sessions[i - offset]->name, NULL)) {
-            free(sessions[i - offset]);
-            sessions[i - offset] = NULL;
-            ERR("%s %d failed to fetch details", sessions_raw[i], i);
-            offset ++;
-            sessions = realloc(sessions, (number - offset) * sizeof(Spawny__Server__Session));
-            continue;
-        }
-
-        user = getpwuid(uid);
-
-        sessions[i - offset]->id = sessions_raw[i];
-        sessions[i - offset]->user = user->pw_name;
-    }
-
-    system_data.n_sessions = number - offset;
-    system_data.sessions = sessions;
+    Spawny__Server__SessionTemplate **templates;
+    unsigned int number = 0;
 
     template_get(&templates_raw, &number);
 
@@ -263,6 +282,14 @@ _init_data(void) {
 
     system_data.templates = templates;
     system_data.n_templates = number;
+
+}
+
+static void
+_load_data(void) {
+    _load_templates();
+    _load_users();
+    _load_sessions();
 }
 
 static int
@@ -318,9 +345,6 @@ server_init(void) {
 
     //listen on the socket
     manager_register_fd(server_sock, _accept_ready, NULL);
-
-    //initializise data
-    _init_data();
 
     return 1;
 }
