@@ -43,9 +43,8 @@ login(void) {
         } else if (atoi(template) != 0) {
             temp = atoi(template);
         }
-    }while(temp < 1 || temp > templates.length);
+    }while(!sp_client_login(ctx, username, password, temp - 1));
 
-    sp_client_login(ctx, username, password, temp - 1);
     PROMPT("Waiting for feedback\n");
 }
 
@@ -68,9 +67,9 @@ listsessions(void) {
 
         scanf("%s", session);
         id = atoi(session);
-    } while(id < 1 || id > sessions.length);
+    } while(!sp_client_session_activate(ctx, id - 1));
 
-    sp_client_session_activate(ctx, id - 1);
+
     PROMPT("Waiting for activation\n");
 }
 
