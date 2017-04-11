@@ -11,18 +11,19 @@ set(PROTOCOL_FILES
 
 foreach(part ${PROTOCOL_FILES})
     add_custom_command(
-       OUTPUT ${PROJECT_SOURCE_DIR}/src/protocol/${part}.pb-c.c
-       OUTPUT ${PROJECT_SOURCE_DIR}/src/protocol/${part}.pb-c.h
-       COMMAND cd ${PROJECT_SOURCE_DIR}/src/protocol && protoc-c ${part}.proto --c_out=${PROJECT_SOURCE_DIR}/src/protocol
+       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${part}.pb-c.c
+       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${part}.pb-c.h
+       COMMAND protoc-c ${part}.proto --c_out=${CMAKE_CURRENT_BINARY_DIR}
+       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/sp-protocol
        DEPENDS ${part}.proto
     )
 endforeach()
 
 set(SP_PROTOCOL_LIB
-  server.pb-c.c
-  server.pb-c.h
-  greeter.pb-c.c
-  greeter.pb-c.h
+  ${CMAKE_CURRENT_BINARY_DIR}/server.pb-c.c
+  ${CMAKE_CURRENT_BINARY_DIR}/server.pb-c.h
+  ${CMAKE_CURRENT_BINARY_DIR}/greeter.pb-c.c
+  ${CMAKE_CURRENT_BINARY_DIR}/greeter.pb-c.h
   socket_creation.c
   sp_protocol.h
 )

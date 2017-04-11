@@ -1,3 +1,4 @@
+syntax = "proto2";
 package spawny.Greeter;
 
 enum Message_Type {
