@@ -3,6 +3,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src/sp-protocol/
     ${PROJECT_SOURCE_DIR}/src/sp-user-db/
     ${PROJECT_SOURCE_DIR}/src/config/
+    ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 set(PROTOCOL_FILES
@@ -13,9 +14,10 @@ set(PROTOCOL_FILES
 
 foreach(part ${PROTOCOL_FILES})
     add_custom_command(
-       OUTPUT ${PROJECT_SOURCE_DIR}/src/sp-daemon/${part}.pb-c.c
-       OUTPUT ${PROJECT_SOURCE_DIR}/src/sp-daemon/${part}.pb-c.h
-       COMMAND cd ${PROJECT_SOURCE_DIR}/src/sp-daemon && protoc-c ${part}.proto --c_out=${PROJECT_SOURCE_DIR}/src/sp-daemon
+       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${part}.pb-c.c
+       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${part}.pb-c.h
+       COMMAND protoc-c ${part}.proto --c_out=${CMAKE_CURRENT_BINARY_DIR}
+       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/sp-daemon
        DEPENDS ${part}.proto
     )
 endforeach()
@@ -48,8 +50,8 @@ set(SPAWNY-DAEMON-SOURCE
     x11_temp.c
     desktop_common.c
     desktop_common.h
-    session_spawn.pb-c.c
-    session_spawn.pb-c.h
+    ${CMAKE_CURRENT_BINARY_DIR}/session_spawn.pb-c.c
+    ${CMAKE_CURRENT_BINARY_DIR}/session_spawn.pb-c.h
     ${PROJECT_SOURCE_DIR}/components/inih/ini.h
     ${PROJECT_SOURCE_DIR}/components/inih/ini.c
 )

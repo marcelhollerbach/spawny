@@ -1,4 +1,5 @@
 #include "main.h"
+#include "session_spawn.pb-c.h"
 
 #include <sys/ioctl.h>
 #include <sys/types.h>

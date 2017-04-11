@@ -8,7 +8,6 @@
 #include "sp_protocol.h"
 #include "config.h"
 
-#include "session_spawn.pb-c.h"
 #include "app_config.h"
 #include "spawnservice.h"
 #include "desktop_common.h"
