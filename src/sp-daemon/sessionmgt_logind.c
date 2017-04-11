@@ -36,7 +36,7 @@ current_session_get(void) {
 
 void
 session_enumerate(char ***handles, unsigned int *len) {
-    if ((*len = sd_seat_get_sessions("seat0", handles, NULL, NULL)) <= 0) {
+    if (sd_seat_get_sessions("seat0", handles, NULL, len) <= 0) {
         ERR("Failed to get sessions.");
         *handles = NULL;
         *len = 0;
