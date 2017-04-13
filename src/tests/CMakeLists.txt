@@ -4,6 +4,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src/sp-protocol/
     ${PROJECT_SOURCE_DIR}/src/sp-user-db/
     ${PROJECT_BINARY_DIR}/src/config/
+    ${PROJECT_BINARY_DIR}/src/sp-protocol/
 )
 
 set(SPAWNY-DAEMON-TEST-SOURCE
