@@ -44,6 +44,7 @@ export(EXPORT SpClientTargets
 
 configure_file(${CMAKE_SOURCE_DIR}/cmake/SpClientConfig.cmake.in
   "${ConfigProjectLocation}/SpClientConfig.cmake"
+  @ONLY
 )
 
 install(EXPORT SpClientTargets
