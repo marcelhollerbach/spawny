@@ -73,8 +73,10 @@ typedef struct {
 typedef struct _Sp_Client_Context Sp_Client_Context;
 
 /**
- * Create a new context
+ * Create a new context. Will scan the argv for --debug or -d to enable connecting to the debug deamon
  *
+ * @param argv    the arguments that are passed to the application
+ * @param argc    the arguments count that got passed to the application
  * @param purpose if purpose is SP_CLIENT_LOGIN_PURPOSE_START_GREETER
                   the function ALWAYS returns NULL and sends the start
                   greeter to the daemon
@@ -83,7 +85,7 @@ typedef struct _Sp_Client_Context Sp_Client_Context;
  * @return a new context on success NULL on failure if purpose is not START_GREETER.
  *
  */
-Sp_Client_Context* sp_client_init(Sp_Client_Login_Purpose purpose);
+Sp_Client_Context* sp_client_init(int argc, char *argv[], Sp_Client_Login_Purpose purpose);
 
 /**
  * Get the data. Can return empty stuff if nothing is here right now

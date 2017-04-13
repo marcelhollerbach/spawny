@@ -21,4 +21,7 @@
 #include "greeter.h"
 #include "user_db.h"
 #include "array.h"
+
+extern bool debug;
+
 #endif

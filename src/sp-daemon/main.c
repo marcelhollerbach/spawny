@@ -1,6 +1,7 @@
 #include "main.h"
 #include <unistd.h>
 
+bool debug;
 
 static void
 init_check(void) {
@@ -19,9 +20,31 @@ init_check(void) {
     }
 }
 
+void
+print_help(void)
+{
+    printf("There is only the --debug option that should be used to debug");
+}
+
+void
+_parse_args(int argc, char *argv[])
+{
+   debug = false;
+
+   for (int i = 1; i < argc; ++i) {
+        if (!strcmp(argv[i], "--debug") || !strcmp(argv[i], "-d")) {
+            debug = true;
+        } else {
+            print_help();
+            exit(-1);
+        }
+   }
+}
+
 int
 main(int argc, char **argv)
 {
+    _parse_args(argc, argv);
     log_init();
     init_check();
     config_init();

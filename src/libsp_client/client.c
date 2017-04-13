@@ -37,6 +37,7 @@ static void _data_convert(Sp_Client_Context *ctx, Spawny__Server__Data *data);
 
 struct _Sp_Client_Context{
    Sp_Client_Login_Purpose purpose;
+   bool debug;
    int server_sock;
    Spawny__Server__Data server_data;
    Numbered_Array sessions;
@@ -157,11 +158,26 @@ sp_client_login(Sp_Client_Context *ctx, const char *usr, const char *pw, int tem
 
 //Context creation / free
 
+
+void
+_parse_args(Sp_Client_Context *ctx, int argc, char *argv[])
+{
+   for (int i = 1; i < argc; ++i) {
+        if (!strcmp(argv[i], "--debug") || !strcmp(argv[i], "-d")) {
+            ctx->debug = true;
+        }
+   }
+}
+
 Sp_Client_Context*
-sp_client_init(Sp_Client_Login_Purpose purpose) {
+sp_client_init(int argc, char *argv[], Sp_Client_Login_Purpose purpose) {
     Sp_Client_Context *ctx;
 
     ctx = calloc(1, sizeof(Sp_Client_Context));
+
+    ctx->debug = false;
+    if (argc > 0 && argv)
+      _parse_args(ctx, argc, argv);
 
     if (purpose < SP_CLIENT_LOGIN_PURPOSE_START_GREETER || purpose >= SP_CLIENT_LOGIN_PURPOSE_LAST) {
         ERR("Invalid purpose!\n");
@@ -169,7 +185,7 @@ sp_client_init(Sp_Client_Login_Purpose purpose) {
     }
 
     ctx->purpose = purpose;
-    ctx->server_sock = sp_service_connect();
+    ctx->server_sock = sp_service_connect(ctx->debug);
 
     if (ctx->server_sock < 0) {
         //service_connect() is writing error messages

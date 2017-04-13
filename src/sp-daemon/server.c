@@ -315,11 +315,11 @@ _socket_setup(void)
     } else {
         const char *path;
 
-        path = sp_service_path_get(false);
+        path = sp_service_path_get(debug);
 
         server_sock = sp_service_socket_create();
 
-        sp_service_address_setup(false, &address);
+        sp_service_address_setup(debug, &address);
 
         //try to remove the path before binding it
         unlink(path);
@@ -369,7 +369,7 @@ void
 server_shutdown(void) {
     const char *path;
 
-    path = sp_service_path_get(false);
+    path = sp_service_path_get(debug);
 
     IT_FREE(system_data.n_users, system_data.users);
     IT_FREE(system_data.n_sessions, system_data.sessions);
