@@ -264,13 +264,25 @@ sp_client_data_get(Sp_Client_Context *ctx, Numbered_Array *sessions, Numbered_Ar
     if (users) memcpy(users, &ctx->users, sizeof(Numbered_Array));
 }
 
+static int
+_find_simular_session(Sp_Client_Context *ctx, const char *prefereed_session)
+{
+   for (int i = 0; i < ctx->templates.length; ++i)
+   {
+       Template *temp = &TEMPLATE_ARRAY(&ctx->templates, i);
+       if (!strcmp(prefereed_session, temp->name))
+         return i;
+   }
+   return 0;
+}
+
 
 //=============================================================
 // Code for converting protoobjects to normal objects follows
 //=============================================================
 
 typedef void (*free_func)(void *data);
-typedef void (*convert_func)(void *data, void *goal, int id);
+typedef void (*convert_func)(Sp_Client_Context *ctx, void *data, void *goal, int id);
 
 #define FREE_S(n) if (n) free(n); \
                   n = NULL;
@@ -279,7 +291,7 @@ typedef void (*convert_func)(void *data, void *goal, int id);
 
 #define FREE_CONVERT(name, type, proto_type, conv, free) \
 static void \
-name ##s_convert(void *data, void *goal, int id) { \
+name ##s_convert(Sp_Client_Context *ctx, void *data, void *goal, int id) { \
     proto_type proto = data; \
     type name = goal; \
     conv \
@@ -314,6 +326,7 @@ FREE_CONVERT(user, User*, Spawny__Server__User*, {
         user->id = id;
         STRDUP_S(proto->icon, user->icon);
         STRDUP_S(proto->name, user->name);
+        user->prefered_session = _find_simular_session(ctx, proto->prefered_session);
     },{
         FREE_S(user->icon);
         FREE_S(user->name);
@@ -338,7 +351,7 @@ FREE_CONVERT(private_template, Private_Template*, Spawny__Server__SessionTemplat
 #undef FREE_S
 
 static void
-_fill_array(Numbered_Array *array, size_t type_size, void *data, unsigned int n_data, size_t data_type_size, free_func ff, convert_func cf)
+_fill_array(Sp_Client_Context *ctx, Numbered_Array *array, size_t type_size, void *data, unsigned int n_data, size_t data_type_size, free_func ff, convert_func cf)
 {
     int diff = n_data - array->length;
 
@@ -357,7 +370,7 @@ _fill_array(Numbered_Array *array, size_t type_size, void *data, unsigned int n_
       {
          void** from = data + i * data_type_size;
          void* to = array->data + i * type_size;
-         cf(*from, to, i); \
+         cf(ctx, *from, to, i); \
       }
 }
 
@@ -366,12 +379,12 @@ _data_convert(Sp_Client_Context *ctx, Spawny__Server__Data *data)
 {
 
 #define CONVERT_ARRAY_P(name, data_name, array_type, data_type) \
-    _fill_array(&ctx->name, sizeof(array_type), data->data_name, data->n_ ##data_name, sizeof(data_type), name ##_free, name ##_convert)
+    _fill_array(ctx, &ctx->name, sizeof(array_type), data->data_name, data->n_ ##data_name, sizeof(data_type), name ##_free, name ##_convert)
 #define CONVERT_ARRAY(name, array_type, data_type) CONVERT_ARRAY_P(name, name, array_type, data_type)
 
+    CONVERT_ARRAY(templates, Template, Spawny__Server__SessionTemplate*);
     CONVERT_ARRAY(sessions, Session, Spawny__Server__Session*);
     CONVERT_ARRAY(users, User, Spawny__Server__User*);
-    CONVERT_ARRAY(templates, Template, Spawny__Server__SessionTemplate*);
     CONVERT_ARRAY_P(private_sessions, sessions, Private_Session, Spawny__Server__Session*);
     CONVERT_ARRAY_P(private_templates, templates, Private_Template, Spawny__Server__SessionTemplate*);
 

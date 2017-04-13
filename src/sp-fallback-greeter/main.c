@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 
 #define PATH_MAX 4096
 
@@ -19,22 +20,52 @@ static int prompt_run(void);
 
 static void
 login(void) {
-    char username[PATH_MAX], template[PATH_MAX], *password;
+    char username[PATH_MAX], template[10], *password;
+    User *user = NULL;
+    Template def;
     int temp = 0;
 
     PROMPT("Spawny login! (Inputs are without echo)\n");
 
-    PROMPT("\nUsername : ");
-    scanf("%s", username);
+    do {
+        PROMPT("\nUsername : ");
+        scanf("%s", username);
+        for (int i = 0; i < users.length; ++i)
+        {
+            User *usr = &USER_ARRAY(&users, i);
+            if (!strcmp(usr->name, username))
+              {
+                user = usr;
+                break;
+              }
+        }
+    } while(!user);
+    def = TEMPLATE_ARRAY(&templates, user->prefered_session);
 
     password = getpass("Password :");
     PROMPT("");
 
+    //consume the \n
+    getchar();
+
     do {
-        PROMPT("Session Template: (l to list templates):");
-        scanf("%s", template);
+        if (!user->prefered_session)
+          {
+            //annonce no default
+            PROMPT("Session Template: (l to list templates):");
+          }
+        else
+          {
+             PROMPT("Session Template: (l to list templates, Default: %s):", def.name);
+          }
+
+        fgets(template, sizeof(template), stdin);
         printf("\n");
-        if (template[0] == 'l') {
+
+        if (user->prefered_session > 1 && template[0] == '\n') {
+            //only accept the default when the prefered session is bigger than 1
+            temp = def.id;
+        } else if (template[0] == 'l') {
             //list templates
             for (int i = 0; i < templates.length; i++){
                 Template template = TEMPLATE_ARRAY(&templates,i);

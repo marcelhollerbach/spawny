@@ -27,6 +27,7 @@ message User {
     required int64 uid = 1;
     required string name = 2;
     required string icon = 3;
+    required string prefered_session = 4;
 }
 
 message Data {

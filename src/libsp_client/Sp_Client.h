@@ -48,6 +48,7 @@ typedef struct {
   int id;
   char *icon;
   char *name;
+  int prefered_session; //id of a template
 } User;
 
 #define USER_ARRAY(array, pos) ARRAY_ACCESS(array, User, pos)
