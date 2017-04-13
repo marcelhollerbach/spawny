@@ -248,7 +248,7 @@ _load_users(void)
           user[i]->icon = NULL;
 
         user[i]->uid = pass->pw_uid;
-        user[i]->name = pass->pw_name;
+        user[i]->name = strdup(pass->pw_name);
 
         field = user_db_field_get(usernames[i], "prefered-session");
 
