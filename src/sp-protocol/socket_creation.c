@@ -49,6 +49,11 @@ sp_service_connect(bool debug) {
         return -1;
     }
 
+    //test if we can access what we want
+    if (!!access(sp_service_path_get(debug), R_OK | W_OK)) {
+        return -1;
+    }
+
     sp_service_address_setup(debug, &address);
 
     if (connect(server_sock, (struct sockaddr *) &address, sizeof(address)) != 0) {
