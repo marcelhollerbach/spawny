@@ -7,17 +7,21 @@
 #include <string.h>
 
 const char*
-sp_service_path_get(void)
+sp_service_path_get(bool debug)
 {
-    return SERVER_SOCKET;
+    if (debug)
+      return SERVER_DEBUG_SOCKET;
+    else
+      return SERVER_SOCKET;
 }
 
 void
-sp_service_address_setup(struct sockaddr_un *in)
+sp_service_address_setup(bool debug, struct sockaddr_un *in)
 {
     memset(in, 0, sizeof(*in));
     in->sun_family = AF_UNIX;
-    snprintf(in->sun_path, sizeof(in->sun_path), SERVER_SOCKET);
+
+    snprintf(in->sun_path, sizeof(in->sun_path), "%s", sp_service_path_get(debug));
 }
 
 int
@@ -35,7 +39,7 @@ sp_service_socket_create(void) {
 }
 
 int
-sp_service_connect(void) {
+sp_service_connect(bool debug) {
     int server_sock;
     struct sockaddr_un address;
 
@@ -45,7 +49,7 @@ sp_service_connect(void) {
         return -1;
     }
 
-    sp_service_address_setup(&address);
+    sp_service_address_setup(debug, &address);
 
     if (connect(server_sock, (struct sockaddr *) &address, sizeof(address)) != 0) {
        perror("Failed to connect to service");
