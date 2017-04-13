@@ -20,7 +20,7 @@ target_link_libraries (SpClient
 
 
 install(TARGETS SpClient EXPORT SpClientTargets DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(FILES Sp_Client.h server.pb-c.h greeter.pb-c.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(FILES Sp_Client.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 set(ConfigProjectLocation ${PROJECT_BINARY_DIR}/libsp_client)
 set(ConfigPackageLocation lib/cmake/SpClient)
