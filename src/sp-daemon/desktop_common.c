@@ -9,14 +9,14 @@ typedef struct {
     char *name;
     char *exec;
     char *icon;
-} X11_Session;
+} Session;
 
 #define EXT ".desktop"
 
 static int
 _parse_file_handler(void* user, const char* section,
               const char* name, const char* value) {
-    X11_Session *session = user;
+    Session *session = user;
     if (!strcmp(name, "Name")) {
         session->name = strdup(value);
     } else if (!strcmp(name, "Exec")) {
@@ -32,7 +32,7 @@ _parse_file_handler(void* user, const char* section,
 
 void
 _parse_file(const char *file, Template_Fire_Up fire_up) {
-    X11_Session session = { NULL };
+    Session session = { NULL };
 
     if (!parse_ini_verbose(file, _parse_file_handler, &session)) {
         ERR("Failed to parse %s", file);
