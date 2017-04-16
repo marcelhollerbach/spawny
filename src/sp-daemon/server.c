@@ -94,6 +94,18 @@ _session_done(void *data, Spawn_Service_End end) {
 
 }
 
+static bool
+client_is_greeter(Client *client)
+{
+   pid_t sid;
+
+   if (debug) return true;
+
+   sid = getsid(client->client_info.pid);
+
+   return greeter_exists_sid(sid);
+}
+
 static void
 _client_data(Fd_Data *data, int fd) {
     Client *client;
@@ -113,6 +125,13 @@ _client_data(Fd_Data *data, int fd) {
 
     msg = spawny__greeter__message__unpack(NULL, len, buf);
 
+#define SAFE_CALL \
+   if (!client_is_greeter(client)) {\
+     ERR("Client with pid %d is not allowed to call this", client->client_info.pid); \
+     client_free(client); \
+     break; \
+   } \
+
     if (!msg)
       {
          ERR("Failed to receive message from %d.", fd);
@@ -122,12 +141,16 @@ _client_data(Fd_Data *data, int fd) {
 
     switch(msg->type){
         case SPAWNY__GREETER__MESSAGE__TYPE__HELLO:
+            SAFE_CALL
+
             INF("Greeter said ehllo, wrote system_data");
             //load the newesr available data
             _load_data();
             _send_message(SPAWNY__SERVER__MESSAGE__TYPE__DATA_UPDATE, NULL, &system_data, fd);
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__SESSION_ACTIVATION:
+            SAFE_CALL
+
             INF("Greeter session activation %s", msg->session);
 
             if (!session_details(msg->session, NULL, NULL, NULL, NULL)) {
@@ -140,6 +163,8 @@ _client_data(Fd_Data *data, int fd) {
             }
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__LOGIN_TRY:
+            SAFE_CALL
+
             INF("Greeter login try");
             if (!spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, PAM_SERVICE, msg->login->user, msg->login->password)) {
                 server_spawnservice_feedback(0, "spawn failed.", fd);

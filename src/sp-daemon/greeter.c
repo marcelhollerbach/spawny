@@ -184,3 +184,24 @@ greeter_lockout(const char *seat) {
 
     greeter->end = 1;
 }
+
+static pid_t
+seat_greeter_pid_get(Seat_Greeter *seat) {
+    if (seat->run.try) return seat->run.try->pid;
+    return seat->run.pid;
+}
+
+bool
+greeter_exists_sid(pid_t sid) {
+    for (int i = 0; i < array_len_get(greeters); ++i) {
+        Seat_Greeter *greeter = array_Seat_Greeter_get(greeters, i);
+        pid_t greeter_sid = getsid(seat_greeter_pid_get(greeter));
+        if (greeter_sid == -1) {
+            ERR("Failed to fetch sid from %d", greeter->run.pid);
+            continue;
+        }
+        if (greeter_sid == sid) return true;
+    }
+
+    return false;
+}
