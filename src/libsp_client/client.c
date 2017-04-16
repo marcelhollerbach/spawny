@@ -262,7 +262,7 @@ sp_client_read(Sp_Client_Context *ctx, Sp_Client_Interface *interface) {
             interface->data_cb();
         break;
         case SPAWNY__SERVER__MESSAGE__TYPE__LOGIN_FEEDBACK:
-            printf("Login Feedback!\n");
+            printf("Feedback!\n");
             interface->feedback_cb(msg->feedback->success, msg->feedback->msg);
         break;
         default:

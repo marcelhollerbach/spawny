@@ -63,11 +63,11 @@ typedef struct {
 #define SESSION_ARRAY(array, pos) ARRAY_ACCESS(array, Session, pos)
 
 typedef void (*Sp_Client_Data_Cb)(void);
-typedef void (*Sp_Client_Login_Feedback_Cb)(int succes, char *msg);
+typedef void (*Sp_Client_Feedback_Cb)(int succes, char *msg);
 
 typedef struct {
     Sp_Client_Data_Cb data_cb;
-    Sp_Client_Login_Feedback_Cb feedback_cb;
+    Sp_Client_Feedback_Cb feedback_cb;
 } Sp_Client_Interface;
 
 typedef struct _Sp_Client_Context Sp_Client_Context;
