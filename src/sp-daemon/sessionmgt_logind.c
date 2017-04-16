@@ -64,6 +64,7 @@ session_activate(char *handle) {
             case -ENXIO: \
                 INF("Error, The specified session does not exist."); \
                 *field = errval; \
+                return false; \
             break; \
             case -ENODATA: \
                 INF("Error, The given field is not specified for the described session."); \
@@ -80,7 +81,7 @@ session_activate(char *handle) {
         }\
     }
 
-int
+bool
 session_details(char *handle, uid_t *uid, char **name, char **icon, int *vtnr) {
     int ret = -1;
     unsigned int vtnr_raw;
@@ -96,7 +97,7 @@ session_details(char *handle, uid_t *uid, char **name, char **icon, int *vtnr) {
 
     if (icon)
       *icon = NULL;
-    return 1;
+    return true;
 }
 
 void
