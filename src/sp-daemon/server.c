@@ -31,7 +31,7 @@ static void _load_data(void);
 static Spawny__Server__Data system_data = SPAWNY__SERVER__DATA__INIT;
 
 static void
-_send_message(Spawny__Server__MessageType type, Spawny__Server__LoginFeedback *fb, Spawny__Server__Data *data, int fd) {
+_send_message(Spawny__Server__MessageType type, Spawny__Server__RequestFeedback *fb, Spawny__Server__Data *data, int fd) {
     Spawny__Server__Message msg = SPAWNY__SERVER__MESSAGE__INIT;
     int len = 0;
     void *buf;
@@ -60,9 +60,9 @@ _session_job(void *data) {
 
 void
 server_spawnservice_feedback(int success, const char *message, int fd) {
-    Spawny__Server__LoginFeedback msg = SPAWNY__SERVER__LOGIN__FEEDBACK__INIT;
+    Spawny__Server__RequestFeedback msg = SPAWNY__SERVER__REQUEST__FEEDBACK__INIT;
 
-    msg.login_success = success;
+    msg.success = success;
     msg.msg = (char*) message;
 
     _send_message(SPAWNY__SERVER__MESSAGE__TYPE__LOGIN_FEEDBACK, &msg, NULL, fd);

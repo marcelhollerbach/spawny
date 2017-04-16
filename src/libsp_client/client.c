@@ -263,7 +263,7 @@ sp_client_read(Sp_Client_Context *ctx, Sp_Client_Interface *interface) {
         break;
         case SPAWNY__SERVER__MESSAGE__TYPE__LOGIN_FEEDBACK:
             printf("Login Feedback!\n");
-            interface->feedback_cb(msg->feedback->login_success, msg->feedback->msg);
+            interface->feedback_cb(msg->feedback->success, msg->feedback->msg);
         break;
         default:
             printf("Unknown messsage type\n");

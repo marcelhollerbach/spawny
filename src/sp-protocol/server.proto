@@ -36,14 +36,14 @@ message Data {
     repeated User users = 3;
 }
 
-message Login_Feedback {
-    required bool login_success = 1;
+message Request_Feedback {
+    required bool success = 1;
     required string msg = 2;
 }
 
 message Message {
     required Message_Type type = 1;
-    optional Login_Feedback feedback = 2;
+    optional Request_Feedback feedback = 2;
     optional Data data = 3;
 }
 
