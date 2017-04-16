@@ -75,6 +75,12 @@ client_free(Client *client) {
 }
 
 static void
+client_goodbye(Client *client) {
+    _send_message(SPAWNY__SERVER__MESSAGE__TYPE__LEAVE, NULL, NULL, client->fd);
+    client_free(client);
+}
+
+static void
 _session_done(void *data, Spawn_Service_End end) {
     Client *client = data;
     if (end.success == SPAWN_SERVICE_ERROR) {
@@ -83,7 +89,7 @@ _session_done(void *data, Spawn_Service_End end) {
         greeter_lockout(seat_get(client->client_info.pid));
         server_spawnservice_feedback(1, "You are logged in!", client->fd);
         INF("User Session alive.");
-        client_free(data);
+        client_goodbye(client);
     }
 
 }
@@ -130,7 +136,7 @@ _client_data(Fd_Data *data, int fd) {
                  session_activate(msg->session);
                  server_spawnservice_feedback(0, "Activation is called on this session", fd);
                  greeter_lockout(seat_get(client->client_info.pid));
-                 client_free(client);
+                 client_goodbye(client);
             }
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__LOGIN_TRY:
