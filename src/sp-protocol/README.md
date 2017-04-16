@@ -11,11 +11,11 @@ After a 'Hello' message the daemon replies with a Data message. Further requests
 
 ## Activate Session
 The message must contain the id of the Session object that should get acitvated.
-If the request was successfull, the connection to the greeter will be closed after this request.
+The daemon will answer with a request feedback object.
 
 ## Login
 The message must contain a valid user name, password, and the id of the template that should get instanciated.
-This request is answered by a reply with a Login Feedback message.
+The daemon will answer with a request feedback object.
 
 ## Greeter start
 The message results in the daemon trying to start a new session where the greeter is brought up.

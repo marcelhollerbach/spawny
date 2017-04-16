@@ -123,9 +123,15 @@ _client_data(Fd_Data *data, int fd) {
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__SESSION_ACTIVATION:
             INF("Greeter session activation %s", msg->session);
-            session_activate(msg->session);
-            greeter_lockout(seat_get(client->client_info.pid));
-            client_free(client);
+
+            if (!session_details(msg->session, NULL, NULL, NULL, NULL)) {
+                 server_spawnservice_feedback(0, "Session not found", fd);
+            } else {
+                 session_activate(msg->session);
+                 server_spawnservice_feedback(0, "Activation is called on this session", fd);
+                 greeter_lockout(seat_get(client->client_info.pid));
+                 client_free(client);
+            }
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__LOGIN_TRY:
             INF("Greeter login try");
