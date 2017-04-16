@@ -159,11 +159,11 @@ _data_cb(void) {
 static void
 _login_cb(int success, char *msg) {
     if (!success) {
-        printf("Login failed, reason %s\n", msg);
+        printf("Request failed, reason %s\n", msg);
         //relogin
         prompt_run();
     } else {
-        printf("Login Successfull, waiting for leave msg\n");
+        printf("Request Successfull, waiting for leave msg\n");
     }
 }
 
