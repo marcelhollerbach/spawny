@@ -85,6 +85,9 @@ bool
 session_details(char *handle, uid_t *uid, char **name, char **icon, int *vtnr) {
     int ret = -1;
     unsigned int vtnr_raw;
+    char max_name[1024];
+    char *tmp_desktop;
+    char *tmp_type;
 
     GET_FIELD(sd_session_get_vt, &vtnr_raw, 0)
     if (ret < 0) {
@@ -93,7 +96,24 @@ session_details(char *handle, uid_t *uid, char **name, char **icon, int *vtnr) {
       if (vtnr) {*vtnr = vtnr_raw;}
     }
     GET_FIELD(sd_session_get_uid, uid, 0)
-    GET_FIELD(sd_session_get_desktop, name, NULL)
+
+    GET_FIELD(sd_session_get_desktop, &tmp_desktop, NULL)
+    GET_FIELD(sd_session_get_type, &tmp_type, NULL)
+
+    if (tmp_type && tmp_desktop)
+      snprintf(max_name, sizeof(max_name), "%s - %s", tmp_type, tmp_desktop);
+    else if (tmp_type)
+      snprintf(max_name, sizeof(max_name), "%s", tmp_type);
+    else if (tmp_desktop)
+      snprintf(max_name, sizeof(max_name), "%s", tmp_desktop);
+
+    if (tmp_desktop)
+      free(tmp_desktop);
+    if (tmp_type)
+      free(tmp_type);
+
+    if (name)
+      *name = strdup(max_name);
 
     if (icon)
       *icon = NULL;

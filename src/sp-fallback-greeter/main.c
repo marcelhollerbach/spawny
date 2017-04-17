@@ -87,7 +87,7 @@ listsessions(void) {
 
     for(int i = 0; i < sessions.length; i++){
         Session session = SESSION_ARRAY(&sessions, i);
-        printf("    %d - %s\n", session.id + 1, session.name);
+        printf("    %d - %s: %s\n", session.id + 1, session.user, session.name);
     }
 
     PROMPT("Spawny session activation:\n");
