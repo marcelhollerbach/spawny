@@ -4,7 +4,7 @@
 #include "templatereg.h"
 #include "ini.h"
 
-void parse_dir(const char *directory_path, Template_Fire_Up fire_up);
+void parse_dir(const char *directory_path, const char *type, Template_Fire_Up fire_up);
 
 /**
  * 0 on fail

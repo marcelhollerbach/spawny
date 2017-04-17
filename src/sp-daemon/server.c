@@ -328,7 +328,7 @@ _load_templates(void)
 
         spawny__server__session__template__init(templates[i]);
         templates[i]->id = templates_raw[i];
-        template_details_get(templates_raw[i], (const char**)&templates[i]->name, (const char**)&templates[i]->icon);
+        template_details_get(templates_raw[i], (const char**)&templates[i]->name, (const char**)&templates[i]->icon, NULL);
     }
 
     free(templates_raw);

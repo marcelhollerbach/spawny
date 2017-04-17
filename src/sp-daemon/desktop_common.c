@@ -31,7 +31,7 @@ _parse_file_handler(void* user, const char* section,
 }
 
 void
-_parse_file(const char *file, Template_Fire_Up fire_up) {
+_parse_file(const char *file, const char *type, Template_Fire_Up fire_up) {
     Session session = { NULL };
 
     if (!parse_ini_verbose(file, _parse_file_handler, &session)) {
@@ -53,7 +53,7 @@ _parse_file(const char *file, Template_Fire_Up fire_up) {
         INF("Session icon not set for %s.", session.name);
     }
 
-    template_register(session.name, session.icon, fire_up, session.exec);
+    template_register(session.name, session.icon, type, fire_up, session.exec);
 
     return;
 not_register:
@@ -63,7 +63,7 @@ not_register:
 }
 
 void
-parse_dir(const char *directory_path, Template_Fire_Up fire_up) {
+parse_dir(const char *directory_path, const char *type, Template_Fire_Up fire_up) {
     DIR *directory;
     struct dirent *dir;
 
@@ -79,7 +79,7 @@ parse_dir(const char *directory_path, Template_Fire_Up fire_up) {
 
         if (!strcmp(dir->d_name + len - sizeof(EXT) + 1, EXT)) {
             snprintf(path, sizeof(path), "%s/%s", directory_path, dir->d_name);
-            _parse_file(path, fire_up);
+            _parse_file(path, type, fire_up);
         }
     }
 

@@ -5,6 +5,7 @@ typedef struct {
     char *id;
     char *name;
     char *icon;
+    char *type;
     Template_Fire_Up cb;
     void *data;
 } Template;
@@ -42,7 +43,7 @@ find_temp(const char *id, unsigned int *array_id) {
 }
 
 const char*
-template_register(char *name, char *icon, Template_Fire_Up fire_up, void *data) {
+template_register(const char *name, const char *icon, const char *type, Template_Fire_Up fire_up, void *data) {
     Template *temp;
     char buf[PATH_MAX];
 
@@ -55,6 +56,7 @@ template_register(char *name, char *icon, Template_Fire_Up fire_up, void *data) 
     template_init();
 
     temp = array_Template_add(array);
+    temp->type = strdup(type);
     temp->id = strdup(buf);
     temp->name = strdup(name);
     temp->icon = icon ? strdup(icon) : NULL;
@@ -82,13 +84,17 @@ template_unregister(const char *id) {
 }
 
 int
-template_details_get(const char *id, const char **name, const char **icon) {
+template_details_get(const char *id, const char **name, const char **icon, const char **type) {
     Template *temp = find_temp(id, NULL);
 
     if (!temp) return 0;
 
-    *name = temp->name;
-    *icon = temp->icon;
+    if (name)
+      *name = temp->name;
+    if (icon)
+      *icon = temp->icon;
+    if (type)
+      *type = temp->type;
 
     return 1;
 }

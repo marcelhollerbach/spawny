@@ -17,22 +17,23 @@ START_TEST(test_templatereg_details)
 {
     int ret;
     const char *id;
-    const char *tmp_name, *tmp_icon;
+    const char *tmp_name, *tmp_icon, *tmp_type;
     char *name = "test";
     char *icon = "icon";
+    char *type = "wl";
 
-    id = template_register("1", "2", NULL, NULL);
-    id = template_register("no", "3", NULL, NULL);
-    id = template_register(name, icon, _fire_up_daed, NULL);
-
+    id = template_register("1", "2", "test", NULL, NULL);
+    id = template_register("no", "3", "test", NULL, NULL);
+    id = template_register(name, icon, type, _fire_up_daed, NULL);
 
     ck_assert_ptr_ne(id, NULL);
 
-    ret = template_details_get(id, &tmp_name, &tmp_icon);
+    ret = template_details_get(id, &tmp_name, &tmp_icon, &tmp_type);
     ck_assert(ret);
 
     ck_assert_str_eq(tmp_name, name);
     ck_assert_str_eq(tmp_icon, icon);
+    ck_assert_str_eq(tmp_type, type);
 }
 END_TEST
 
@@ -43,7 +44,7 @@ START_TEST(test_templatereg_run)
     char *name = "test";
     char *icon = "icon";
 
-    id = template_register(name, icon, _fire_up_daed, NULL);
+    id = template_register(name, icon, "t", _fire_up_daed, NULL);
 
     ck_assert_ptr_ne(id, NULL);
 
@@ -63,9 +64,9 @@ START_TEST(test_templatereg_unreg)
     char *name = "test";
     char *icon = "icon";
 
-    id1 = template_register("1", "2", _fire_up2, NULL);
-    id2 = template_register("no", "3", _fire_up2, NULL);
-    id3 = template_register(name, icon, _fire_up_daed, NULL);
+    id1 = template_register("1", "2", "t", _fire_up2, NULL);
+    id2 = template_register("no", "3", "t", _fire_up2, NULL);
+    id3 = template_register(name, icon, "t", _fire_up_daed, NULL);
 
 
     ck_assert_ptr_ne(id1, NULL);

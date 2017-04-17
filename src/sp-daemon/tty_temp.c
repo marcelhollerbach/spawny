@@ -19,6 +19,6 @@ _tty_fire_up(void *data) {
 void
 tty_template_init(void) {
     const char *temp;
-    if (!(temp = template_register("tty", "utilities-terminal", _tty_fire_up, NULL)))
+    if (!(temp = template_register("tty", "utilities-terminal", "tty", _tty_fire_up, NULL)))
       ERR("Failed to register template");
 }

@@ -27,6 +27,6 @@ _fire_up(void *data) {
 
 void
 x11_template_init(void) {
-    parse_dir("/usr/share/xsessions/", _fire_up);
-    parse_dir("/usr/local/share/xsessions/", _fire_up);
+    parse_dir("/usr/share/xsessions/", "x11", _fire_up);
+    parse_dir("/usr/local/share/xsessions/", "x11", _fire_up);
 }
