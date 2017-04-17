@@ -246,7 +246,7 @@ _load_sessions(void)
         sessions[i - offset] = calloc(1, sizeof(Spawny__Server__Session));
         spawny__server__session__init(sessions[i - offset]);
 
-        if (!session_details(sessions_raw[i], &uid, &sessions[i - offset]->icon, &sessions[i - offset]->name, NULL)) {
+        if (!session_details(sessions_raw[i], &uid, &sessions[i - offset]->name, &sessions[i - offset]->icon, NULL)) {
             free(sessions[i - offset]);
             sessions[i - offset] = NULL;
             ERR("%s %d failed to fetch details", sessions_raw[i], i);
