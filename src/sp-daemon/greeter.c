@@ -148,11 +148,14 @@ _greeter_job(void *data) {
 void
 greeter_activate(const char *seat) {
     Seat_Greeter *greeter;
+    Xdg_Settings settings;
     char *session = NULL;
 
     greeter = _greeter_search(seat);
     if (!greeter) greeter = _greeter_add(seat);
 
+    memset(&settings, 0, sizeof(Xdg_Settings));
+    settings.session_seat = greeter->seat;
 
     if (greeter->run.try) {
         session = sesison_get(greeter->run.try->pid);
@@ -168,7 +171,7 @@ greeter_activate(const char *seat) {
 
     if (!(greeter->run_gen > FALLBACK_RUN_GENERATION))
       greeter->run.try = spawnservice_spawn(_greeter_start_done, greeter, _greeter_job, greeter,
-                                        PAM_SERVICE_GREETER, config->greeter.start_user, NULL);
+                                        PAM_SERVICE_GREETER, config->greeter.start_user, NULL, &settings);
     else
       ERR("Starting the greeter %d times did not bring it up, giving up. :(", greeter->run_gen);
 }

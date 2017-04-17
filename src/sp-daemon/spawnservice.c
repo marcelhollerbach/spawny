@@ -123,7 +123,7 @@ _child_data(Fd_Data *data, int fd)
 Spawn_Try*
 spawnservice_spawn(SpawnDoneCb done, void *data,
                    SpawnServiceJobCb job, void *jobdata,
-                   const char *service, const char *usr, const char *pw) {
+                   const char *service, const char *usr, const char *pw, Xdg_Settings *settings) {
 
     Spawn_Try *spawn_try = calloc(1, sizeof(Spawn_Try));
 
@@ -146,6 +146,13 @@ spawnservice_spawn(SpawnDoneCb done, void *data,
 
     spawn_try->done.cb = done;
     spawn_try->done.data = data;
+
+    if (settings)
+      memcpy(&spawn_try->settings, settings, sizeof(Xdg_Settings));
+
+    if (!spawn_try->settings.session_seat) {
+       ERR("Spawnservice does not have a seat");
+    }
 
     //this will start a client process which is in a new session
     //this will also register the read fd to the manager
@@ -558,18 +565,21 @@ pam_auth(Spawn_Try *try, char ***env, int vtnr) {
     ret = pam_start(try->service, try->usr, &conv, &handle);
     PAM_CHECK
 
-#define PE(k,v) { \
+#define PE(k,v) do { \
      char buf[PATH_MAX]; \
      snprintf(buf, sizeof(buf), "%s=%s", k, v); \
      ret = pam_putenv(handle, buf); \
-     PAM_CHECK }
+     PAM_CHECK } while(0)
 
     PE("HOME",pwd->pw_dir);
     PE("PWD",pwd->pw_dir);
     PE("SHELL",pwd->pw_shell);
     PE("USER",pwd->pw_name);
     PE("LOGNAME",pwd->pw_name);
-    PE("XDG_SEAT", "seat0");
+    PE("XDG_SEAT", try->settings.session_seat);
+    if (try->settings.session_desktop) PE("XDG_SESSION_DESKTOP", try->settings.session_desktop);
+    if (try->settings.session_type) PE("XDG_SESSION_TYPE", try->settings.session_type);
+
 #undef PE
 #define PE(k,v) { \
  char buf[PATH_MAX]; \

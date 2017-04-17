@@ -164,9 +164,14 @@ _client_data(Fd_Data *data, int fd) {
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__LOGIN_TRY:
             SAFE_CALL
+            Xdg_Settings settings;
+
+            template_details_get(msg->login->template_id, &settings.session_desktop, NULL, &settings.session_type);
+
+            settings.session_seat = seat_get(client->client_info.pid);
 
             INF("Greeter login try");
-            if (!spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, PAM_SERVICE, msg->login->user, msg->login->password)) {
+            if (!spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, PAM_SERVICE, msg->login->user, msg->login->password, &settings)) {
                 server_spawnservice_feedback(0, "spawn failed.", fd);
             }
         break;
