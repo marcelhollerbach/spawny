@@ -227,6 +227,9 @@ _load_sessions(void)
     unsigned int offset = 0, number = 0;
     Spawny__Server__Session **sessions;
     char **sessions_raw;
+    struct passwd *start_user;
+
+    start_user = getpwnam(config->greeter.start_user);
 
     session_enumerate(&sessions_raw, &number);
 
@@ -244,6 +247,11 @@ _load_sessions(void)
             ERR("%s %d failed to fetch details", sessions_raw[i], i);
             offset ++;
             sessions = realloc(sessions, (number - offset) * sizeof(Spawny__Server__Session));
+            continue;
+        }
+
+        if (uid == start_user->pw_uid) {
+            offset ++;
             continue;
         }
 
