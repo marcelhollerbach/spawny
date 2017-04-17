@@ -170,6 +170,10 @@ _client_data(Fd_Data *data, int fd) {
 
             settings.session_seat = seat_get(client->client_info.pid);
 
+            //if we are in debugging mode we are just using seat0
+            if (!settings.session_seat && debug)
+              settings.session_seat = "seat0";
+
             INF("Greeter login try");
             if (!spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, PAM_SERVICE, msg->login->user, msg->login->password, &settings)) {
                 server_spawnservice_feedback(0, "spawn failed.", fd);
