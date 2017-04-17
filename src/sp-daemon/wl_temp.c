@@ -19,6 +19,6 @@ _fire_up(void *data) {
 
 void
 wl_template_init(void) {
-    parse_dir("/usr/share/wayland-sessions/", "wl", _fire_up);
-    parse_dir("/usr/local/share/wayland-sessions/", "wl", _fire_up);
+    parse_dir("/usr/share/wayland-sessions/", "wayland", _fire_up);
+    parse_dir("/usr/local/share/wayland-sessions/", "wayland", _fire_up);
 }
