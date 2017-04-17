@@ -93,7 +93,7 @@ _child_data(Fd_Data *data, int fd)
        break;
        case SPAWNY__SPAWN__MESSAGE__TYPE__SETUP_DONE:
            //we need to activate the passed session
-           try->session = sesison_get(try->pid);
+           try->session = session_get(try->pid);
            if (!try->session)
              {
                 ERR("Failed to fetch session of %d killing it", try->pid);

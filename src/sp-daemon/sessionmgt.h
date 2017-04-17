@@ -3,7 +3,7 @@
 
 #include <unistd.h>
 
-char * sesison_get(pid_t pid);
+char * session_get(pid_t pid);
 char* seat_get(pid_t pid);
 char* current_session_get(void);
 

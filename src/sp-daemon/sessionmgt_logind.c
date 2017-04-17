@@ -4,7 +4,7 @@
 #include <errno.h>
 
 char *
-sesison_get(pid_t pid) {
+session_get(pid_t pid) {
     char *result;
 
     if (sd_pid_get_session(pid, &result) < 0)
@@ -18,7 +18,7 @@ seat_get(pid_t pid) {
     char *session;
     char *result;
 
-    session = sesison_get(pid);
+    session = session_get(pid);
 
     if (!session) return NULL;
     if (sd_session_get_seat(session, &result) < 0) {
@@ -31,7 +31,7 @@ seat_get(pid_t pid) {
 char*
 current_session_get(void) {
     pid_t pid = getpid();
-    return sesison_get(pid);
+    return session_get(pid);
 }
 
 void
