@@ -1,4 +1,6 @@
 #include "main.h"
+
+#include <string.h>
 #include <unistd.h>
 #include <systemd/sd-login.h>
 #include <errno.h>

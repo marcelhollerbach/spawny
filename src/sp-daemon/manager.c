@@ -1,5 +1,6 @@
 #include "main.h"
 
+#include <sys/select.h>
 #include <inttypes.h>
 #include <stdlib.h>
 #include <stdio.h>

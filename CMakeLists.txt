@@ -4,7 +4,7 @@ project (Spawny)
 include(GNUInstallDirs)
 enable_testing()
 
-add_definitions("-Wall -O0 -g -fPIC")
+add_definitions("-Wall -O0 -g -std=c11 -fPIC -D_XOPEN_SOURCE=700")
 
 set(FALLBACK_GREETER_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/spawny )
 set(PACKAGE_CONFIG_DIR ${CMAKE_INSTALL_FULL_SYSCONFDIR}/spawny)

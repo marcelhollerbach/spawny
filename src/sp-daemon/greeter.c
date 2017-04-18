@@ -1,4 +1,6 @@
 #include "main.h"
+
+#include <string.h>
 #include <libgen.h>
 #include <unistd.h>
 

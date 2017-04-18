@@ -1,10 +1,11 @@
+#define _DEFAULT_SOURCE
+
 #include "Sp_Client.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-
-#define PATH_MAX 4096
+#include <limits.h>
 
 static Sp_Client_Context *ctx;
 

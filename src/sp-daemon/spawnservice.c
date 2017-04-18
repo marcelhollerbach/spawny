@@ -1,3 +1,4 @@
+#define _DEFAULT_SOURCE
 #include "main.h"
 #include "session_spawn.pb-c.h"
 
@@ -15,7 +16,6 @@
 
 #include <security/pam_appl.h>
 
-#define _XOPEN_SOURCE 500
 #include <termios.h>
 
 #define WRITE 1

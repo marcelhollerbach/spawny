@@ -1,4 +1,5 @@
 #include "main.h"
+#include <string.h>
 
 typedef struct {
    pid_t pid;

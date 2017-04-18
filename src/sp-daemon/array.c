@@ -1,5 +1,5 @@
 #include "main.h"
-
+#include <string.h>
 
 struct _Array{
    void *ptr;
