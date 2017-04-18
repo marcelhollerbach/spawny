@@ -1,10 +1,13 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.0.2)
 project (Spawny)
 
 include(GNUInstallDirs)
+include(FindPkgConfig)
 enable_testing()
 
 add_definitions("-Wall -O0 -g -std=c11 -fPIC -D_XOPEN_SOURCE=700")
+
+pkg_check_modules(Check REQUIRED check)
 
 set(FALLBACK_GREETER_PATH ${CMAKE_INSTALL_FULL_LIBDIR}/spawny )
 set(PACKAGE_CONFIG_DIR ${CMAKE_INSTALL_FULL_SYSCONFDIR}/spawny)

@@ -22,16 +22,13 @@ set(SPAWNY-DAEMON-TEST-SOURCE
     ../sp-daemon/spawnregistery.c
     ../sp-daemon/spawnregistery.h
     ../sp-daemon/sessionmgt.h
-    ../sp-daemon/sessionmgt_logind.c
     ../sp-daemon/templatereg.h
     ../sp-daemon/templatereg.c
 )
 
 add_executable(test_spawny_daemon ${SPAWNY-DAEMON-TEST-SOURCE})
 target_link_libraries (test_spawny_daemon
-    check
-    pam
-    systemd
+   ${Check_LIBRARIES}
     protobuf-c
 )
 
