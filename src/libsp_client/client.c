@@ -17,6 +17,8 @@ typedef struct {
     int id;
 } Private_Template;
 
+#define MAX_MSG_SIZE 4096
+
 static void _data_convert(Sp_Client_Context *ctx, Spawny__Server__Data *data);
 
 #define API_ENTRY(purpose_value) \
@@ -53,8 +55,11 @@ struct _Sp_Client_Context{
 
 static bool
 _write_msg(Sp_Client_Context *ctx, Spawny__Greeter__Message *msg) {
-    uint8_t buf[PATH_MAX];
+    uint8_t *buf;
     int len;
+
+    len = spawny__greeter__message__get_packed_size(msg);
+    buf = malloc(len);
 
     len = spawny__greeter__message__pack(msg, buf);
 
@@ -62,6 +67,9 @@ _write_msg(Sp_Client_Context *ctx, Spawny__Greeter__Message *msg) {
         perror("Writing message failed");
         return false;
     }
+
+    free(buf);
+
     return true;
 }
 
@@ -233,7 +241,7 @@ sp_client_read(Sp_Client_Context *ctx, Sp_Client_Interface *interface) {
     API_CALLBACK_CHECK()
     Spawny__Server__Message *msg = NULL;
     int len = 0;
-    uint8_t buf[PATH_MAX];
+    uint8_t buf[MAX_MSG_SIZE];
 
     if (!_interface_check(interface)) return SP_CLIENT_READ_RESULT_FAILURE;
 
