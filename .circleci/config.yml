@@ -1,0 +1,19 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/spawny
+    docker:
+      # see the dockerfile
+      - image: leanderk/spawny
+    steps:
+      - checkout
+      - run:
+          name: clone git —recursive
+          command: |
+            git submodule update --init --recursive
+      - run:
+          name: make & make test
+          command: |
+            cmake .
+            make
+            make test
