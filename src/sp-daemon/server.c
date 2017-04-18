@@ -28,7 +28,7 @@ typedef struct {
 } Client;
 
 static int server_sock;
-static void _load_data(void);
+static void _load_data(const char *seat);
 
 static Spawny__Server__Data system_data = SPAWNY__SERVER__DATA__INIT;
 
@@ -151,7 +151,7 @@ _client_data(Fd_Data *data, int fd) {
 
             INF("Greeter said ehllo, wrote system_data");
             //load the newesr available data
-            _load_data();
+            _load_data(seat);
             _send_message(SPAWNY__SERVER__MESSAGE__TYPE__DATA_UPDATE, NULL, &system_data, fd);
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__SESSION_ACTIVATION:
@@ -233,7 +233,7 @@ _accept_ready(Fd_Data *data, int fd)
 }
 
 static void
-_load_sessions(void)
+_load_sessions(const char *seat)
 {
     unsigned int offset = 0, number = 0;
     Spawny__Server__Session **sessions;
@@ -242,7 +242,7 @@ _load_sessions(void)
 
     start_user = getpwnam(config->greeter.start_user);
 
-    session_enumerate(&sessions_raw, &number);
+    session_enumerate(seat, &sessions_raw, &number);
 
     sessions = calloc(number, sizeof(Spawny__Server__Session*));
 
@@ -350,10 +350,10 @@ _load_templates(void)
 }
 
 static void
-_load_data(void) {
+_load_data(const char *seat) {
     _load_templates();
     _load_users();
-    _load_sessions();
+    _load_sessions(seat);
 }
 
 static int
