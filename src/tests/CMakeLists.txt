@@ -1,3 +1,5 @@
+include(FindThreads)
+
 include_directories(
     ${PROJECT_SOURCE_DIR}/components/inih/
     ${PROJECT_SOURCE_DIR}/src/libsp_client/
@@ -29,6 +31,7 @@ set(SPAWNY-DAEMON-TEST-SOURCE
 add_executable(test_spawny_daemon ${SPAWNY-DAEMON-TEST-SOURCE})
 target_link_libraries (test_spawny_daemon
    ${Check_LIBRARIES}
+   ${CMAKE_THREAD_LIBS_INIT}
     protobuf-c
 )
 
