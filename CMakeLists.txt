@@ -16,7 +16,7 @@ set(FALLBACK_GREETER \"${FALLBACK_GREETER_PATH}/sp-fallback-greeter\")
 set(SERVER_SOCKET \"/run/spawny/spawny.socket\")
 set(SERVER_DEBUG_SOCKET \"/run/spawny/spawny-debug.socket\")
 
-set(PACKAGE_DATA_DIR \"${CMAKE_INSTALL_FULL_DATADIR}/efm/\")
+set(PACKAGE_DATA_DIR \"${CMAKE_INSTALL_FULL_DATADIR}/spawny/\")
 set(PACKAGE_LIB_DIR \"${CMAKE_INSTALL_FULL_LIBDIR}\")
 set(PACKAGE_BIN_DIR \"${CMAKE_INSTALL_FULL_BINDIR}\")
 set(PACKAGE_CONFIG \"${PACKAGE_CONFIG_DIR}/spawny.ini\")
