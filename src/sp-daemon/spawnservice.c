@@ -183,11 +183,11 @@ spawnservice_init(void)
 //=====================================================
 
 static bool
-_vt_used(unsigned int vtnr) {
+_vt_used(const char *seat, unsigned int vtnr) {
     unsigned int number;
     char **sessions;
 
-    session_enumerate(&sessions, &number);
+    session_enumerate(seat, &sessions, &number);
     for(int i = 0; i < number; i++){
         int session_vtnr = -1;
 
@@ -203,14 +203,14 @@ _vt_used(unsigned int vtnr) {
 #define DEVICE_PREFIX "/dev/"
 
 static char *
-available_tty(void) {
+available_tty(const char *seat) {
     char buf[PATH_MAX];
 
     do {
         if (tty_counter > LAST_TTY) return NULL;
         tty_counter ++;
 
-    } while(_vt_used(tty_counter));
+    } while(_vt_used(seat, tty_counter));
 
     snprintf(buf, sizeof(buf), DEVICE_PREFIX"tty%d", tty_counter);
 
@@ -276,7 +276,7 @@ child_run(Spawn_Try *try){
     char *tty;
 
     //check available ttys
-    tty = available_tty();
+    tty = available_tty(try->settings.session_seat);
 
     if (!tty) {
         _service_com_exit(try, "Failed to find tty");
