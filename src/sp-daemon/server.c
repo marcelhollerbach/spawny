@@ -111,7 +111,7 @@ static void
 _client_data(Fd_Data *data, int fd) {
     Client *client;
     Spawny__Greeter__Message *msg = NULL;
-    uint8_t buf[PATH_MAX];
+    uint8_t buf[MAX_MSG_SIZE];
     int len = 0;
     const char *seat;
 
@@ -380,7 +380,7 @@ _free_data(Spawny__Server__Data *data)
 static void
 mkdirpath(const char *path)
 {
-   char path_str[PATH_MAX];
+   char path_str[strlen(path) + 1];
    char *dir;
 
    snprintf(path_str, sizeof(path_str), "%s", path);
