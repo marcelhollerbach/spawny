@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <netinet/in.h>
-#include <systemd/sd-daemon.h>
+
 #include <libgen.h>
 
 #define MAX_MSG_SIZE 4096
@@ -395,16 +395,11 @@ mkdirpath(const char *path)
 static int
 _socket_setup(void)
 {
-    int n;
     struct sockaddr_un address;
 
-    n = sd_listen_fds(0);
-    if (n > 1) {
-        ERR("Error, systemd passed to many fd´s!");
-        return 0;
-    } else if (n == 1) {
-        server_sock = SD_LISTEN_FDS_START + 0;
-    } else {
+    server_sock = prefetch_server_socket();
+
+    if (!server_sock) {
         const char *path;
 
         path = sp_service_path_get(debug);

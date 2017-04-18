@@ -42,6 +42,7 @@ set(SPAWNY-DAEMON-SOURCE
     sessionmgt.h
     sessionmgt_logind.c
     server.c
+    server_systemd.c
     server.h
     templatereg.h
     templatereg.c
