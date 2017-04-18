@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "log.h"
 #include "sp_protocol.h"
@@ -23,5 +24,10 @@
 #include "array.h"
 
 extern bool debug;
+
+static inline int
+INT_LENGTH(int value) {
+  return (value == 0 ? 1 : ((int)(log10(abs(value))+1) + (value < 0 ? 1 : 0)));
+}
 
 #endif

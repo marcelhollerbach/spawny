@@ -14,12 +14,12 @@ static void
 _fire_up(void *data) {
     uid_t uid;
     struct passwd *pwd;
-    char command[PATH_MAX];
-
+    char executor[] = "startx";
+    char command[strlen(executor) + strlen(data) + 2];
     uid = getuid();
     pwd = getpwuid(uid);
 
-    snprintf(command, sizeof(command), "startx %s", data);
+    snprintf(command, sizeof(command), "%s %s", executor, data);
 
     execl(pwd->pw_shell, basename(pwd->pw_shell), "--login", "-i", "-c", command, NULL);
     perror("Execl failed");

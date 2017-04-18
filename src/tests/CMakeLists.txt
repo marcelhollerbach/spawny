@@ -33,6 +33,7 @@ target_link_libraries (test_spawny_daemon
    ${Check_LIBRARIES}
    ${CMAKE_THREAD_LIBS_INIT}
     protobuf-c
+    m
 )
 
 add_test(test_spawny_daemon ${CMAKE_CURRENT_BINARY_DIR}/test_spawny_daemon)

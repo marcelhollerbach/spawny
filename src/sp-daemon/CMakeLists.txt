@@ -75,6 +75,7 @@ target_link_libraries (sp-daemon
     ${LINK_FLAG}
     SpProtocol
     SpUserDb
+    m
 )
 
 set_property(TARGET sp-daemon PROPERTY COMPILE_DEFINITIONS

@@ -45,7 +45,7 @@ find_temp(const char *id, unsigned int *array_id) {
 const char*
 template_register(const char *name, const char *icon, const char *type, Template_Fire_Up fire_up, void *data) {
     Template *temp;
-    char buf[PATH_MAX];
+    char buf[INT_LENGTH(counter) + 2];
 
     if (!name) return NULL;
     if (!fire_up) return NULL;
