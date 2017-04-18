@@ -190,6 +190,7 @@ _client_data(Fd_Data *data, int fd) {
             client = NULL;
         break;
         default:
+            ERR("Unknown protocol message")
         break;
     }
     spawny__greeter__message__free_unpacked(msg, NULL);
