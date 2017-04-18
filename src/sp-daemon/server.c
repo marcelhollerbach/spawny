@@ -19,6 +19,8 @@
 #include <systemd/sd-daemon.h>
 
 #define MAX_MSG_SIZE 4096
+#define FALLBACK_SEAT "seat0"
+
 
 typedef struct {
     int fd;
@@ -138,6 +140,10 @@ _client_data(Fd_Data *data, int fd) {
          manager_unregister_fd(fd);
          return;
       }
+    seat = seat_get(client->client_info.pid);
+    //if we are in debugging mode we are just using seat0
+    if (!seat && debug)
+      seat = FALLBACK_SEAT;
 
     switch(msg->type){
         case SPAWNY__GREETER__MESSAGE__TYPE__HELLO:
@@ -158,7 +164,7 @@ _client_data(Fd_Data *data, int fd) {
             } else {
                  session_activate(msg->session);
                  server_spawnservice_feedback(0, "Activation is called on this session", fd);
-                 greeter_lockout(seat_get(client->client_info.pid));
+                 greeter_lockout(seat);
                  client_goodbye(client);
             }
         break;
@@ -168,11 +174,7 @@ _client_data(Fd_Data *data, int fd) {
 
             template_details_get(msg->login->template_id, &settings.session_desktop, NULL, &settings.session_type);
 
-            settings.session_seat = seat_get(client->client_info.pid);
-
-            //if we are in debugging mode we are just using seat0
-            if (!settings.session_seat && debug)
-              settings.session_seat = "seat0";
+            settings.session_seat = seat;
 
             INF("Greeter login try");
             if (!spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, PAM_SERVICE, msg->login->user, msg->login->password, &settings)) {
@@ -181,8 +183,8 @@ _client_data(Fd_Data *data, int fd) {
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__GREETER_START:
             INF("Greeter start");
-            seat = seat_get(client->client_info.pid);
-            if (!seat) seat = "seat0";
+
+            if (!seat) seat = FALLBACK_SEAT;
             greeter_activate(seat);
             client_free(client);
             client = NULL;
