@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <string.h>
+#include <libgen.h>
+#include <sys/stat.h>
 
 const char*
 sp_service_path_get(bool debug)
@@ -15,13 +17,33 @@ sp_service_path_get(bool debug)
       return SERVER_SOCKET;
 }
 
+static void
+mkdirpath(const char *path)
+{
+   char path_str[PATH_MAX];
+   char *dir;
+
+   snprintf(path_str, sizeof(path_str), "%s", path);
+   dir = dirname(path_str);
+
+   if (access(dir, R_OK | W_OK) < 0)
+     mkdirpath(dir);
+
+   mkdir(dir, S_IRWXO | S_IRWXG | S_IRWXU);
+}
+
 void
 sp_service_address_setup(bool debug, struct sockaddr_un *in)
 {
+    const char *path;
+
     memset(in, 0, sizeof(*in));
     in->sun_family = AF_UNIX;
 
-    snprintf(in->sun_path, sizeof(in->sun_path), "%s", sp_service_path_get(debug));
+    path = sp_service_path_get(debug);
+    mkdirpath(path);
+
+    snprintf(in->sun_path, sizeof(in->sun_path), "%s", path);
 }
 
 int
@@ -46,11 +68,6 @@ sp_service_connect(bool debug) {
     server_sock = sp_service_socket_create();
 
     if (server_sock < 0) {
-        return -1;
-    }
-
-    //test if we can access what we want
-    if (!!access(sp_service_path_get(debug), R_OK | W_OK)) {
         return -1;
     }
 
