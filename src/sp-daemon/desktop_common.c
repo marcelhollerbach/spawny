@@ -72,12 +72,12 @@ parse_dir(const char *directory_path, const char *type, Template_Fire_Up fire_up
     if (!directory) return;
 
     while((dir = readdir(directory))) {
-        char path[PATH_MAX];
         int len;
 
         len = strlen(dir->d_name);
 
         if (!strcmp(dir->d_name + len - sizeof(EXT) + 1, EXT)) {
+            char path[strlen(directory_path) + 1 + len + 1];
             snprintf(path, sizeof(path), "%s/%s", directory_path, dir->d_name);
             _parse_file(path, type, fire_up);
         }
