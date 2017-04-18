@@ -40,9 +40,7 @@ set(SPAWNY-DAEMON-SOURCE
     greeter.c
     greeter.h
     sessionmgt.h
-    sessionmgt_logind.c
     server.c
-    server_systemd.c
     server.h
     templatereg.h
     templatereg.c
@@ -58,12 +56,23 @@ set(SPAWNY-DAEMON-SOURCE
     ${PROJECT_SOURCE_DIR}/components/inih/ini.c
 )
 
+if (NO_SYSTEMD_SUPPORT)
+    list(APPEND SPAWNY-DAEMON-SOURCE sessionmgt_dummy.c)
+    list(APPEND SPAWNY-DAEMON-SOURCE server_dummy.c)
+    set(LINK_FLAG )
+else ()
+    list(APPEND SPAWNY-DAEMON-SOURCE sessionmgt_logind.c)
+    list(APPEND SPAWNY-DAEMON-SOURCE server_systemd.c)
+    set(LINK_FLAG systemd)
+endif()
+
+
 add_executable(sp-daemon ${SPAWNY-DAEMON-SOURCE})
 
 target_link_libraries (sp-daemon
     protobuf-c
     pam
-    systemd
+    ${LINK_FLAG}
     SpProtocol
     SpUserDb
 )
