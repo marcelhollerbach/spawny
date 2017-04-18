@@ -62,19 +62,30 @@ login(void) {
         fgets(template, sizeof(template), stdin);
         printf("\n");
 
-        if (user->prefered_session > 1 && template[0] == '\n') {
-            //only accept the default when the prefered session is bigger than 1
-            temp = def.id;
-        } else if (template[0] == 'l') {
+        //list sessions and continue
+        if (template[0] == 'l') {
             //list templates
             for (int i = 0; i < templates.length; i++){
                 Template template = TEMPLATE_ARRAY(&templates,i);
                 printf("%d\t - \t%s\n", template.id + 1, template.name);
             }
+            continue;
+        }
+
+        //fallback to default
+        if (user->prefered_session > 1 && template[0] == '\n') {
+            //only accept the default when the prefered session is bigger than 1
+            temp = def.id;
+        //or take the new id
         } else if (atoi(template) != 0) {
             temp = atoi(template);
+        } else {
+            printf("Unknown input %s\n", template);
+            continue;
         }
-    }while(!sp_client_login(ctx, username, password, temp - 1));
+        if (sp_client_login(ctx, username, password, temp - 1))
+          break;
+    }while(true);
 
     PROMPT("Waiting for feedback\n");
 }
