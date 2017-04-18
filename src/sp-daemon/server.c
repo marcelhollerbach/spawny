@@ -17,10 +17,10 @@
 #include <errno.h>
 #include <netinet/in.h>
 #include <systemd/sd-daemon.h>
+#include <libgen.h>
 
 #define MAX_MSG_SIZE 4096
 #define FALLBACK_SEAT "seat0"
-
 
 typedef struct {
     int fd;
@@ -28,9 +28,8 @@ typedef struct {
 } Client;
 
 static int server_sock;
-static void _load_data(const char *seat);
-
-static Spawny__Server__Data system_data = SPAWNY__SERVER__DATA__INIT;
+static void _load_data(Spawny__Server__Data *data, const char *seat);
+static void _free_data(Spawny__Server__Data *data);
 
 static void
 _send_message(Spawny__Server__MessageType type, Spawny__Server__RequestFeedback *fb, Spawny__Server__Data *data, int fd) {
@@ -148,11 +147,14 @@ _client_data(Fd_Data *data, int fd) {
     switch(msg->type){
         case SPAWNY__GREETER__MESSAGE__TYPE__HELLO:
             SAFE_CALL
+            Spawny__Server__Data system_data = SPAWNY__SERVER__DATA__INIT;
 
             INF("Greeter said ehllo, wrote system_data");
             //load the newesr available data
-            _load_data(seat);
+            _load_data(&system_data, seat);
             _send_message(SPAWNY__SERVER__MESSAGE__TYPE__DATA_UPDATE, NULL, &system_data, fd);
+            _free_data(&system_data);
+
         break;
         case SPAWNY__GREETER__MESSAGE__TYPE__SESSION_ACTIVATION:
             SAFE_CALL
@@ -234,7 +236,7 @@ _accept_ready(Fd_Data *data, int fd)
 }
 
 static void
-_load_sessions(const char *seat)
+_load_sessions(Spawny__Server__Data *system_data, const char *seat)
 {
     unsigned int offset = 0, number = 0;
     Spawny__Server__Session **sessions;
@@ -273,12 +275,12 @@ _load_sessions(const char *seat)
         sessions[i - offset]->user = user->pw_name;
     }
 
-    system_data.n_sessions = number - offset;
-    system_data.sessions = sessions;
+    system_data->n_sessions = number - offset;
+    system_data->sessions = sessions;
 }
 
 static void
-_load_users(void)
+_load_users(Spawny__Server__Data *system_data)
 {
     Spawny__Server__User **user;
     char **usernames;
@@ -318,13 +320,13 @@ _load_users(void)
     }
     free(usernames);
 
-    system_data.users = user;
-    system_data.n_users = number;
+    system_data->users = user;
+    system_data->n_users = number;
 
 }
 
 static void
-_load_templates(void)
+_load_templates(Spawny__Server__Data *system_data)
 {
     char **templates_raw;
 
@@ -414,23 +416,12 @@ server_init(void) {
     return 1;
 }
 
-#define IT_FREE(num, it) \
-    if (num > 0) { \
-        for (int i = 0; i < num; i++) { \
-            free(it[i]); \
-        } \
-        free(it); \
-    }
-
 void
 server_shutdown(void) {
     const char *path;
 
     path = sp_service_path_get(debug);
 
-    IT_FREE(system_data.n_users, system_data.users);
-    IT_FREE(system_data.n_sessions, system_data.sessions);
-    IT_FREE(system_data.n_templates, system_data.templates);
     user_db_shutdown();
     close(server_sock);
     unlink(path);
