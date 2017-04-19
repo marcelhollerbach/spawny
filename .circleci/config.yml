@@ -18,6 +18,7 @@ jobs:
             make
             make test
             sudo make install
+            sudo ldconfig
             ./src/integration-test/prepare
             sp-greeter-start
 

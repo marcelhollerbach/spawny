@@ -16,7 +16,8 @@ set(PAM_SERVICE_GREETER \"spawny-greeter\")
 set(PAM_SERVICE \"spawny\")
 
 set(FALLBACK_GREETER \"${FALLBACK_GREETER_PATH}/sp-fallback-greeter\")
-set(SERVER_SOCKET \"/run/spawny/spawny.socket\")
+set(SERVER_SOCKET_PATH /run/spawny/spawny.socket)
+set(SERVER_SOCKET \"${SERVER_SOCKET_PATH}\")
 set(SERVER_DEBUG_SOCKET \"/run/spawny/spawny-debug.socket\")
 
 set(PACKAGE_DATA_DIR \"${CMAKE_INSTALL_FULL_DATADIR}/spawny/\")
