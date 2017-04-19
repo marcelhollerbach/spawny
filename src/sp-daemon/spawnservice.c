@@ -24,6 +24,8 @@
 #define LAST_TTY 63
 #define FIRST_TTY 10
 
+#define MAX_MSG_SIZE 4096
+
 static int tty_counter = FIRST_TTY;
 
 static int child_run(Spawn_Try *try);
@@ -73,7 +75,7 @@ _child_data(Fd_Data *data, int fd)
 {
    Spawny__Spawn__Message *msg = NULL;
    Spawn_Try *try = data->data;
-   uint8_t buffer[PATH_MAX];
+   uint8_t buffer[MAX_MSG_SIZE];
    int len;
 
    len = read(fd, buffer, sizeof(buffer));
@@ -566,7 +568,7 @@ pam_auth(Spawn_Try *try, char ***env, int vtnr) {
     PAM_CHECK
 
 #define PE(k,v) do { \
-     char buf[PATH_MAX]; \
+     char buf[strlen(k) + 1 + strlen(v) + 1]; \
      snprintf(buf, sizeof(buf), "%s=%s", k, v); \
      ret = pam_putenv(handle, buf); \
      PAM_CHECK } while(0)
@@ -582,7 +584,7 @@ pam_auth(Spawn_Try *try, char ***env, int vtnr) {
 
 #undef PE
 #define PE(k,v) { \
- char buf[PATH_MAX]; \
+ char buf[strlen(k) + 1 + INT_LENGTH(v) + 1]; \
  snprintf(buf, sizeof(buf), "%s=%d", k, v); \
  ret = pam_putenv(handle, buf); \
  PAM_CHECK }
