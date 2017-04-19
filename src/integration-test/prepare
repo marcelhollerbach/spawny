@@ -2,3 +2,4 @@
 
 useradd spawny
 mkdir -p /var/lib/spawny
+sudo systemctl enable

@@ -19,5 +19,5 @@ jobs:
             make test
             sudo make install
             ./src/integration-test/prepare
-            ./src/integration-test/run
+            sp-greeter-start
 
