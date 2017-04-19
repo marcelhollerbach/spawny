@@ -13,6 +13,7 @@
 #include <grp.h>
 #include <pwd.h>
 #include <errno.h>
+#include <limits.h>
 
 #include <security/pam_appl.h>
 

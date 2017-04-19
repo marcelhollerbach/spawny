@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <systemd/sd-login.h>
 #include <errno.h>
+#include <limits.h>
 
 char *
 session_get(pid_t pid) {
