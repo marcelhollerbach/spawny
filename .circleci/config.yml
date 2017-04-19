@@ -14,7 +14,7 @@ jobs:
       - run:
           name: make & make test
           command: |
-            cmake .
+            cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr .
             make
             make test
             sudo make install
