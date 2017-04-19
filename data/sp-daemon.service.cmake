@@ -2,4 +2,4 @@
 Description="A daemon which prompts for logins and starts a session after that"
 
 [Service]
-ExecStart=/usr/local/bin/sp-daemon
+ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/sp-daemon
