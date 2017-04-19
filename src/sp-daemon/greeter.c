@@ -21,6 +21,13 @@ static Array *greeters;
 
 ARRAY_API(Seat_Greeter)
 
+
+static pid_t
+seat_greeter_pid_get(Seat_Greeter *seat) {
+    if (seat->run.try) return seat->run.try->pid;
+    return seat->run.pid;
+}
+
 void
 greeter_init(void)
 {
@@ -86,14 +93,14 @@ _greeter_done(void *data, int status, pid_t pid) {
     if (!greeter->end) {
         greeter->run_gen ++;
 
-        ERR("Greeter exited unexpected");
+        ERR("Greeter(%d) exited unexpected", seat_greeter_pid_get(greeter));
 
         _greeter_run_reset(greeter);
         greeter_activate(greeter->seat);
 
     } else {
 
-        INF("Greeter shutted down!");
+        INF("Greeter(%d) shutted down!", seat_greeter_pid_get(greeter));
         _greeter_del(greeter->seat);
     }
 }
@@ -107,13 +114,13 @@ _greeter_start_done(void *data, Spawn_Service_End end) {
     if (end.success == SPAWN_SERVICE_ERROR) {
         greeter->run_gen ++;
 
-        ERR("Greeter died reason: (%s), reexecute!", end.message);
+        ERR("Greeter(%d) died reason: (%s), reexecute!", seat_greeter_pid_get(greeter), end.message);
 
         _greeter_run_reset(greeter);
         greeter_activate(greeter->seat);
         return;
     } else {
-        INF("Greeter started.");
+        INF("Greeter(%d) started.", seat_greeter_pid_get(greeter));
 
         //keep track of the session
         greeter->run.pid = greeter->run.try->pid;
@@ -190,12 +197,6 @@ greeter_lockout(const char *seat) {
     }
 
     greeter->end = 1;
-}
-
-static pid_t
-seat_greeter_pid_get(Seat_Greeter *seat) {
-    if (seat->run.try) return seat->run.try->pid;
-    return seat->run.pid;
 }
 
 bool
