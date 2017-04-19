@@ -17,3 +17,5 @@ jobs:
             cmake .
             make
             make test
+            sudo make install
+            sp-daemon
