@@ -7,5 +7,6 @@
 void array_suite(Suite *spawny_suite);
 void manager_suite(Suite *spawny_suite);
 void template_suite(Suite *spawny_suite);
+void spawnregistery_suite(Suite *spawny_suite);
 
 #endif
