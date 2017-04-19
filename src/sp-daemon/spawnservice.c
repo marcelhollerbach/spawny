@@ -110,6 +110,8 @@ _child_data(Fd_Data *data, int fd)
            INF("%p: Session is up", data->data);
            manager_unregister_fd(try->com.fd[READ]);
            try->exit.success = SPAWN_SERVICE_SUCCESS;
+           //free the spawn session here the process now lifes on his own we do not monitor it anymore
+           _spawn_try_free(try);
        break;
        case SPAWNY__SPAWN__MESSAGE__TYPE__ERROR_EXIT:
            //print the error somewhere
