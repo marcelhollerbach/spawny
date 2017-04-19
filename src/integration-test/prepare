@@ -1,0 +1,4 @@
+#/bin/sh
+
+useradd spawny
+mkdir -p /var/lib/spawny

@@ -18,4 +18,6 @@ jobs:
             make
             make test
             sudo make install
-            sp-daemon
+            ./src/integration-test/prepare
+            ./src/integration-test/run
+
