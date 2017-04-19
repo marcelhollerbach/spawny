@@ -1,5 +1,7 @@
 # spawny
 
+[![CircleCI](https://circleci.com/gh/marcelhollerbach/spawny.svg?style=svg)](https://circleci.com/gh/marcelhollerbach/spawny)
+
 Spawny presents a daemon which can prompt for logins on ttys.
 It is splitted up into multiple subsystems
 
