@@ -16,12 +16,14 @@ Numbered_Array sessions;
 Numbered_Array users;
 
 #define PROMPT(...) printf(__VA_ARGS__);
+#define MAX_INTEGER_SIZE 10+1
+
 
 static int prompt_run(void);
 
 static void
 login(void) {
-    char username[PATH_MAX], template[10], *password;
+    char username[LOGIN_NAME_MAX], template[MAX_INTEGER_SIZE], *password;
     User *user = NULL;
     Template def;
     int temp = 0;
@@ -105,10 +107,10 @@ listsessions(void) {
     PROMPT("Spawny session activation:\n");
 
     do {
-        char session[PATH_MAX];
+        char session[MAX_INTEGER_SIZE];
         PROMPT("Session :");
-
-        scanf("%s", session);
+        fgets(session, sizeof(session), stdin);
+        session[strlen(session) - 1] = '\0';
         id = atoi(session);
     } while(!sp_client_session_activate(ctx, id - 1));
 
