@@ -8,10 +8,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <sys/stat.h>
-
-#ifndef PATH_MAX
-#define PATH_MAX 2048
-#endif
+#include <limits.h>
 
 #define INI ".ini"
 #define S_INI (sizeof(INI) - 1)
@@ -133,36 +130,25 @@ _user_list_free(void) {
 }
 static void
 _list_users(char ***usernames, unsigned int *numb) {
-    char line[PATH_MAX];
-    FILE *fptr;
-    char *username;
     char **names = NULL;
-
-    fptr = fopen("/etc/passwd","r");
-
-    if (!fptr) {
-        ERRNO_PRINTF("Failed to read /etc/passwd");
-        return;
-    }
+    struct passwd *pw_user = NULL;
 
     *numb = 0;
     *usernames = NULL;
 
-    if (fptr == NULL) {
-         perror("Failed to read passwd");
-         return;
-    }
+    do {
+        errno = 0;
+        pw_user = getpwent();
+        if (pw_user) {
+            (*numb) ++;
+            names = realloc(names, (*numb) * sizeof(char*));
+            names[(*numb) - 1] = strdup(pw_user->pw_name);
+        } else if (errno != 0) {
+            perror("Fetching user struct with getpwent failed");
+        }
+    } while (pw_user);
 
-    while (fgets(line, sizeof(line), fptr)) {
-        username = strtok(line, ":");
-
-        (*numb) ++;
-
-        names = realloc(names, (*numb) * sizeof(char*));
-        names[(*numb) - 1] = strdup(username);
-    }
     *usernames = names;
-    fclose(fptr);
 }
 
 static bool
