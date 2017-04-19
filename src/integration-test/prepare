@@ -2,4 +2,6 @@
 
 useradd spawny
 mkdir -p /var/lib/spawny
-sudo systemctl enable
+sudo systemctl enable sp-daemon.socket
+sudo systemctl start sp-daemon.socket
+sudo systemctl enable sp-daemon.service
