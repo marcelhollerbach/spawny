@@ -19,6 +19,7 @@ jobs:
             make test
             sudo make install
             sudo ldconfig
+            sudo systemctl daemon-reload
             ./src/integration-test/prepare
             sp-greeter-start
 
