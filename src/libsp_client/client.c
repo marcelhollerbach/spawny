@@ -38,7 +38,6 @@ static void _data_convert(Sp_Client_Context *ctx, Spawny__Server__Data *data);
     }
 
 struct _Sp_Client_Context{
-   Sp_Client_Login_Purpose purpose;
    bool debug;
    int server_sock;
    Spawny__Server__Data server_data;
@@ -115,7 +114,6 @@ _sp_client_start_greeter(Sp_Client_Context *ctx) {
 
 bool
 sp_client_session_activate(Sp_Client_Context *ctx, int session) {
-    API_ENTRY(SP_CLIENT_LOGIN_PURPOSE_GREETER_JOB)
     API_CALLBACK_CHECK()
 
     if (session < 0 || session >= ctx->private_sessions.length)
@@ -138,7 +136,6 @@ sp_client_session_activate(Sp_Client_Context *ctx, int session) {
 
 bool
 sp_client_login(Sp_Client_Context *ctx, const char *usr, const char *pw, int template) {
-    API_ENTRY(SP_CLIENT_LOGIN_PURPOSE_GREETER_JOB)
     API_CALLBACK_CHECK()
 
     if (template < 0 || template >= ctx->private_templates.length)
@@ -178,7 +175,7 @@ _parse_args(Sp_Client_Context *ctx, int argc, char *argv[])
 }
 
 Sp_Client_Context*
-sp_client_init(int argc, char *argv[], Sp_Client_Login_Purpose purpose) {
+sp_client_init(int argc, char *argv[]) {
     Sp_Client_Context *ctx;
 
     ctx = calloc(1, sizeof(Sp_Client_Context));
@@ -187,12 +184,6 @@ sp_client_init(int argc, char *argv[], Sp_Client_Login_Purpose purpose) {
     if (argc > 0 && argv)
       _parse_args(ctx, argc, argv);
 
-    if (purpose < SP_CLIENT_LOGIN_PURPOSE_START_GREETER || purpose >= SP_CLIENT_LOGIN_PURPOSE_LAST) {
-        ERR("Invalid purpose!\n");
-        goto end;
-    }
-
-    ctx->purpose = purpose;
     ctx->server_sock = sp_service_connect(ctx->debug);
 
     if (ctx->server_sock < 0) {
@@ -200,20 +191,9 @@ sp_client_init(int argc, char *argv[], Sp_Client_Login_Purpose purpose) {
         goto end;
     }
 
-    switch(purpose){
-        case SP_CLIENT_LOGIN_PURPOSE_GREETER_JOB:
-            if (!_sp_client_hello(ctx))
-                goto end;
-        break;
-        case SP_CLIENT_LOGIN_PURPOSE_START_GREETER:
-            _sp_client_start_greeter(ctx);
-            goto end;
-        break;
-        default:
-        break;
-    }
+    if (_sp_client_hello(ctx))
+      return ctx;
 
-    return ctx;
 end:
     if (ctx->server_sock > 0) close(ctx->server_sock);
     free(ctx);
@@ -277,7 +257,6 @@ sp_client_free(Sp_Client_Context *ctx) {
 //read data packages
 Sp_Client_Read_Result
 sp_client_read(Sp_Client_Context *ctx, Sp_Client_Interface *interface) {
-    API_ENTRY(SP_CLIENT_LOGIN_PURPOSE_GREETER_JOB)
     API_CALLBACK_CHECK()
     Spawny__Server__Message *msg = NULL;
     int len = 0;

@@ -193,7 +193,7 @@ int main(int argc, char **argv) {
     printf("#########################################\n");
     printf("# Spawny Command line greeter interface #\n");
     printf("#########################################\n");
-    ctx = sp_client_init(argc, argv, SP_CLIENT_LOGIN_PURPOSE_GREETER_JOB);
+    ctx = sp_client_init(argc, argv);
 
     if (!ctx) return EXIT_FAILURE;
 

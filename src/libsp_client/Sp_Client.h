@@ -4,12 +4,6 @@
 #include <stdbool.h>
 
 typedef enum {
-    SP_CLIENT_LOGIN_PURPOSE_START_GREETER = 0,
-    SP_CLIENT_LOGIN_PURPOSE_GREETER_JOB = 1,
-    SP_CLIENT_LOGIN_PURPOSE_LAST = 2
-} Sp_Client_Login_Purpose;
-
-typedef enum {
     SP_CLIENT_READ_RESULT_SUCCESS = 0,
     SP_CLIENT_READ_RESULT_FAILURE = 1,
     SP_CLIENT_READ_RESULT_EXIT = 2,
@@ -97,7 +91,7 @@ bool sp_client_greeter_start(int argc, char *argv[]);
  * @return a new context on success NULL on failure if purpose is not START_GREETER.
  *
  */
-Sp_Client_Context* sp_client_init(int argc, char *argv[], Sp_Client_Login_Purpose purpose);
+Sp_Client_Context* sp_client_init(int argc, char *argv[]);
 
 /**
  * Get the data. Can return empty stuff if nothing is here right now
