@@ -22,7 +22,7 @@ This is a safe call.
 
 ## Greeter start
 The message results in the daemon trying to start a new session where the greeter is brought up.
-After this request the daemon will close the communication connection. No further requests will be allowed.
+The call was successfull when the daemon answers with a leave message
 
 # Daemon to Greeter
 
