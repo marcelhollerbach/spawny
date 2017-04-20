@@ -607,7 +607,10 @@ pam_auth(Spawn_Try *try, char ***env, int vtnr) {
 
 #undef PAM_CHECK
 
-    chdir(pwd->pw_dir);
+    if (!!chdir(pwd->pw_dir)) {
+       _service_com_exit(try, "Change dir failed");
+       return 0;
+    }
 
     *env = pam_getenvlist(handle);
 
