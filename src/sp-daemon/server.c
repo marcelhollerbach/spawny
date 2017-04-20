@@ -121,6 +121,7 @@ _client_data(Fd_Data *data, int fd) {
     if (!len)
       {
          manager_unregister_fd(fd);
+         client_free(client);
          return;
       }
 
@@ -137,6 +138,7 @@ _client_data(Fd_Data *data, int fd) {
       {
          ERR("Failed to receive message from %d.", fd);
          manager_unregister_fd(fd);
+         client_free(client);
          return;
       }
     seat = seat_get(client->client_info.pid);
