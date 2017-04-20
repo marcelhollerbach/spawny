@@ -220,6 +220,46 @@ end:
     return NULL;
 }
 
+bool
+sp_client_greeter_start(int argc, char *argv[]) {
+    Spawny__Server__Message *msg = NULL;
+    uint8_t buf[MAX_MSG_SIZE];
+    Sp_Client_Context ctx;
+    int len = 0;
+
+    memset(&ctx, 0, sizeof(Sp_Client_Context));
+
+    if (argc > 0 && argv)
+     _parse_args(&ctx, argc, argv);
+
+    ctx.server_sock = sp_service_connect(ctx.debug);
+
+    _sp_client_start_greeter(&ctx);
+
+    len = read(ctx.server_sock, buf, sizeof(buf));
+
+    if (len == -1) {
+        perror("Reading the socket connection failed");
+        return false;
+    }
+
+    msg = spawny__server__message__unpack(NULL, len, buf);
+
+    if (!msg) {
+        ERR("Invalid data object");
+        return false;
+    }
+
+    if (msg->type != SPAWNY__SERVER__MESSAGE__TYPE__LEAVE) {
+        ERR("Got unexpected message");
+        return false;
+    }
+
+    spawny__server__message__free_unpacked(msg, NULL);
+
+    return true;
+}
+
 int
 sp_client_fd_get(Sp_Client_Context *ctx)
 {

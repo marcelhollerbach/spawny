@@ -72,6 +72,18 @@ typedef struct {
 
 typedef struct _Sp_Client_Context Sp_Client_Context;
 
+
+/**
+ * Call the daemon to start a greeter on the seat where this is in, or seat0 if this process is not part of any seat
+ * If the argv contains --debug this connects to the debug daemon
+ *
+ * @param argv    the arguments that are passed to the application
+ * @param argc    the arguments count that got passed to the application
+ *
+ * @return true if this call was successfull or false if not
+ */
+bool sp_client_greeter_start(int argc, char *argv[]);
+
 /**
  * Create a new context. Will scan the argv for --debug or -d to enable connecting to the debug deamon
  *

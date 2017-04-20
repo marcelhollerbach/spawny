@@ -4,6 +4,7 @@
 int
 main(int argc, char **argv)
 {
-    sp_client_init(argc, argv, SP_CLIENT_LOGIN_PURPOSE_START_GREETER);
+    if (!sp_client_greeter_start(argc, argv))
+      return EXIT_FAILURE;
     return EXIT_SUCCESS;
 }
