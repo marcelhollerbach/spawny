@@ -188,10 +188,14 @@ _client_data(Fd_Data *data, int fd) {
         case SPAWNY__GREETER__MESSAGE__TYPE__GREETER_START:
             INF("Greeter start");
 
-            if (!seat) seat = FALLBACK_SEAT;
-            greeter_activate(seat);
-            client_free(client);
-            client = NULL;
+            if (kill(client->client_info.pid, 0) == -1) {
+                ERR("Client %d is not alive but needs to be alive - dropping", client->client_info.pid);
+                client_free(client);
+            } else {
+                if (!seat) seat = FALLBACK_SEAT;
+                greeter_activate(seat);
+                client_goodbye(client);
+            }
         break;
         default:
             ERR("Unknown protocol message")
