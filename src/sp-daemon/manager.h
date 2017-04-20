@@ -16,4 +16,7 @@ void manager_stop(void);
 void manager_register_fd(int fd, Fd_Data_Cb cb, void *data);
 void manager_unregister_fd(int fd);
 
+
+void manager_fork_eval(void);
+
 #endif

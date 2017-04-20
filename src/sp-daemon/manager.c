@@ -163,3 +163,11 @@ manager_unregister_fd(int fd) {
     else
       changes ++;
 }
+
+void
+manager_fork_eval(void) {
+   for (int i = 0; i < array_len_get(fds); ++i) {
+      Fd_Register *reg = array_Fd_Register_get(fds, i);
+      close(reg->data.fd);
+   }
+}

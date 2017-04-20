@@ -298,6 +298,9 @@ child_run(Spawn_Try *try){
         char *session;
         char **env;
 
+        //reset all registered filedescriptors
+        manager_fork_eval();
+
         //we must be our own session
         setsid();
 
