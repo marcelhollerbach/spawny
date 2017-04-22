@@ -181,7 +181,7 @@ _client_data(Fd_Data *data, int fd) {
             settings.session_seat = seat;
 
             INF("Greeter login try");
-            if (!spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, PAM_SERVICE, msg->login->user, msg->login->password, &settings)) {
+            if (!spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, NULL, NULL, PAM_SERVICE, msg->login->user, msg->login->password, &settings)) {
                 server_spawnservice_feedback(0, "spawn failed.", fd);
             }
         break;

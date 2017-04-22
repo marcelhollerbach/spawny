@@ -128,6 +128,7 @@ _child_data(Fd_Data *data, int fd)
 Spawn_Try*
 spawnservice_spawn(SpawnDoneCb done, void *data,
                    SpawnServiceJobCb job, void *jobdata,
+                   SpawnServiceJobCb session_done, void *session_done_data,
                    const char *service, const char *usr, const char *pw, Xdg_Settings *settings) {
 
     Spawn_Try *spawn_try = calloc(1, sizeof(Spawn_Try));
@@ -144,6 +145,9 @@ spawnservice_spawn(SpawnDoneCb done, void *data,
 
     spawn_try->job.cb = job;
     spawn_try->job.data = jobdata;
+
+    spawn_try->session_ended.cb = session_done;
+    spawn_try->session_ended.data = session_done_data;
 
     spawn_try->pw = pw;
     spawn_try->usr = usr;
@@ -260,6 +264,9 @@ _session_proc_fire_up(Spawn_Try *try) {
         perror("fork failed");
     } else {
         waitpid(pid, NULL, 0);
+
+        if (try->session_ended.cb)
+          try->session_ended.cb(try->session_ended.data);
     }
     exit(1);
 }

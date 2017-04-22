@@ -27,7 +27,7 @@ typedef struct _Spawn_Try{
     struct {
         SpawnServiceJobCb cb;
         void *data;
-    } job;
+    } job, session_ended;
     struct {
         SpawnDoneCb cb;
         void *data;
@@ -65,6 +65,7 @@ typedef struct _Spawn_Try{
 Spawn_Try*
 spawnservice_spawn(SpawnDoneCb done, void *data,
                    SpawnServiceJobCb job, void *jobdata,
+                   SpawnServiceJobCb session_ended, void *session_ended_data,
                    const char *service, const char *usr, const char *pw, Xdg_Settings *sessiongs);
 
 void spawnservice_init(void);

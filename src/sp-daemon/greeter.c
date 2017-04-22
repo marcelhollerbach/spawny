@@ -179,7 +179,7 @@ greeter_activate(const char *seat) {
     }
 
     if (!(greeter->run_gen > FALLBACK_RUN_GENERATION))
-      greeter->run.try = spawnservice_spawn(_greeter_start_done, greeter, _greeter_job, greeter,
+      greeter->run.try = spawnservice_spawn(_greeter_start_done, greeter, _greeter_job, greeter, NULL, NULL,
                                         PAM_SERVICE_GREETER, config->greeter.start_user, NULL, &settings);
     else
       ERR("Starting the greeter %d times did not bring it up, giving up. :(", greeter->run_gen);
