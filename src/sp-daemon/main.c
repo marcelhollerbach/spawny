@@ -25,7 +25,9 @@ init_check(void) {
 void
 print_help(void)
 {
-    printf("There is only the --debug option that should be used to debug");
+    printf("Supported options\n");
+    printf("--debug / -d Start the daemon in debug mode\n");
+    printf("--no-greeter-restart Do not start the greeter once a session has shutted down\n", );
 }
 
 void
@@ -34,10 +36,13 @@ _parse_args(int argc, char *argv[])
    _G.argc = argc;
    _G.argv = argv;
    _G.config.debug = false;
+   _G.config.no_greeter_restart = false;
 
    for (int i = 1; i < argc; ++i) {
         if (!strcmp(argv[i], "--debug") || !strcmp(argv[i], "-d")) {
             _G.config.debug = true;
+        } else if (!strcmp(argv[i], "--no-greeter-restart")) {
+            _G.config.no_greeter_restart = true;
         } else {
             print_help();
             exit(-1);

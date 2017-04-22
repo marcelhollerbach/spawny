@@ -64,7 +64,8 @@ _session_job(void *data) {
 static void
 _reexecute_greeter(void *data)
 {
-   sp_client_greeter_start(_G.argc, _G.argv);
+   if (!_G.config.no_greeter_restart)
+     sp_client_greeter_start(_G.argc, _G.argv);
 }
 
 void

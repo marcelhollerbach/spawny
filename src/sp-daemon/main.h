@@ -26,6 +26,7 @@
 typedef struct {
   struct {
      bool debug;
+     bool no_greeter_restart;
   } config;
 
   int argc;
