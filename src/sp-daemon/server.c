@@ -17,6 +17,8 @@
 #include <errno.h>
 #include <netinet/in.h>
 
+#include <Sp_Client.h>
+
 #include <libgen.h>
 
 #define MAX_MSG_SIZE 4096
@@ -57,6 +59,12 @@ static void
 _session_job(void *data) {
     if (!template_run(data))
       ERR("Failed to run template, template not found");
+}
+
+static void
+_reexecute_greeter(void *data)
+{
+   sp_client_greeter_start(0, NULL);
 }
 
 void
@@ -181,7 +189,7 @@ _client_data(Fd_Data *data, int fd) {
             settings.session_seat = seat;
 
             INF("Greeter login try");
-            if (!spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, NULL, NULL, PAM_SERVICE, msg->login->user, msg->login->password, &settings)) {
+            if (!spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, _reexecute_greeter, NULL, PAM_SERVICE, msg->login->user, msg->login->password, &settings)) {
                 server_spawnservice_feedback(0, "spawn failed.", fd);
             }
         break;
