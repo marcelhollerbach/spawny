@@ -150,7 +150,10 @@ _greeter_job(void *data) {
     cmd = basename(cmdpath);
 
     printf("Starting greeter app %s", cmdpath);
-    execl(cmdpath, cmd, NULL);
+    if (!_G.config.debug)
+      execl(cmdpath, cmd, NULL);
+    else
+      execl(cmdpath, cmd, "--debug", NULL);
     exit(1);
 }
 
