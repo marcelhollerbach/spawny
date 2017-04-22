@@ -79,11 +79,11 @@ int main(int argc, char const *argv[])
             return EXIT_FAILURE;
         } else {
             printf("unrecognized option %s\n", argv[i]);
+            _print_help();
             return EXIT_FAILURE;
         }
     }
 
-    _print_help();
 
     user_db_shutdown();
 
