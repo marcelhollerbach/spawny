@@ -9,9 +9,10 @@ static const char *username;
 static void
 _print_help(void)
 {
-   printf("Much help ...\n");
+   printf("The following options are supported\n");
    printf(" --edit key,val\n");
    printf(" --del key\n");
+   printf("The current keys are used by the daemon: prefered-session")
 }
 
 static bool
