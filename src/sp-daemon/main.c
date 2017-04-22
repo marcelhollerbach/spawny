@@ -27,7 +27,7 @@ print_help(void)
 {
     printf("Supported options\n");
     printf("--debug / -d Start the daemon in debug mode\n");
-    printf("--no-greeter-restart Do not start the greeter once a session has shutted down\n", );
+    printf("--no-greeter-restart Do not start the greeter once a session has shutted down\n");
 }
 
 void
