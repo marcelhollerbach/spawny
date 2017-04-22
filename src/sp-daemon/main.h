@@ -23,7 +23,16 @@
 #include "user_db.h"
 #include "array.h"
 
-extern bool debug;
+typedef struct {
+  struct {
+     bool debug;
+  } config;
+
+  int argc;
+  char **argv;
+} Global;
+
+extern Global _G;
 
 static inline int
 INT_LENGTH(int value) {

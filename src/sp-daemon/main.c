@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 
-bool debug;
+Global _G;
 
 static void
 init_check(void) {
@@ -31,11 +31,13 @@ print_help(void)
 void
 _parse_args(int argc, char *argv[])
 {
-   debug = false;
+   _G.argc = argc;
+   _G.argv = argv;
+   _G.config.debug = false;
 
    for (int i = 1; i < argc; ++i) {
         if (!strcmp(argv[i], "--debug") || !strcmp(argv[i], "-d")) {
-            debug = true;
+            _G.config.debug = true;
         } else {
             print_help();
             exit(-1);

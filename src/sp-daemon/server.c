@@ -108,7 +108,7 @@ client_is_greeter(Client *client)
 {
    pid_t sid;
 
-   if (debug) return true;
+   if (_G.config.debug) return true;
 
    sid = getsid(client->client_info.pid);
 
@@ -151,7 +151,7 @@ _client_data(Fd_Data *data, int fd) {
       }
     seat = seat_get(client->client_info.pid);
     //if we are in debugging mode we are just using seat0
-    if (!seat && debug)
+    if (!seat && _G.config.debug)
       seat = FALLBACK_SEAT;
 
     switch(msg->type){
@@ -416,13 +416,13 @@ _socket_setup(void)
     if (!server_sock) {
         const char *path;
 
-        path = sp_service_path_get(debug);
+        path = sp_service_path_get(_G.config.debug);
 
         mkdirpath(path);
 
         server_sock = sp_service_socket_create();
 
-        sp_service_address_setup(debug, &address);
+        sp_service_address_setup(_G.config.debug, &address);
 
         //try to remove the path before binding it
         unlink(path);
@@ -464,7 +464,7 @@ void
 server_shutdown(void) {
     const char *path;
 
-    path = sp_service_path_get(debug);
+    path = sp_service_path_get(_G.config.debug);
 
     user_db_shutdown();
     close(server_sock);
