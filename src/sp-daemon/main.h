@@ -23,6 +23,7 @@
 #include "greeter.h"
 #include "user_db.h"
 #include "array.h"
+#include "utils.h"
 
 typedef struct {
   struct {
@@ -40,6 +41,4 @@ static inline int
 INT_LENGTH(int value) {
   return (value == 0 ? 1 : ((int)(log10(abs(value))+1) + (value < 0 ? 1 : 0)));
 }
-
-int mkpath(const char *pathname, mode_t mode);
 #endif

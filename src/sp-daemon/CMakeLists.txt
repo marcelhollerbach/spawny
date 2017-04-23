@@ -51,6 +51,8 @@ set(SPAWNY-DAEMON-SOURCE
     x11_temp.c
     desktop_common.c
     desktop_common.h
+    utils.c
+    utils.h
     ${CMAKE_CURRENT_BINARY_DIR}/session_spawn.pb-c.c
     ${CMAKE_CURRENT_BINARY_DIR}/session_spawn.pb-c.h
     ${PROJECT_SOURCE_DIR}/components/inih/ini.h
