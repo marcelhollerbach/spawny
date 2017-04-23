@@ -14,7 +14,7 @@ mkpath(const char *path, mode_t mode)
    snprintf(path_str, sizeof(path_str), "%s", path);
    dir = dirname(path_str);
 
-   if (access(dir, R_OK | W_OK) < 0) {
+   if (access(dir, R_OK) < 0) {
         if (mkpath(dir, mode) == -1)
             return -1;
    }
