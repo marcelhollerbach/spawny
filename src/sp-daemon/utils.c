@@ -1,9 +1,11 @@
-#include "main.h"
+#include "utils.h"
 #include <limits.h>
 #include <libgen.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <string.h>
+#include <stdio.h>
+#include <unistd.h>
 
 int
 mkpath(const char *path, mode_t mode)

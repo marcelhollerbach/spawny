@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <limits.h>
+#include <utils.h>
 
 #define INI ".ini"
 #define S_INI (sizeof(INI) - 1)
@@ -306,6 +307,8 @@ user_db_sync(void) {
         printf("Syncing with passwd is only allowed as root.");
         return false;
     }
+
+    mkpath(SPAWNY_USER_DB, S_IRUSR | S_IWUSR);
 
     _list_users(&users, &users_n);
 
