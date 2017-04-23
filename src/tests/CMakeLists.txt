@@ -16,6 +16,7 @@ set(SPAWNY-DAEMON-TEST-SOURCE
     test_manager.c
     test_templatereg.c
     test_spawnregistery.c
+    test_utils.c
     ../sp-daemon/log.h
     ../sp-daemon/log.c
     ../sp-daemon/array.h
@@ -27,6 +28,8 @@ set(SPAWNY-DAEMON-TEST-SOURCE
     ../sp-daemon/sessionmgt.h
     ../sp-daemon/templatereg.h
     ../sp-daemon/templatereg.c
+    ../sp-daemon/utils.h
+    ../sp-daemon/utils.c
 )
 
 add_executable(test_spawny_daemon ${SPAWNY-DAEMON-TEST-SOURCE})

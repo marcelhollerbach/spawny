@@ -7,6 +7,7 @@ Suite_Creator spawny_suites[] = {
   manager_suite,
   template_suite,
   spawnregistery_suite,
+  util_suite,
   NULL
 };
 
