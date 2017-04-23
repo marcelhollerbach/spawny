@@ -46,7 +46,6 @@ login(void) {
     def = TEMPLATE_ARRAY(&templates, user->prefered_session);
 
     password = getpass("Password :");
-    PROMPT("");
 
     //consume the \n
     getchar();
