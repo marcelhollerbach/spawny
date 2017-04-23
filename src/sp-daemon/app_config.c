@@ -1,6 +1,7 @@
 #include "main.h"
 #include <string.h>
 #include "ini.h"
+#include <errno.h>
 
 Config *config;
 
@@ -19,6 +20,24 @@ _config_parse(void* user, const char* section,
     }
 
     return 1;
+}
+
+int
+config_check_correctness(void) {
+   int ret = 1;
+   //check if command exists
+   if (config->greeter.cmd) {
+        if (access(config->greeter.cmd, R_OK) != 0) {
+          ERR("Failed to access %s. Error %s\n", config->greeter.cmd, strerror(errno));
+          ret = 0;
+        }
+   }
+   errno = 0;
+   if (!getpwnam(config->greeter.start_user)) {
+        ERR("User %s is not known on the system. Error: %s", config->greeter.start_user, strerror(errno));
+        ret = 0;
+   }
+   return ret;
 }
 
 int

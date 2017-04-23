@@ -12,5 +12,5 @@ extern Config *config;
 
 int config_init(void);
 int config_shutdown(void);
-
+int config_check_correctness(void);
 #endif

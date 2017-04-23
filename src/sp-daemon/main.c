@@ -43,6 +43,12 @@ _parse_args(int argc, char *argv[])
             _G.config.debug = true;
         } else if (!strcmp(argv[i], "--no-greeter-restart")) {
             _G.config.no_greeter_restart = true;
+        } else if (!strcmp(argv[i], "--check-config")) {
+           config_init();
+           if (config_check_correctness())
+             exit(0);
+           else
+             exit(-1);
         } else {
             print_help();
             exit(-1);
