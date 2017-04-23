@@ -28,6 +28,8 @@ config_init(void) {
     config->greeter.start_user = "spawny";
     config->greeter.cmd = NULL;
 
+    mkpath(PACKAGE_CONFIG, S_IRUSR);
+
     parse_ini_verbose(PACKAGE_CONFIG, _config_parse, NULL);
 
     return 1;

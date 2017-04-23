@@ -401,10 +401,7 @@ mkdirpath(const char *path)
    snprintf(path_str, sizeof(path_str), "%s", path);
    dir = dirname(path_str);
 
-   if (access(dir, R_OK | W_OK) < 0)
-     mkdirpath(dir);
-
-   mkdir(dir, S_IRWXO | S_IRWXG | S_IRWXU);
+   mkpath(dir,  S_IRWXO | S_IRWXG | S_IRWXU);
 }
 
 static int

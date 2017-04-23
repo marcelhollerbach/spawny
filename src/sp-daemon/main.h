@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <sys/stat.h>
 
 #include "log.h"
 #include "sp_protocol.h"
@@ -40,4 +41,5 @@ INT_LENGTH(int value) {
   return (value == 0 ? 1 : ((int)(log10(abs(value))+1) + (value < 0 ? 1 : 0)));
 }
 
+int mkpath(const char *pathname, mode_t mode);
 #endif
