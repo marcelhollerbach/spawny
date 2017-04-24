@@ -324,7 +324,7 @@ user_db_sync(void) {
         return false;
     }
 
-    if (mkpath(SPAWNY_USER_DB, S_IRWXG | S_IRWXU | S_IRWXO) != 0) {
+    if (!!access(SPAWNY_USER_DB, W_OK | R_OK) && mkpath(SPAWNY_USER_DB, S_IRWXG | S_IRWXU | S_IRWXO) != 0) {
         ERRNO_PRINTF("Failed to create database diretory.");
         return false;
     }
