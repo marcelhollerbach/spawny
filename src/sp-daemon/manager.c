@@ -27,6 +27,11 @@ void
 manager_init(void) {
    fds = array_Fd_Register_new();
 }
+void
+manager_shutdown(void) {
+   array_free(fds);
+   fds = NULL;
+}
 
 static void
 _read_available(Fd_Register *reg, int fd)

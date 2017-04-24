@@ -86,8 +86,10 @@ main(int argc, char **argv)
 
     manager_run();
 
+    spawnregistery_shutdown();
     server_shutdown();
     greeter_shutdown();
     template_shutdown();
+    manager_shutdown();
     config_shutdown();
 }

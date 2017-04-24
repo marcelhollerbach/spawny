@@ -19,6 +19,11 @@ spawnregistery_init(void)
    pending_process = array_Waiting_new();
 }
 
+void spawnregistery_shutdown(void)
+{
+  array_free(pending_process);
+}
+
 void
 spawnregistery_listen(pid_t pid, void(*handler)(void *data, int status, pid_t pid), void *data)
 {

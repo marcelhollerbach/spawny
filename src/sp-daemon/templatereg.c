@@ -77,6 +77,7 @@ template_unregister(const char *id) {
     free(temp->id);
     free(temp->name);
     free(temp->icon);
+    free(temp->type);
 
     array_Template_del(array, i);
 
@@ -140,4 +141,5 @@ template_shutdown(void)
         Template *t = array_get(array, 0);
         template_unregister(t->id);
     }
+    array_free(array);
 }

@@ -11,6 +11,7 @@ typedef struct {
 typedef void (*Fd_Data_Cb)(Fd_Data *data, int fd);
 
 void manager_init(void);
+void manager_shutdown(void);
 int manager_run(void);
 void manager_stop(void);
 void manager_register_fd(int fd, Fd_Data_Cb cb, void *data);

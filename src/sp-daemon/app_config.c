@@ -56,5 +56,7 @@ config_init(void) {
 
 int
 config_shutdown(void) {
+    free(config);
+    config = NULL;
     return 1;
 }
