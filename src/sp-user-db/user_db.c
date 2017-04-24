@@ -364,8 +364,12 @@ user_db_init(void) {
 
         if (STARTED_AS_ROOT) {
             user_db_sync();
-        } else if (!ctx->n_user) {
-            printf("No user found! Run as root to initializie the db.\n");
+        } else {
+            _load_from_fs();
+        }
+
+        if (!ctx->n_user && !STARTED_AS_ROOT) {
+            printf("The current database appears to be uninitialized, run as root to initialize!\n");
         }
         ctx->ref = 1;
     } else {
