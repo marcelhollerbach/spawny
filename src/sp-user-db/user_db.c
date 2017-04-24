@@ -21,6 +21,9 @@
 #define ERRNO_PRINTF(val, ...) \
     printf(val"\n -> Reason: %s\n", ##__VA_ARGS__ ,strerror(errno));
 
+#define ERROR_CALL(call) if (!(call)) return false;
+#define ERROR_CALL_GOTO(call) if (!(call)) goto error;
+
 typedef struct {
     char *value;
     char *name;
@@ -65,6 +68,8 @@ _user_pair_remove(User *user, const char *name) {
             memcpy(&user->additional[i] , &user->additional[i + 1], sizeof(Pair));
         }
     }
+
+    if (!swap) return;
 
     user->n_additional --;
 
@@ -129,7 +134,7 @@ _user_list_free(void) {
     ctx->user = NULL;
     ctx->n_user = 0;
 }
-static void
+static bool
 _list_users(char ***usernames, unsigned int *numb) {
     char **names = NULL;
     struct passwd *pw_user = NULL;
@@ -146,10 +151,12 @@ _list_users(char ***usernames, unsigned int *numb) {
             names[(*numb) - 1] = strdup(pw_user->pw_name);
         } else if (errno != 0) {
             perror("Fetching user struct with getpwent failed");
+            return false;
         }
     } while (pw_user);
 
     *usernames = names;
+    return true;
 }
 
 static bool
@@ -231,7 +238,7 @@ _load_ini_parse(void* data, const char* section, const char* name, const char* v
 }
 
 
-static void
+static bool
 _load_file(const char *filename)
 {
     char buf[PATH_MAX];
@@ -247,34 +254,36 @@ _load_file(const char *filename)
 
     if (!file) {
         ERRNO_PRINTF("Opening file %s failed.", filename)
-        return;
+        return false;
     }
 
     ini_parse_file(file, _load_ini_parse, &user);
 
+    fclose(file);
+
     if (!user.name) {
         printf("File %s does not specify name in section identify\n", filename);
-        return;
+        return false;
     }
 
     pw = getpwnam(user.name);
     if (!pw) {
         printf("Failed to fetch struct passwd from %s with name %s\n", filename, user.name);
-        return;
+        return false;
     }
 
     if(_user_find(user.name)) {
         printf("Duplucated entry for %s in file %s\n", user.name, filename);
-        return;
+        return false;
     }
-
-    fclose(file);
 
     listuser = _user_add();
     memcpy(listuser, &user, sizeof(User));
+
+    return true;
 }
 
-static void
+static bool
 _load_from_fs(void) {
     DIR* od;
     struct dirent *dir;
@@ -283,7 +292,7 @@ _load_from_fs(void) {
 
     if (!od) {
         ERRNO_PRINTF("Opening database %s failed.", SPAWNY_USER_DB);
-        return;
+        return false;
     }
 
     while ((dir = readdir(od))) {
@@ -295,6 +304,7 @@ _load_from_fs(void) {
     }
 
     closedir(od);
+    return true;
 }
 
 bool
@@ -310,9 +320,10 @@ user_db_sync(void) {
 
     if (mkpath(SPAWNY_USER_DB, S_IRWXG | S_IRWXU | S_IRWXO) != 0) {
         ERRNO_PRINTF("Failed to create database diretory.");
+        return false;
     }
 
-    _list_users(&users, &users_n);
+    ERROR_CALL(_list_users(&users, &users_n));
 
     for (int i = 0; i < users_n; i++) {
         char *username = users[i];
@@ -338,7 +349,7 @@ user_db_sync(void) {
     _user_list_free();
 
     /* load new from fs */
-    _load_from_fs();
+    ERROR_CALL(_load_from_fs());
 
     return true;
 }
@@ -360,8 +371,6 @@ user_db_init(void) {
         ctx = calloc(1, sizeof(Context));
         ctx->started_uid = getuid();
 
-        _load_from_fs();
-
         if (STARTED_AS_ROOT) {
             user_db_sync();
         } else {
@@ -370,13 +379,15 @@ user_db_init(void) {
 
         if (!ctx->n_user && !STARTED_AS_ROOT) {
             printf("The current database appears to be uninitialized, run as root to initialize!\n");
+            free(ctx);
+            return false;
         }
         ctx->ref = 1;
     } else {
         ctx->ref ++;
     }
 
-    return 1;
+    return true;
 }
 
 void
@@ -449,7 +460,7 @@ user_db_field_set(const char *name, const char *field, const char *value)
         return false;
     }
     _user_list_free();
-    _load_from_fs();
+    ERROR_CALL(_load_from_fs());
 
     return true;
 }
@@ -470,7 +481,7 @@ user_db_field_del(const char *name, const char *field)
         return false;
     }
     _user_list_free();
-    _load_from_fs();
+    ERROR_CALL(_load_from_fs());
 
     return true;
 }
