@@ -56,6 +56,12 @@ _parse_args(int argc, char *argv[])
    }
 }
 
+static void
+_interrupt_handler(int sig)
+{
+    manager_stop();
+}
+
 int
 main(int argc, char **argv)
 {
@@ -67,6 +73,8 @@ main(int argc, char **argv)
     greeter_init();
     spawnservice_init();
     spawnregistery_init();
+
+    signal(SIGINT, _interrupt_handler);
 
     tty_template_init();
     x11_template_init();
