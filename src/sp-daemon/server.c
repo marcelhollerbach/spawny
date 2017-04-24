@@ -82,6 +82,7 @@ static void
 client_free(Client *client) {
     manager_unregister_fd(client->fd);
     close(client->fd);
+    free(client);
 }
 
 static void
@@ -96,10 +97,13 @@ _session_done(void *data, Spawn_Service_End end) {
     if (end.success == SPAWN_SERVICE_ERROR) {
         server_spawnservice_feedback(0, end.message, client->fd);
     } else {
-        greeter_lockout(seat_get(client->client_info.pid));
+        char *seat = seat_get(client->client_info.pid);
+        greeter_lockout(seat);
         server_spawnservice_feedback(1, "You are logged in!", client->fd);
         INF("User Session alive.");
         client_goodbye(client);
+        free(seat);
+        seat = NULL;
     }
 
 }
@@ -122,7 +126,7 @@ _client_data(Fd_Data *data, int fd) {
     Spawny__Greeter__Message *msg = NULL;
     uint8_t buf[MAX_MSG_SIZE];
     int len = 0;
-    const char *seat;
+    char *seat;
 
     client = data->data;
     len = read(fd, buf, sizeof(buf));
@@ -211,6 +215,9 @@ _client_data(Fd_Data *data, int fd) {
         break;
     }
     spawny__greeter__message__free_unpacked(msg, NULL);
+
+    if (seat != FALLBACK_SEAT)
+      free(seat);
 }
 
 
@@ -286,12 +293,21 @@ _load_sessions(Spawny__Server__Data *system_data, const char *seat)
 
         user = getpwuid(uid);
 
-        sessions[i - offset]->id = sessions_raw[i];
-        sessions[i - offset]->user = user->pw_name;
+        sessions[i - offset]->id = strdup(sessions_raw[i]);
+        sessions[i - offset]->user = strdup(user->pw_name);
     }
-
+    session_enumerate_free(sessions_raw, number);
     system_data->n_sessions = number - offset;
     system_data->sessions = sessions;
+}
+
+static void
+_free_sessions(Spawny__Server__Session *session)
+{
+   free(session->id);
+   free(session->user);
+   free(session->name);
+   free(session->icon);
 }
 
 static void
@@ -341,6 +357,13 @@ _load_users(Spawny__Server__Data *system_data)
 }
 
 static void
+_free_users(Spawny__Server__User *user)
+{
+   free(user->name);
+   free(user->icon);
+}
+
+static void
 _load_templates(Spawny__Server__Data *system_data)
 {
     char **templates_raw;
@@ -368,6 +391,12 @@ _load_templates(Spawny__Server__Data *system_data)
 }
 
 static void
+_free_templates(Spawny__Server__SessionTemplate *template)
+{
+
+}
+
+static void
 _load_data(Spawny__Server__Data *system_data, const char *seat) {
     _load_templates(system_data);
     _load_users(system_data);
@@ -377,17 +406,18 @@ static void
 _free_data(Spawny__Server__Data *data)
 {
 
-#define IT_FREE(num, it) \
+#define IT_FREE(num, it, func) \
     if (num > 0) { \
         for (int i = 0; i < num; i++) { \
+            func(it[i]); \
             free(it[i]); \
         } \
         free(it); \
     }
 
-    IT_FREE(data->n_users, data->users);
-    IT_FREE(data->n_sessions, data->sessions);
-    IT_FREE(data->n_templates, data->templates);
+    IT_FREE(data->n_users, data->users, _free_users);
+    IT_FREE(data->n_sessions, data->sessions, _free_sessions);
+    IT_FREE(data->n_templates, data->templates, _free_templates);
 
 #undef IT_FREE
 }

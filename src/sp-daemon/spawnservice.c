@@ -203,9 +203,11 @@ _vt_used(const char *seat, unsigned int vtnr) {
         session_details(sessions[i], NULL, NULL, NULL, &session_vtnr);
         if (vtnr == session_vtnr)
           {
+             session_enumerate_free(sessions, number);
              return true;
           }
     }
+    session_enumerate_free(sessions, number);
     return false;
 }
 
@@ -370,6 +372,9 @@ child_run(Spawn_Try *try){
 
         exit(-1);
     } else {
+        //we dont need the tty here anymore
+        free(tty);
+        tty = NULL;
         //close the write end of the pipe, we will just hear
         close(try->com.fd[WRITE]);
         //register the read fd to the manager so we will get notified if the client sents something
@@ -633,5 +638,7 @@ pam_auth(Spawn_Try *try, char ***env, int vtnr) {
         _service_com_exit(try, "failed to set uid");
         return 0;
     }
+
+    pam_end(handle, ret);
     return 1;
 }

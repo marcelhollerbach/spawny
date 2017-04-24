@@ -11,7 +11,7 @@ typedef struct
 } Seat_Greeter_Run;
 
 typedef struct {
-    const char *seat; /* the seat where this is running in */
+    char *seat; /* the seat where this is running in */
     int run_gen; /* the generation which is currently running */
     Seat_Greeter_Run run;
     int end; /* set if this is meant to be closed */
@@ -78,6 +78,7 @@ _greeter_del(const char *seat) {
         Seat_Greeter *greeter = array_Seat_Greeter_get(greeters, i);
         if (!strcmp(greeter->seat, seat))
           {
+             free(greeter->seat);
              array_Seat_Greeter_del(greeters, i);
              return;
           }

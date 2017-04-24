@@ -46,6 +46,8 @@ char* current_session_get(void);
  */
 void session_enumerate(const char *seat, char ***handles, unsigned int *len);
 
+
+void session_enumerate_free(char **handles, unsigned int len);
 /**
  * Activate the given session
  *

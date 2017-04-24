@@ -21,6 +21,12 @@ session_enumerate(const char *seat, char ***handles, unsigned int *len) {
 }
 
 void
+session_enumerate_free(char **handles, unsigned int len)
+{
+
+}
+
+void
 session_activate(char *handle) {
 
 }

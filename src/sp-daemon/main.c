@@ -7,7 +7,7 @@ Global _G;
 
 static void
 init_check(void) {
-    const char *session;
+    char *session;
 
     if (getuid() != 0) {
         ERR("You can only run this as root.");
@@ -20,6 +20,8 @@ init_check(void) {
         ERR("You must start this out of a session. This is in session %s", session);
         exit(-1);
     }
+
+    free(session);
 }
 
 void
