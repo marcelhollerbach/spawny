@@ -10,6 +10,8 @@ static void
 _print_help(void)
 {
    printf("The following options are supported\n");
+   printf(" --icon name\n");
+   printf(" --prefered-session session\n");
    printf(" --edit key,val\n");
    printf(" --del key\n");
    printf("The current keys are used by the daemon: prefered-session");
@@ -72,6 +74,13 @@ int main(int argc, char const *argv[])
         if (!strcmp(argv[i], "--edit")) {
             i++;
             if (!_field_edit(argv[i])) return EXIT_FAILURE;
+        } else if (!strcmp(argv[i], "--icon")) {
+            i++;
+            /**FIXME maybe we should import that thing**/
+            if (!user_db_field_set(username, "icon", argv[i])) return EXIT_FAILURE;
+        } else if (!strcmp(argv[i], "--prefered-session")) {
+            i++;
+            if (!user_db_field_set(username, "prefered-session", argv[i])) return EXIT_FAILURE;
         } else if (!strcmp(argv[i], "--del")) {
             i++;
             if (!_field_del(argv[i])) return EXIT_FAILURE;
