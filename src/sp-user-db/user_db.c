@@ -199,11 +199,17 @@ _put_user(User *user)
     /* delete everything */
     len = snprintf(buf, sizeof(buf), "[identify]\nname=%s\n[info]\n", user->name);
     fwrite(buf, len, sizeof(char), f);
+    if (ferror(f)) {
+        ERRNO_PRINTF("Failed to write to the file");
+    }
 
     /* write infos */
     for(int i = 0; i < user->n_additional; i++) {
         len = snprintf(buf, sizeof(buf), "%s=%s\n", user->additional[i].name, user->additional[i].value);
         fwrite(buf, len, sizeof(char), f);
+        if (ferror(f)) {
+            ERRNO_PRINTF("Failed to write to the file");
+        }
     }
 
     fflush(f);
