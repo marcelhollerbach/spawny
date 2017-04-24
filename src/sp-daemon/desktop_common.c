@@ -33,6 +33,7 @@ _parse_file_handler(void* user, const char* section,
 void
 _parse_file(const char *file, const char *type, Template_Fire_Up fire_up) {
     Session session = { NULL };
+    bool reg = true;
 
     if (!parse_ini_verbose(file, _parse_file_handler, &session)) {
         ERR("Failed to parse %s", file);
@@ -41,22 +42,19 @@ _parse_file(const char *file, const char *type, Template_Fire_Up fire_up) {
 
     if (!session.name) {
         ERR("Session name not found %s", file);
-        goto not_register;
+        reg = false;
     }
 
     if (!session.exec) {
         ERR("Session exec not found %s", session.name);
-        goto not_register;
+        reg = false;
     }
 
     if (!session.icon) {
         INF("Session icon not set for %s.", session.name);
     }
+    if (reg) template_register(session.name, session.icon, type, fire_up, session.exec);
 
-    template_register(session.name, session.icon, type, fire_up, session.exec);
-
-    return;
-not_register:
     if (session.name) free(session.name);
     if (session.exec) free(session.exec);
     if (session.icon) free(session.icon);
