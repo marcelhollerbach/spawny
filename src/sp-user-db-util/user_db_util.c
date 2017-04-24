@@ -4,7 +4,7 @@
 #include <string.h>
 
 #define MAX_VALUE 1048
-static const char *username;
+static char *username;
 
 static void
 _print_help(void)
@@ -51,7 +51,7 @@ int main(int argc, char const *argv[])
 
     for(int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--user")) {
-            username = argv[i + 1];
+            username = strdup(argv[i + 1]);
             break;
         }
     }
@@ -96,6 +96,7 @@ int main(int argc, char const *argv[])
 
 
     user_db_shutdown();
+    free(username);
 
     return EXIT_FAILURE;
 }

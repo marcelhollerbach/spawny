@@ -127,6 +127,7 @@ _user_free_additional(User *user) {
 static void
 _user_list_free(void) {
     for(int i = 0; i < ctx->n_user; i++) {
+        free(ctx->user[i].name);
         _user_free_additional(&ctx->user[i]);
     }
 
