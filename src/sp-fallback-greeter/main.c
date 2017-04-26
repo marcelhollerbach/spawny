@@ -199,9 +199,9 @@ int main(int argc, char **argv) {
     while(1) {
         res = sp_client_read(ctx, &interface);
 
-        if (res == SP_CLIENT_READ_RESULT_EXIT || res == SP_CLIENT_READ_RESULT_FAILURE)
-            break;
-
+        if (res == SP_CLIENT_READ_RESULT_SUCCESS)
+          continue;
+        break;
     }
 
     sp_client_free(ctx);
