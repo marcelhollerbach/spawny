@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#cmakedefine RELEASE_BUILD @RELEASE_BUILD@
+
 #cmakedefine SERVER_SOCKET @SERVER_SOCKET@
 #cmakedefine SERVER_DEBUG_SOCKET @SERVER_DEBUG_SOCKET@
 

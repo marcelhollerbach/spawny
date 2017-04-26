@@ -58,10 +58,20 @@ session_enumerate_free(char **handles, unsigned int len)
    free(handles);
 }
 
+#ifndef RELEASE_BUILD
+int _loginctl_activate(const char *handle) __attribute__((weak)) __attribute__((visibility("default")));
+#endif
+
 void
 session_activate(char *handle) {
     char buf[PATH_MAX];
 
+#ifndef RELEASE_BUILD
+    if (_loginctl_activate) {
+        _loginctl_activate(handle);
+        return;
+    }
+#endif
     if (!handle) return;
 
     snprintf(buf, sizeof(buf), "loginctl activate %s", handle);

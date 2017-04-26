@@ -36,4 +36,11 @@ add_subdirectory(src/tests)
 add_subdirectory(src/integration_test)
 add_subdirectory(data)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  message("|---------------|")
+  message("| Release mode! |")
+  message("|---------------|")
+  set(RELEASE_BUILD 1)
+endif()
+
 configure_file(${CMAKE_SOURCE_DIR}/src/config/config.h.cmake ${CMAKE_BINARY_DIR}/src/config/config.h)
