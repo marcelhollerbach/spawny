@@ -112,7 +112,7 @@ _sp_client_start_greeter(Sp_Client_Context *ctx) {
 }
 
 
-bool
+PUBLIC_API bool
 sp_client_session_activate(Sp_Client_Context *ctx, int session) {
     API_CALLBACK_CHECK()
 
@@ -134,7 +134,7 @@ sp_client_session_activate(Sp_Client_Context *ctx, int session) {
     return true;
 }
 
-bool
+PUBLIC_API bool
 sp_client_login(Sp_Client_Context *ctx, const char *usr, const char *pw, int template) {
     API_CALLBACK_CHECK()
 
@@ -164,7 +164,7 @@ sp_client_login(Sp_Client_Context *ctx, const char *usr, const char *pw, int tem
 //Context creation / free
 
 
-void
+PUBLIC_API void
 _parse_args(Sp_Client_Context *ctx, int argc, char *argv[])
 {
    for (int i = 1; i < argc; ++i) {
@@ -174,7 +174,7 @@ _parse_args(Sp_Client_Context *ctx, int argc, char *argv[])
    }
 }
 
-Sp_Client_Context*
+PUBLIC_API Sp_Client_Context*
 sp_client_init(int argc, char *argv[]) {
     Sp_Client_Context *ctx;
 
@@ -200,7 +200,7 @@ end:
     return NULL;
 }
 
-bool
+PUBLIC_API bool
 sp_client_greeter_start(int argc, char *argv[]) {
     Spawny__Server__Message *msg = NULL;
     uint8_t buf[MAX_MSG_SIZE];
@@ -240,13 +240,13 @@ sp_client_greeter_start(int argc, char *argv[]) {
     return true;
 }
 
-int
+PUBLIC_API int
 sp_client_fd_get(Sp_Client_Context *ctx)
 {
    return ctx->server_sock;
 }
 
-bool
+PUBLIC_API bool
 sp_client_free(Sp_Client_Context *ctx) {
     close(ctx->server_sock);
     free(ctx);
@@ -255,7 +255,7 @@ sp_client_free(Sp_Client_Context *ctx) {
 }
 
 //read data packages
-Sp_Client_Read_Result
+PUBLIC_API Sp_Client_Read_Result
 sp_client_read(Sp_Client_Context *ctx, Sp_Client_Interface *interface) {
     API_CALLBACK_CHECK()
     Spawny__Server__Message *msg = NULL;
@@ -299,7 +299,7 @@ sp_client_read(Sp_Client_Context *ctx, Sp_Client_Interface *interface) {
     return SP_CLIENT_READ_RESULT_SUCCESS;
 }
 
-void
+PUBLIC_API void
 sp_client_data_get(Sp_Client_Context *ctx, Numbered_Array *sessions, Numbered_Array *templates, Numbered_Array *users)
 {
     if (sessions) memcpy(sessions, &ctx->sessions, sizeof(Numbered_Array));

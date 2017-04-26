@@ -5,7 +5,7 @@ include(GNUInstallDirs)
 include(FindPkgConfig)
 enable_testing()
 
-add_definitions("-Wall -O0 -g -std=c11 -fPIC -D_XOPEN_SOURCE=700")
+add_definitions("-Wall -O0 -g -std=c11 -fPIC -fvisibility=hidden -D_XOPEN_SOURCE=700")
 
 pkg_check_modules(Check REQUIRED check)
 

@@ -11,4 +11,6 @@
 
 #include <sys/un.h>
 
+#define PUBLIC_API __attribute__ ((visibility("default")))
+
 #endif
