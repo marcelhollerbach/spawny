@@ -43,5 +43,7 @@ log_to_type(Log_Type type, char *file, int line_number, const char *msg, ...)
    vprintf(msg, args);
    va_end(args);
 
+   fflush(stdout);
+
    printf("\n");
 }
