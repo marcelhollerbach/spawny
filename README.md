@@ -24,6 +24,15 @@ After that you can build and install the software by doing:
 
 `sudo make install`
 
+To get the sp-daemon to run on your system you need to enable and start the sp-daemon.socket unit by calling:
+`systemctl enable sp-daemon.socket`
+and
+`systemctl start sp-daemon.socket`
+
+If you want to automatically get a greeter on system start you need to enable the sp-greeter-start unit by calling:
+
+`systemctl start sp-greeter-start.socket`
+
 ## sp-daemon
 
 The daemon opens a socket and listens there for requests.
@@ -62,4 +71,3 @@ The whole repository needs a few protobuf files to work correctly. This little s
 ## sp-user-db(-utils)
 
 There is one problem with the /etc/passwd file on linux systems. there are very static and you cannot add any additional data to them. For something like spawny and a graphical greeter it could be very usefull to have a user configured icon or prefered template to use. Those are the packages that are implementing that
-
