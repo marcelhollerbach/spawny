@@ -1,0 +1,15 @@
+#/bin/bash
+
+CMAKE_BINARY_DIR=$1
+CMAKE_CURRENT_BINARY_DIR=$2
+CMAKE_CURRENT_SOURCE_DIR=$3
+
+TESTDATADIR="$CMAKE_CURRENT_SOURCE_DIR/test-data"
+CHROOTDIR="$CMAKE_BINARY_DIR/chroot"
+PRELOAD="$CMAKE_CURRENT_BINARY_DIR/libpreload_systemd.so"
+
+make DESTDIR=$CHROOTDIR install
+
+mkdir -p $CHROOTDIR
+install -D $TESTDATADIR/passwd $CHROOTDIR/etc/passwd
+install -D $PRELOAD $CHROOTDIR/libpreload_systemd.so
