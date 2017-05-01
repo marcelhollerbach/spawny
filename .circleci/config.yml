@@ -24,4 +24,4 @@ jobs:
           command: make prepare-integration-test
       - run:
           name: integration test
-          command: sudo make integration-test
+          command: make integration-test
