@@ -39,6 +39,7 @@ typedef struct {
     uid_t started_uid;
     User *user;
     unsigned int n_user;
+    bool loaded_from_fs;
     int ref;
 } Context;
 
@@ -134,6 +135,8 @@ _user_list_free(void) {
     free(ctx->user);
     ctx->user = NULL;
     ctx->n_user = 0;
+
+    ctx->loaded_from_fs = false;
 }
 static bool
 _list_users(char ***usernames, unsigned int *numb) {
@@ -311,6 +314,9 @@ _load_from_fs(void) {
     }
 
     closedir(od);
+
+    ctx->loaded_from_fs = true;
+
     return true;
 }
 
@@ -319,6 +325,11 @@ user_db_sync(void) {
     char **users;
     unsigned int users_n;
     int damage = 0;
+
+    if (!ctx->loaded_from_fs)
+      {
+         ERROR_CALL(_load_from_fs());
+      }
 
     if (!STARTED_AS_ROOT) {
         printf("Syncing with passwd is only allowed as root.");
