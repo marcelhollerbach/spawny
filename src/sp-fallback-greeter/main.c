@@ -77,7 +77,7 @@ login(void) {
         //fallback to default
         if (user->prefered_session > 1 && template[0] == '\n') {
             //only accept the default when the prefered session is bigger than 1
-            temp = def.id;
+            temp = def.id + 1;
         //or take the new id
         } else if (atoi(template) != 0) {
             temp = atoi(template);
