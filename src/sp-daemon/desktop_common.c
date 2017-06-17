@@ -56,7 +56,8 @@ _parse_file(const char *file, const char *type, Template_Fire_Up fire_up) {
     if (reg) template_register(session.name, session.icon, type, fire_up, session.exec);
 
     if (session.name) free(session.name);
-    if (session.exec) free(session.exec);
+    //DO NOT free this exec its passed as data, and sadly its leaked here ... but the templates are only loaded once, so this string is only leaked once
+    //if (session.exec) free(session.exec);
     if (session.icon) free(session.icon);
 }
 
