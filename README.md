@@ -8,7 +8,7 @@ It is splitted up into multiple subsystems
 ## Installation
 The repository is using a external .ini parser that can get pulled in by running:
 
-`git update --init --recursive`
+`git submodule update --init --recursive`
 
 To build the software you can just create a bin directory like build,
 
