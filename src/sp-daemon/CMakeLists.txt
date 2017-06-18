@@ -6,6 +6,7 @@ include_directories(
     ${PROJECT_BINARY_DIR}/src/config/
     ${PROJECT_BINARY_DIR}/src/sp-protocol/
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${INIH_INCLUDE_DIRS}
 )
 
 set(PROTOCOL_FILES
@@ -55,8 +56,6 @@ set(SPAWNY-DAEMON-SOURCE
     utils.h
     ${CMAKE_CURRENT_BINARY_DIR}/session_spawn.pb-c.c
     ${CMAKE_CURRENT_BINARY_DIR}/session_spawn.pb-c.h
-    ${PROJECT_SOURCE_DIR}/components/inih/ini.h
-    ${PROJECT_SOURCE_DIR}/components/inih/ini.c
 )
 
 if (NO_SYSTEMD_SUPPORT)
@@ -80,6 +79,7 @@ target_link_libraries (sp-daemon
     SpUserDb
     m
     SpClient
+    inih
 )
 
 set_property(TARGET sp-daemon PROPERTY COMPILE_DEFINITIONS

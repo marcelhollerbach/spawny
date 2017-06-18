@@ -1,12 +1,12 @@
 include(FindThreads)
 
 include_directories(
-    ${PROJECT_SOURCE_DIR}/components/inih/
     ${PROJECT_SOURCE_DIR}/src/libsp_client/
     ${PROJECT_SOURCE_DIR}/src/sp-protocol/
     ${PROJECT_SOURCE_DIR}/src/sp-user-db/
     ${PROJECT_BINARY_DIR}/src/config/
     ${PROJECT_BINARY_DIR}/src/sp-protocol/
+    ${INIH_INCLUDE_DIRS}
 )
 
 set(SPAWNY-DAEMON-TEST-SOURCE

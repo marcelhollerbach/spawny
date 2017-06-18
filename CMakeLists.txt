@@ -3,6 +3,7 @@ project (Spawny)
 
 include(GNUInstallDirs)
 include(FindPkgConfig)
+include(ExternalProject)
 enable_testing()
 
 add_definitions("-Wall -O0 -g -std=c11 -fPIC -fvisibility=hidden -D_XOPEN_SOURCE=700")
@@ -25,6 +26,7 @@ set(PACKAGE_LIB_DIR \"${CMAKE_INSTALL_FULL_LIBDIR}\")
 set(PACKAGE_BIN_DIR \"${CMAKE_INSTALL_FULL_BINDIR}\")
 set(PACKAGE_CONFIG \"${PACKAGE_CONFIG_DIR}/spawny.ini\")
 
+add_subdirectory(src/inih)
 add_subdirectory(src/sp-protocol)
 add_subdirectory(src/libsp_client)
 add_subdirectory(src/sp-fallback-greeter)

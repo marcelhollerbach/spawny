@@ -2,7 +2,7 @@
 #define DESKTOP_COMMON_H
 
 #include "templatereg.h"
-#include "ini.h"
+#include <ini.h>
 
 void parse_dir(const char *directory_path, const char *type, Template_Fire_Up fire_up);
 
