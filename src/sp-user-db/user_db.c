@@ -320,6 +320,32 @@ _load_from_fs(void) {
     return true;
 }
 
+static bool
+_prepare_db(void)
+{
+    struct passwd *usr;
+
+    usr = getpwnam("spawny");
+
+    if (!usr) {
+        printf("Failed to find user spawny\n");
+        return false;
+    }
+
+    if (!!access(USER_DB_DIR, W_OK | R_OK)
+        && mkpath(USER_DB_DIR, S_IRWXG | S_IRWXU | S_IRWXO) != 0) {
+        ERRNO_PRINTF("Failed to create database diretory.");
+        return false;
+    }
+
+    if (!!chown(USER_DB_DIR, usr->pw_uid, usr->pw_gid)) {
+        ERRNO_PRINTF("Failed to chown the database directory");
+        return false;
+    }
+
+    return true;
+}
+
 bool
 user_db_sync(void) {
     char **users;
@@ -336,10 +362,8 @@ user_db_sync(void) {
         return false;
     }
 
-    if (!!access(SPAWNY_USER_DB, W_OK | R_OK) && mkpath(SPAWNY_USER_DB, S_IRWXG | S_IRWXU | S_IRWXO) != 0) {
-        ERRNO_PRINTF("Failed to create database diretory.");
-        return false;
-    }
+    if (!_prepare_db())
+      return false;
 
     ERROR_CALL(_list_users(&users, &users_n));
 
