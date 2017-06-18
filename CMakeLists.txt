@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.0.2)
-project (Spawny)
+project (Spawny VERSION 0.2)
 
 include(GNUInstallDirs)
 include(FindPkgConfig)
@@ -25,6 +25,7 @@ set(PACKAGE_DATA_DIR \"${CMAKE_INSTALL_FULL_DATADIR}/spawny/\")
 set(PACKAGE_LIB_DIR \"${CMAKE_INSTALL_FULL_LIBDIR}\")
 set(PACKAGE_BIN_DIR \"${CMAKE_INSTALL_FULL_BINDIR}\")
 set(PACKAGE_CONFIG \"${PACKAGE_CONFIG_DIR}/spawny.ini\")
+set(PACKAGE_VERSION \"${PROJECT_VERSION}\")
 
 add_subdirectory(src/inih)
 add_subdirectory(src/sp-protocol)
