@@ -1,4 +1,5 @@
 include_directories(
+    ${PROJECT_BINARY_DIR}/src/config/
     ${PROJECT_SOURCE_DIR}/src/sp-daemon/
     ${INIH_INCLUDE_DIRS}
 )

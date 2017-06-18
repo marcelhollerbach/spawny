@@ -44,7 +44,7 @@ int
 config_init(void) {
     config = calloc(1, sizeof(Config));
 
-    config->greeter.start_user = "spawny";
+    config->greeter.start_user = USER;
     config->greeter.cmd = NULL;
 
     mkpath(PACKAGE_CONFIG, S_IRUSR);

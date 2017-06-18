@@ -27,6 +27,10 @@ set(PACKAGE_BIN_DIR \"${CMAKE_INSTALL_FULL_BINDIR}\")
 set(PACKAGE_CONFIG \"${PACKAGE_CONFIG_DIR}/spawny.ini\")
 set(PACKAGE_VERSION \"${PROJECT_VERSION}\")
 
+
+set(USER \"spawny\")
+set(USER_DB_DIR \"/var/lib/spawny\")
+
 add_subdirectory(src/inih)
 add_subdirectory(src/sp-protocol)
 add_subdirectory(src/libsp_client)

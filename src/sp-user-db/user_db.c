@@ -1,3 +1,4 @@
+#include "config.h"
 #include "user_db.h"
 
 #include <ini.h>
@@ -13,7 +14,6 @@
 
 #define INI ".ini"
 #define S_INI (sizeof(INI) - 1)
-#define SPAWNY_USER_DB "/var/lib/spawny/"
 
 #define SAFETY_CHECK(val) do { if (!val) { printf(# val " is NULL\n"); return; }}while(0)
 #define SAFETY_CHECK_RET(val, ret) do { if (!val) { printf(# val " is NULL\n"); return ret; }}while(0)
@@ -177,7 +177,7 @@ _put_user(User *user)
     pw = getpwnam(user->name);
 
     /* generate filename */
-    snprintf(file, sizeof(file), SPAWNY_USER_DB"%s.ini", user->name);
+    snprintf(file, sizeof(file), USER_DB_DIR"%s.ini", user->name);
 
     /* open file */
     f = fopen(file, "w+");
@@ -258,7 +258,7 @@ _load_file(const char *filename)
     struct passwd *pw;
 
 
-    snprintf(buf, sizeof(buf), SPAWNY_USER_DB"%s", filename);
+    snprintf(buf, sizeof(buf), USER_DB_DIR"%s", filename);
 
     file = fopen(buf, "r");
 
@@ -298,10 +298,10 @@ _load_from_fs(void) {
     DIR* od;
     struct dirent *dir;
 
-    od = opendir(SPAWNY_USER_DB);
+    od = opendir(USER_DB_DIR);
 
     if (!od) {
-        ERRNO_PRINTF("Opening database %s failed.", SPAWNY_USER_DB);
+        ERRNO_PRINTF("Opening database %s failed.", USER_DB_DIR);
         return false;
     }
 

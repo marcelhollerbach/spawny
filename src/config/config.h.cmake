@@ -16,4 +16,7 @@
 
 #cmakedefine PACKAGE_VERSION @PACKAGE_VERSION@
 
+#cmakedefine USER @USER@
+#cmakedefine USER_DB_DIR @USER_DB_DIR@
+
 #endif // CONFIG_H
