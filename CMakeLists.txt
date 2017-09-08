@@ -41,5 +41,6 @@ add_subdirectory(src/sp-user-db)
 add_subdirectory(src/sp-user-db-util)
 add_subdirectory(src/tests)
 add_subdirectory(data)
+add_subdirectory(pc)
 
 configure_file(${CMAKE_SOURCE_DIR}/src/config/config.h.cmake ${CMAKE_BINARY_DIR}/src/config/config.h)
