@@ -6,10 +6,6 @@ Spawny presents a daemon which can prompt for logins on ttys.
 It is splitted up into multiple subsystems
 
 ## Installation
-The repository is using a external .ini parser that can get pulled in by running:
-
-`git submodule update --init --recursive`
-
 To build the software you can just create a bin directory like build,
 
 `mkdir build`
