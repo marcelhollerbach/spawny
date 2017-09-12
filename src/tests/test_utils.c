@@ -1,7 +1,7 @@
 #include <unistd.h>
 
 #include "test.h"
-#include "../sp-daemon/utils.h"
+#include <sp-util.h>
 #include <errno.h>
 #include <stdio.h>
 

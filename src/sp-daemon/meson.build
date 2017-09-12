@@ -7,8 +7,6 @@ src = [
   'desktop_common.h',
   'greeter.c',
   'greeter.h',
-  'log.c',
-  'log.h',
   'main.c',
   'main.h',
   'manager.c',
@@ -26,8 +24,6 @@ src = [
   'templatereg.h',
   'templates.h',
   'tty_temp.c',
-  'utils.c',
-  'utils.h',
   'wl_temp.c',
   'x11_temp.c',
 ]
@@ -41,6 +37,6 @@ pam = cc.find_library('pam')
 m = cc.find_library('m')
 
 sp_daemon = executable('sp-daemon', src, session_protocol,
-  dependencies: [sp_protocol, inih.get_variable('inih'), sp_user_db, sp_client, systemd, pam, m],
+  dependencies: [sp_protocol, inih.get_variable('inih'), sp_user_db, sp_client, sp_util, systemd, pam, m],
   install : true
 )

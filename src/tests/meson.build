@@ -8,8 +8,6 @@ src = [
   'test_templatereg.c',
   'test_spawnregistery.c',
   'test_utils.c',
-  '../sp-daemon/log.h',
-  '../sp-daemon/log.c',
   '../sp-daemon/array.h',
   '../sp-daemon/array.c',
   '../sp-daemon/manager.h',
@@ -19,11 +17,9 @@ src = [
   '../sp-daemon/sessionmgt.h',
   '../sp-daemon/templatereg.h',
   '../sp-daemon/templatereg.c',
-  '../sp-daemon/utils.h',
-  '../sp-daemon/utils.c',
 ]
 
 suite = executable('test_suite', src,
-   dependencies : [sp_protocol, sp_client, sp_user_db, inih.get_variable('inih'), check, m]
+   dependencies : [sp_protocol, sp_client, sp_user_db, inih.get_variable('inih'), sp_util, check, m]
 )
 test('test', suite)

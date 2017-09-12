@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <limits.h>
-#include <utils.h>
+#include <sp-util.h>
 
 #define INI ".ini"
 #define S_INI (sizeof(INI) - 1)

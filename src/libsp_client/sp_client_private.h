@@ -6,8 +6,7 @@
 #include "config.h"
 #include "sp_protocol.h"
 
-//lets steal the log.c and log.h from the sp-daemon
-#include "../sp-daemon/log.h"
+#include <sp-util.h>
 
 #include <sys/un.h>
 

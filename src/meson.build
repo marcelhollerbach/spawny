@@ -5,6 +5,8 @@ protoc_gen = generator(protoc_cc,
   output : ['@BASENAME@.pb-c.c', '@BASENAME@.pb-c.h'],
   arguments : ['--proto_path=@CURRENT_SOURCE_DIR@', '--c_out=@BUILD_DIR@', '@INPUT@'])
 
+subdir('util')
+
 subdir('sp-protocol')
 subdir('libsp_client')
 subdir('sp-fallback-greeter')

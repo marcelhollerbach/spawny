@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <sys/stat.h>
+#include <sp-util.h>
 
-#include "log.h"
 #include "sp_protocol.h"
 #include "config.h"
 
@@ -23,7 +23,6 @@
 #include "greeter.h"
 #include "user_db.h"
 #include "array.h"
-#include "utils.h"
 
 typedef struct {
   struct {

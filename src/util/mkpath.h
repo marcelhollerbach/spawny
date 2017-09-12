@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef MKPATH_H
+#define MKPATH_H
 
 #include <sys/stat.h>
 

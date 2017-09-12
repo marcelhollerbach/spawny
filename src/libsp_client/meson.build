@@ -1,12 +1,12 @@
 sp_client_lib = library('SpClient',
-  ['client.c', '../sp-daemon/log.c', '../sp-daemon/log.h'],
-  dependencies : sp_protocol,
+  ['client.c'],
+  dependencies : [sp_protocol, sp_util],
   install : true
 )
 
 sp_client = declare_dependency(
   link_with : sp_client_lib,
-  dependencies : sp_protocol,
+  dependencies : [sp_protocol],
   include_directories: [include_directories('.')]
 )
 
