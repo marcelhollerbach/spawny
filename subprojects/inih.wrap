@@ -1,0 +1,10 @@
+[wrap-file]
+directory = inih-r40
+
+source_url = https://github.com/benhoyt/inih/archive/r40.tar.gz
+source_filename = inih-r40.tar.gz
+source_hash = 0a7d8600c523ccd2d01a5bec2ef3a6482ada49794e67cf694d2bec796cb2c340
+
+patch_url = https://github.com/marcelhollerbach/spawny/wiki/inih-r40-meson.tar.gz
+patch_filename = inih-r40-meson.tar.gz
+patch_hash = de061d9ffa98df26206f9fb8dc28fc4a14376beb6c09a2cebead295a9150cdbb

@@ -3,3 +3,5 @@
 *.pb-c.c
 *.pb-c.h
 config.h
+subprojects/inih-*
+subprojects/packagecache
