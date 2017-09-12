@@ -14,6 +14,8 @@ jobs:
       - run:
           name: ninja & ninja test
           command: |
-            meson .
+            mkdir build
+            cd build
+            meson ..
             ninja all
             ninja test
