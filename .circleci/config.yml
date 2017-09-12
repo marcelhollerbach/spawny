@@ -4,7 +4,7 @@ jobs:
     working_directory: ~/spawny
     docker:
       # see the dockerfile
-      - image: leanderk/spawny
+      - image: bu5hm4n/spawny
     steps:
       - checkout
       - run:
