@@ -66,4 +66,4 @@ The whole repository needs a few protobuf files to work correctly. This little s
 
 ## sp-user-db(-utils)
 
-There is one problem with the /etc/passwd file on linux systems. there are very static and you cannot add any additional data to them. For something like spawny and a graphical greeter it could be very usefull to have a user configured icon or prefered template to use. Those are the packages that are implementing that
+There is one problem with the /etc/passwd file on linux systems. It is very static and you cannot add any additional data to them. For something like spawny and a graphical greeter it could be very usefull to have a user configured icon or prefered template to use. Those are the packages that are implementing that
