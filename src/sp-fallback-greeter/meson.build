@@ -6,4 +6,4 @@ sp_fallback_greeter = executable('sp-fallback-greeter', 'main.c',
   install_dir : fallback_dir
 )
 
-config_h.set_quoted('FALLBACK_GREETER', fallback_dir)
+config_h.set_quoted('FALLBACK_GREETER', join_paths(fallback_dir, 'sp-fallback-greeter'))
