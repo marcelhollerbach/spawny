@@ -62,7 +62,7 @@ _session_job(void *data) {
 }
 
 static void
-_reexecute_greeter(void *data)
+_reexecute_greeter(void *data UNUSED)
 {
    if (!_G.config.no_greeter_restart)
      sp_client_greeter_start(_G.argc, _G.argv);
@@ -243,7 +243,7 @@ client_connect(int fd)
 }
 
 static void
-_accept_ready(Fd_Data *data, int fd)
+_accept_ready(Fd_Data *data UNUSED, int fd)
 {
     socklen_t size;
     int client;
@@ -271,7 +271,7 @@ _load_sessions(Spawny__Server__Data *system_data, const char *seat)
 
     sessions = calloc(number, sizeof(Spawny__Server__Session*));
 
-    for (int i = 0;i < number;i ++){
+    for (unsigned int i = 0;i < number;i ++){
         uid_t uid;
         struct passwd* user;
         sessions[i - offset] = calloc(1, sizeof(Spawny__Server__Session));
@@ -321,7 +321,7 @@ _load_users(Spawny__Server__Data *system_data)
 
     user = calloc(number, sizeof(Spawny__Server__User*));
 
-    for(int i = 0; i < number; i++) {
+    for(unsigned int i = 0; i < number; i++) {
         struct passwd *pass;
         const char *field;
 
@@ -375,7 +375,7 @@ _load_templates(Spawny__Server__Data *system_data)
 
     templates = calloc(number, sizeof(Spawny__Server__SessionTemplate*));
 
-    for(int i = 0; i< number; i++){
+    for(unsigned int i = 0; i< number; i++){
         templates[i] = calloc(1, sizeof(Spawny__Server__SessionTemplate));
 
         spawny__server__session__template__init(templates[i]);
@@ -391,7 +391,7 @@ _load_templates(Spawny__Server__Data *system_data)
 }
 
 static void
-_free_templates(Spawny__Server__SessionTemplate *template)
+_free_templates(Spawny__Server__SessionTemplate *template UNUSED)
 {
 
 }
@@ -408,7 +408,7 @@ _free_data(Spawny__Server__Data *data)
 
 #define IT_FREE(num, it, func) \
     if (num > 0) { \
-        for (int i = 0; i < num; i++) { \
+        for (unsigned int i = 0; i < num; i++) { \
             func(it[i]); \
             free(it[i]); \
         } \

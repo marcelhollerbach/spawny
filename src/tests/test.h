@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <check.h>
+#include <sp-util.h>
 
 void array_suite(Suite *spawny_suite);
 void manager_suite(Suite *spawny_suite);

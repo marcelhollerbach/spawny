@@ -1,4 +1,5 @@
 project('spawny', 'c',
+  default_options: [ 'c_std=gnu99', 'warning_level=2' ],
   version : '0.3'
 )
 

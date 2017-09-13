@@ -62,7 +62,7 @@ _user_pair_remove(User *user, const char *name) {
 
     bool swap = false;
 
-    for(int i = 0; i < user->n_additional; i++) {
+    for(unsigned int i = 0; i < user->n_additional; i++) {
         if (!swap) {
             if (!strcmp(user->additional[i].name, name)) swap = true;
         } else {
@@ -79,7 +79,7 @@ _user_pair_remove(User *user, const char *name) {
 
 static User*
 _user_add(void) {
-    User usr = { NULL };
+    User usr = { NULL, NULL, 0};
     User *new_user;
 
     ctx->n_user ++;
@@ -95,7 +95,7 @@ _user_add(void) {
 static User*
 _user_find(const char *name)
 {
-    for (int i = 0; i < ctx->n_user; i++) {
+    for (unsigned int i = 0; i < ctx->n_user; i++) {
         User *usr = &ctx->user[i];
         if (!strcmp(usr->name, name)) {
             return usr;
@@ -107,7 +107,7 @@ _user_find(const char *name)
 static Pair*
 _user_field_get(User *user, const char *field)
 {
-    for(int i = 0; i < user->n_additional; i++) {
+    for(unsigned int i = 0; i < user->n_additional; i++) {
         if (!strcmp(user->additional[i].name, field))
           return &user->additional[i];
     }
@@ -115,7 +115,7 @@ _user_field_get(User *user, const char *field)
 }
 static void
 _user_free_additional(User *user) {
-    for(int i = 0; i < user->n_additional; i++) {
+    for(unsigned int i = 0; i < user->n_additional; i++) {
         free(user->additional[i].value);
         free(user->additional[i].name);
     }
@@ -127,7 +127,7 @@ _user_free_additional(User *user) {
 
 static void
 _user_list_free(void) {
-    for(int i = 0; i < ctx->n_user; i++) {
+    for(unsigned int i = 0; i < ctx->n_user; i++) {
         free(ctx->user[i].name);
         _user_free_additional(&ctx->user[i]);
     }
@@ -208,7 +208,7 @@ _put_user(User *user)
     }
 
     /* write infos */
-    for(int i = 0; i < user->n_additional; i++) {
+    for(unsigned int i = 0; i < user->n_additional; i++) {
         len = snprintf(buf, sizeof(buf), "%s=%s\n", user->additional[i].name, user->additional[i].value);
         fwrite(buf, len, sizeof(char), f);
         if (ferror(f)) {
@@ -254,7 +254,7 @@ _load_file(const char *filename)
     char buf[PATH_MAX];
     FILE* file;
     User *listuser;
-    User user = { NULL };
+    User user = { NULL, NULL, 0};
     struct passwd *pw;
 
 
@@ -307,7 +307,7 @@ _load_from_fs(void) {
 
     while ((dir = readdir(od))) {
         char *filename = dir->d_name;
-        int len = strlen(filename);
+        unsigned int len = strlen(filename);
         if (len > S_INI && !strncmp(filename + len - S_INI, INI, S_INI)) {
             _load_file(filename);
         }
@@ -367,10 +367,10 @@ user_db_sync(void) {
 
     ERROR_CALL(_list_users(&users, &users_n));
 
-    for (int i = 0; i < users_n; i++) {
+    for (unsigned int i = 0; i < users_n; i++) {
         char *username = users[i];
         User *user = NULL;
-        User tmp_usr = { NULL };
+        User tmp_usr = { NULL, NULL, 0 };
 
         user = _user_find(username);
 
@@ -400,7 +400,7 @@ int
 user_db_users_iterate(char ***users) {
     *users = calloc(ctx->n_user, sizeof(char*));
 
-    for(int i = 0; i < ctx->n_user; i++) {
+    for(unsigned int i = 0; i < ctx->n_user; i++) {
         (*users)[i] = strdup(ctx->user[i].name);
     }
     return ctx->n_user;

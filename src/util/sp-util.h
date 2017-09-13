@@ -4,4 +4,6 @@
 #include "mkpath.h"
 #include "log.h"
 
+#define UNUSED __attribute__ ((unused))
+
 #endif

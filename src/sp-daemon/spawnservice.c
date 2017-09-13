@@ -197,11 +197,11 @@ _vt_used(const char *seat, unsigned int vtnr) {
     char **sessions;
 
     session_enumerate(seat, &sessions, &number);
-    for(int i = 0; i < number; i++){
+    for(unsigned int i = 0; i < number; i++){
         int session_vtnr = -1;
 
         session_details(sessions[i], NULL, NULL, NULL, &session_vtnr);
-        if (vtnr == session_vtnr)
+        if (((int)vtnr) == session_vtnr)
           {
              session_enumerate_free(sessions, number);
              return true;
@@ -229,7 +229,7 @@ available_tty(const char *seat) {
 }
 
 static void
-_service_message(Spawn_Try *try, Spawny__Spawn__MessageType type, const char *mmessage, char *session) {
+_service_message(Spawn_Try *try, Spawny__Spawn__MessageType type, const char *mmessage, char *session UNUSED) {
     int len = 0;
     void *data;
     Spawny__Spawn__Message message = SPAWNY__SPAWN__MESSAGE__INIT;
@@ -274,7 +274,7 @@ _session_proc_fire_up(Spawn_Try *try) {
 }
 
 static void
-_spawned_session_disappear(void *data, int signal, pid_t pid)
+_spawned_session_disappear(void *data, int signal UNUSED, pid_t pid UNUSED)
 {
    Spawn_Try *try;
 

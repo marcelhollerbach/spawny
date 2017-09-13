@@ -63,7 +63,7 @@ _greeter_run_reset(Seat_Greeter *greeter) {
 
 static Seat_Greeter*
 _greeter_search(const char *seat) {
-    for (int i = 0; i < array_len_get(greeters); i++) {
+    for (unsigned int i = 0; i < array_len_get(greeters); i++) {
         Seat_Greeter *greeter = array_Seat_Greeter_get(greeters, i);
         if (!strcmp(greeter->seat, seat))
             return greeter;
@@ -74,7 +74,7 @@ _greeter_search(const char *seat) {
 
 static void
 _greeter_del(const char *seat) {
-    for (int i = 0; i < array_len_get(greeters); i++) {
+    for (unsigned int i = 0; i < array_len_get(greeters); i++) {
         Seat_Greeter *greeter = array_Seat_Greeter_get(greeters, i);
         if (!strcmp(greeter->seat, seat))
           {
@@ -87,7 +87,7 @@ _greeter_del(const char *seat) {
 
 
 static void
-_greeter_done(void *data, int status, pid_t pid) {
+_greeter_done(void *data, int status UNUSED, pid_t pid UNUSED) {
     Seat_Greeter *greeter;
     greeter = data;
 
@@ -205,7 +205,7 @@ greeter_lockout(const char *seat) {
 
 bool
 greeter_exists_sid(pid_t sid) {
-    for (int i = 0; i < array_len_get(greeters); ++i) {
+    for (unsigned int i = 0; i < array_len_get(greeters); ++i) {
         Seat_Greeter *greeter = array_Seat_Greeter_get(greeters, i);
         pid_t greeter_sid = getsid(seat_greeter_pid_get(greeter));
         if (greeter_sid == -1) {

@@ -26,7 +26,7 @@ template_init(void)
 static Template*
 find_temp(const char *id, unsigned int *array_id) {
 
-    for (int i = 0; i < array_len_get(array); ++i)
+    for (unsigned int i = 0; i < array_len_get(array); ++i)
     {
         Template *t;
 

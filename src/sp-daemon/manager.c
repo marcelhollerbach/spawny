@@ -42,14 +42,14 @@ _read_available(Fd_Register *reg, int fd)
 }
 
 static void
-_error_available(Fd_Register *reg, int fd)
+_error_available(Fd_Register *reg UNUSED, int fd UNUSED)
 {
    ERR("Error on %d", reg->data.fd);
    manager_unregister_fd(reg->data.fd);
 }
 
 static void
-_fd_set_check(Fd_Register *reg, fd_set *set, void (*handle)(Fd_Register *reg, int fd), int i)
+_fd_set_check(Fd_Register *reg, fd_set *set, void (*handle)(Fd_Register *reg, int fd), int i UNUSED)
 {
    //check if set
    if (FD_ISSET(reg->data.fd, set)) {
@@ -65,7 +65,7 @@ _errno_ignore(void) {
 
 static void
 _clear_objects(void) {
-   for(int i = 0; i < array_len_get(fds); i++){
+   for(unsigned int i = 0; i < array_len_get(fds); i++){
       Fd_Register *reg = array_Fd_Register_get(fds, i);
       if (!reg->cb) {
         array_Fd_Register_del(fds, i);
@@ -87,7 +87,7 @@ manager_run(void) {
         FD_ZERO(&fds_error);
 
         //init sets with new fds
-        for(int i = 0; i < array_len_get(fds); i ++) {
+        for(unsigned int i = 0; i < array_len_get(fds); i ++) {
             Fd_Register *reg;
 
             reg = array_Fd_Register_get(fds, i);
@@ -114,12 +114,12 @@ manager_run(void) {
             return 0;
         } else if (result >= 0) {
             //look for errors fd´s
-            for(int i = 0; i < array_len_get(fds); i ++) {
+            for(unsigned int i = 0; i < array_len_get(fds); i ++) {
                _fd_set_check(array_Fd_Register_get(fds, i), &fds_error, _error_available, i);
             }
 
             //look for read fd´s
-            for(int i = 0; i < array_len_get(fds); i ++) {
+            for(unsigned int i = 0; i < array_len_get(fds); i ++) {
                _fd_set_check(array_Fd_Register_get(fds, i), &fds_read, _read_available, i);
             }
         }
@@ -155,7 +155,7 @@ void
 manager_unregister_fd(int fd) {
 
     //search for the fd
-    for(int field_index = 0; field_index < array_len_get(fds); field_index ++) {
+    for(unsigned int field_index = 0; field_index < array_len_get(fds); field_index ++) {
         Fd_Register *reg = array_Fd_Register_get(fds, field_index);
         if (reg->data.fd == fd)
           {
@@ -171,7 +171,7 @@ manager_unregister_fd(int fd) {
 
 void
 manager_fork_eval(void) {
-   for (int i = 0; i < array_len_get(fds); ++i) {
+   for (unsigned int i = 0; i < array_len_get(fds); ++i) {
       Fd_Register *reg = array_Fd_Register_get(fds, i);
       close(reg->data.fd);
    }

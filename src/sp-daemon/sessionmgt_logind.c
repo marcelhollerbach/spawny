@@ -52,7 +52,7 @@ session_enumerate(const char *seat, char ***handles, unsigned int *len) {
 void
 session_enumerate_free(char **handles, unsigned int len)
 {
-   for (int i = 0; i < len; ++i) {
+   for (unsigned int i = 0; i < len; ++i) {
        free(handles[i]);
    }
    free(handles);

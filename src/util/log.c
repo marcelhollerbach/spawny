@@ -4,19 +4,23 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static int min_log_level;
+static Log_Type min_log_level;
 
 void
 log_init(void)
 {
    const char *raw;
-
-   min_log_level = 0;
+   int _level = 0;
 
    raw = getenv("SPAWNY_LOG_LEVEL");
 
-   if (raw)
-     min_log_level = atoi(raw);
+   if (!raw) return;
+
+   _level = atoi(raw);
+   if (_level == 0)
+     min_log_level = LOG_TYPE_INF;
+   else if (_level >= 1)
+     min_log_level = LOG_TYPE_ERR;
 }
 
 void

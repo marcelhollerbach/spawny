@@ -39,7 +39,7 @@ spawnregistery_listen(pid_t pid, void(*handler)(void *data, int status, pid_t pi
 bool
 _spawnregistery_cleanup_step(void)
 {
-   for (int i = 0; i < array_len_get(pending_process); i ++)
+   for (unsigned int i = 0; i < array_len_get(pending_process); i ++)
      {
         Waiting *w = array_Waiting_get(pending_process, i);
         if (w->handler) continue;
@@ -62,7 +62,7 @@ _spawnregistery_cleanup(void)
 void
 spawnregistery_unlisten(pid_t pid, void(*handler)(void *data, int status, pid_t pid), void *data)
 {
-   for (int i = 0; i < array_len_get(pending_process); i ++)
+   for (unsigned int i = 0; i < array_len_get(pending_process); i ++)
      {
         Waiting *w = array_Waiting_get(pending_process, i);
         if (w->pid == pid && w->handler == handler && w->data == data )
@@ -87,7 +87,7 @@ spawnregistery_eval(void)
 
    while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
        INF("Looks like %d has terminated", pid);
-       for(int i = 0; i < array_len_get(pending_process); i++)
+       for(unsigned int i = 0; i < array_len_get(pending_process); i++)
          {
             Waiting *w = array_Waiting_get(pending_process, i);
             if (w->pid == pid)

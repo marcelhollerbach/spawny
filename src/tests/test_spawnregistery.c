@@ -18,7 +18,7 @@ child_create(void)
 }
 
 static void
-_handler(void *data, int sig, pid_t t)
+_handler(void *data, int sig UNUSED, pid_t t UNUSED)
 {
     bool *b = data;
     ck_assert_int_eq(*b, false);

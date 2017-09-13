@@ -11,7 +11,7 @@ _break_cond(int i)
 }
 
 static void
-_cb(Fd_Data *data, int fd)
+_cb(Fd_Data *data UNUSED, int fd UNUSED)
 {
    int *i = data->data;
 
@@ -42,8 +42,8 @@ START_TEST(test_fd_select)
     if (pid == 0) {
         close(fds_a[0]);
         close(fds_b[0]);
-        if (write(fds_a[1], msg, strlen(msg) + 1) != strlen(msg) + 1 ||
-            write(fds_b[1], msg, strlen(msg) + 1) != strlen(msg) + 1) {
+        if (write(fds_a[1], msg, strlen(msg) + 1) != (long)strlen(msg) + 1 ||
+            write(fds_b[1], msg, strlen(msg) + 1) != (long)strlen(msg) + 1) {
             ck_abort_msg("writing to pipe failed");
         }
 

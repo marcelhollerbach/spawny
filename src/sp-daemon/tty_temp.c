@@ -5,7 +5,7 @@
 #include <libgen.h>
 
 static void
-_tty_fire_up(void *data) {
+_tty_fire_up(void *data UNUSED) {
     uid_t uid;
     struct passwd *pwd;
 

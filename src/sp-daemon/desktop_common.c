@@ -14,7 +14,7 @@ typedef struct {
 #define EXT ".desktop"
 
 static int
-_parse_file_handler(void* user, const char* section,
+_parse_file_handler(void* user, const char* section UNUSED,
               const char* name, const char* value) {
     Session *session = user;
     if (!strcmp(name, "Name")) {
@@ -32,7 +32,7 @@ _parse_file_handler(void* user, const char* section,
 
 void
 _parse_file(const char *file, const char *type, Template_Fire_Up fire_up) {
-    Session session = { NULL };
+    Session session = { NULL, NULL, NULL };
     bool reg = true;
 
     if (!parse_ini_verbose(file, _parse_file_handler, &session)) {

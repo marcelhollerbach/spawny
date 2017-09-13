@@ -40,4 +40,6 @@ static inline int
 INT_LENGTH(int value) {
   return (value == 0 ? 1 : ((int)(log10(abs(value))+1) + (value < 0 ? 1 : 0)));
 }
+#define UNUSED __attribute__ ((unused))
+
 #endif

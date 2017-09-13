@@ -59,7 +59,7 @@ _parse_args(int argc, char *argv[])
 }
 
 static void
-_interrupt_handler(int sig)
+_interrupt_handler(int sig UNUSED)
 {
     manager_stop();
 }

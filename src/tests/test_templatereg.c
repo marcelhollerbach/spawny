@@ -4,12 +4,12 @@
 int test = 0;
 
 static void
-_fire_up_daed(void *data) {
+_fire_up_daed(void *data UNUSED) {
     test = 1;
 }
 
 static void
-_fire_up2(void *data) {
+_fire_up2(void *data UNUSED) {
 
 }
 

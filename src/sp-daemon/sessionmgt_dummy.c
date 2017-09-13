@@ -1,12 +1,12 @@
 #include "main.h"
 
 char *
-session_get(pid_t pid) {
+session_get(pid_t pid UNUSED) {
    return "c1";
 }
 
 char*
-seat_get(pid_t pid) {
+seat_get(pid_t pid UNUSED) {
     return "seat0";
 }
 
@@ -16,27 +16,27 @@ current_session_get(void) {
 }
 
 void
-session_enumerate(const char *seat, char ***handles, unsigned int *len) {
+session_enumerate(const char *seat UNUSED, char ***handles UNUSED, unsigned int *len UNUSED) {
 
 }
 
 void
-session_enumerate_free(char **handles, unsigned int len)
+session_enumerate_free(char **handles UNUSED, unsigned int len UNUSED)
 {
 
 }
 
 void
-session_activate(char *handle) {
+session_activate(char *handle UNUSED) {
 
 }
 
 bool
-session_details(char *handle, uid_t *uid, char **name, char **icon, int *vtnr) {
+session_details(char *handle UNUSED, uid_t *uid UNUSED, char **name UNUSED, char **icon UNUSED, int *vtnr UNUSED) {
     return false;
 }
 
 void
-wait_session_active(char *handle) {
+wait_session_active(char *handle UNUSED) {
 
 }

@@ -334,7 +334,7 @@ typedef void (*convert_func)(Sp_Client_Context *ctx, void *data, void *goal, int
 
 #define FREE_CONVERT(name, type, proto_type, conv, free) \
 static void \
-name ##s_convert(Sp_Client_Context *ctx, void *data, void *goal, int id) { \
+name ##s_convert(Sp_Client_Context *ctx UNUSED, void *data, void *goal, int id) { \
     proto_type proto = data; \
     type name = goal; \
     conv \

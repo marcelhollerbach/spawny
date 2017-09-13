@@ -6,7 +6,7 @@
 Config *config;
 
 static int
-_config_parse(void* user, const char* section,
+_config_parse(void* user UNUSED, const char* section,
               const char* name, const char* value) {
     if (!strcmp(section, "greeter")) {
         if (!strcmp(name, "user"))
