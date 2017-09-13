@@ -14,11 +14,11 @@ After that you can build and install the software by doing:
 
 `cd build`
 
-`cmake ..`
+`meson ..`
 
-`make all`
+`ninja all`
 
-`sudo make install`
+`sudo ninja install`
 
 To get the sp-daemon to run on your system you need to enable and start the sp-daemon.socket unit by calling:
 `systemctl enable sp-daemon.socket`
