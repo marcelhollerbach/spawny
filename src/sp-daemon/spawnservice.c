@@ -43,7 +43,6 @@ _spawn_try_free(Spawn_Try *try)
     manager_unregister_fd(try->com.fd[READ]);
 
     close(try->com.fd[READ]);
-    close(try->com.fd[WRITE]);
 
     end.success = try->exit.success;
     end.message = try->exit.error_msg;
