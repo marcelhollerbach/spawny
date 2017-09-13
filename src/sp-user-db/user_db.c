@@ -177,7 +177,7 @@ _put_user(User *user)
     pw = getpwnam(user->name);
 
     /* generate filename */
-    snprintf(file, sizeof(file), USER_DB_DIR"%s.ini", user->name);
+    snprintf(file, sizeof(file), USER_DB_DIR"/%s.ini", user->name);
 
     /* open file */
     f = fopen(file, "w+");
@@ -258,7 +258,7 @@ _load_file(const char *filename)
     struct passwd *pw;
 
 
-    snprintf(buf, sizeof(buf), USER_DB_DIR"%s", filename);
+    snprintf(buf, sizeof(buf), USER_DB_DIR"/%s", filename);
 
     file = fopen(buf, "r");
 
