@@ -27,6 +27,7 @@
 typedef struct {
     int fd;
     struct ucred client_info;
+    Spawn_Try *try;
 } Client;
 
 static int server_sock;
@@ -105,7 +106,7 @@ _session_done(void *data, Spawn_Service_End end) {
         free(seat);
         seat = NULL;
     }
-
+    client->try = NULL;
 }
 
 static bool
@@ -194,7 +195,8 @@ _client_data(Fd_Data *data, int fd) {
             settings.session_seat = seat;
 
             INF("Greeter login try for user %s and template %s", msg->login->user, msg->login->template_id);
-            if (!spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, _reexecute_greeter, NULL, PAM_SERVICE, msg->login->user, msg->login->password, &settings)) {
+            client->try = spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, _reexecute_greeter, NULL, PAM_SERVICE, msg->login->user, msg->login->password, &settings);
+            if (!client->try) {
                 server_spawnservice_feedback(0, "spawn failed.", fd);
             }
         break;
