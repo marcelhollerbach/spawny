@@ -191,6 +191,7 @@ _client_data(Fd_Data *data, int fd) {
             Xdg_Settings settings;
 
             if (client->try) {
+                INF("Client %p tried to login twice!\n", client);
                 server_spawnservice_feedback(0, "There is already a login try!", fd);
                 break;
             }
