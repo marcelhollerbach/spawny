@@ -190,6 +190,11 @@ _client_data(Fd_Data *data, int fd) {
             SAFE_CALL
             Xdg_Settings settings;
 
+            if (client->try) {
+                server_spawnservice_feedback(0, "There is already a login try!", fd);
+                break;
+            }
+
             template_details_get(msg->login->template_id, &settings.session_desktop, NULL, &settings.session_type);
 
             settings.session_seat = seat;
