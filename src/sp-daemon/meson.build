@@ -1,6 +1,4 @@
 src = [
-  'app_config.c',
-  'app_config.h',
   'array.c',
   'array.h',
   'desktop_common.c',

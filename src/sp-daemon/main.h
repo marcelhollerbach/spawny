@@ -10,7 +10,6 @@
 #include "sp_protocol.h"
 #include "config.h"
 
-#include "app_config.h"
 #include "spawnservice.h"
 #include "desktop_common.h"
 #include "manager.h"

@@ -16,8 +16,6 @@ config_h.set_quoted('SERVER_DEBUG_SOCKET', '/run/spawny/spawny-debug.service')
 config_h.set_quoted('PAM_SERVICE_GREETER', 'spawny-greeter')
 config_h.set_quoted('PAM_SERVICE', 'spawny')
 
-config_h.set_quoted('PACKAGE_CONFIG', join_paths(get_option('prefix'), get_option('sysconfdir'), 'spawny.ini'))
-
 config_h.set_quoted('PACKAGE_BIN_DIR', join_paths(get_option('prefix'), get_option('bindir')))
 config_h.set('PACKAGE_BIN_DIR_P', join_paths(get_option('prefix'), get_option('bindir')))
 

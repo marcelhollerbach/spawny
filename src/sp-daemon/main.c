@@ -45,12 +45,6 @@ _parse_args(int argc, char *argv[])
             _G.config.debug = true;
         } else if (!strcmp(argv[i], "--no-greeter-restart")) {
             _G.config.no_greeter_restart = true;
-        } else if (!strcmp(argv[i], "--check-config")) {
-           config_init();
-           if (config_check_correctness())
-             exit(0);
-           else
-             exit(-1);
         } else {
             print_help();
             exit(-1);
@@ -70,7 +64,6 @@ main(int argc, char **argv)
     _parse_args(argc, argv);
     log_init();
     init_check();
-    config_init();
     manager_init();
     greeter_init();
     spawnservice_init();
@@ -93,5 +86,4 @@ main(int argc, char **argv)
     greeter_shutdown();
     template_shutdown();
     manager_shutdown();
-    config_shutdown();
 }
