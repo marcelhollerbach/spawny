@@ -23,6 +23,7 @@ config_h.set('PACKAGE_BIN_DIR_P', join_paths(get_option('prefix'), get_option('b
 
 config_h.set_quoted('USER', 'spawny')
 config_h.set_quoted('USER_DB_DIR', '/var/lib/spawny')
+config_h.set_quoted('GREETER_BINARY_PATH', join_paths(get_option('prefix'),get_option('libdir'),'spawny','greeter'))
 
 top_inc = include_directories('.')
 

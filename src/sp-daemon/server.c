@@ -273,7 +273,7 @@ _load_sessions(Spawny__Server__Data *system_data, const char *seat)
     char **sessions_raw;
     struct passwd *start_user;
 
-    start_user = getpwnam(config->greeter.start_user);
+    start_user = getpwnam(USER);
 
     session_enumerate(seat, &sessions_raw, &number);
 

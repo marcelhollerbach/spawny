@@ -141,8 +141,11 @@ _greeter_job(void *data) {
 
     greeter = data;
 
-    if (greeter->run_gen < FALLBACK_RUN_GENERATION)
-        cmdpath = (char*)config->greeter.cmd;
+    if (greeter->run_gen < FALLBACK_RUN_GENERATION) {
+        cmdpath = GREETER_BINARY_PATH;
+        if (access(cmdpath, R_OK) == -1)
+          cmdpath = NULL;
+    }
 
     //we are save here with greader equals, basically we never reach this point with the normal activision
     if (greeter->run_gen >= FALLBACK_RUN_GENERATION || !cmdpath)
@@ -184,7 +187,7 @@ greeter_activate(const char *seat) {
 
     if (!(greeter->run_gen > FALLBACK_RUN_GENERATION))
       greeter->run.try = spawnservice_spawn(_greeter_start_done, greeter, _greeter_job, greeter, NULL, NULL,
-                                        PAM_SERVICE_GREETER, config->greeter.start_user, NULL, &settings);
+                                        PAM_SERVICE_GREETER, USER, NULL, &settings);
     else
       ERR("Starting the greeter %d times did not bring it up, giving up. :(", greeter->run_gen);
 }
