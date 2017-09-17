@@ -4,7 +4,7 @@ jobs:
     working_directory: ~/spawny
     docker:
       # see the dockerfile
-      - image: bu5hm4n/spawny:selftest
+      - image: bu5hm4n/spawny
     steps:
       - checkout
       - run:
