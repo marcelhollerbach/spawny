@@ -6,7 +6,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include <stropts.h>
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
