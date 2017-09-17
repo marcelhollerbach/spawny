@@ -14,5 +14,5 @@ subdir('sp-greeter-set')
 subdir('sp-greeter-start')
 subdir('sp-user-db')
 subdir('sp-user-db-util')
-
 subdir('sp-daemon')
+subdir('selftest')

@@ -4,7 +4,7 @@ jobs:
     working_directory: ~/spawny
     docker:
       # see the dockerfile
-      - image: bu5hm4n/spawny
+      - image: bu5hm4n/spawny:selftest
     steps:
       - checkout
       - run:
@@ -12,10 +12,20 @@ jobs:
           command: |
             git submodule update --init --recursive
       - run:
-          name: ninja & ninja test
+          name: build & install
           command: |
             mkdir build
             cd build
             meson ..
             ninja all
+            ninja install
+      - run:
+          name: tests
+          command: |
+            cd build
             ninja test
+      - run:
+          name: selftest
+          command: |
+            cd build
+            ./src/selftest/selftest tester tester-password

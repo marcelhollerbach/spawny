@@ -201,7 +201,7 @@ _client_data(Fd_Data *data, int fd) {
             settings.session_seat = seat;
 
             INF("Greeter login try for user %s and template %s", msg->login->user, msg->login->template_id);
-            client->try = spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, _reexecute_greeter, NULL, PAM_SERVICE, msg->login->user, msg->login->password, &settings);
+            client->try = spawnservice_spawn(_session_done, client, _session_job, msg->login->template_id, _reexecute_greeter, NULL, SP_PAM_SERVICE, msg->login->user, msg->login->password, &settings);
             if (!client->try) {
                 server_spawnservice_feedback(0, "spawn failed.", fd);
             }
@@ -273,7 +273,7 @@ _load_sessions(Spawny__Server__Data *system_data, const char *seat)
     char **sessions_raw;
     struct passwd *start_user;
 
-    start_user = getpwnam(USER);
+    start_user = getpwnam(SP_USER);
 
     session_enumerate(seat, &sessions_raw, &number);
 
