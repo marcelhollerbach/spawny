@@ -12,10 +12,18 @@ jobs:
           command: |
             git submodule update --init --recursive
       - run:
-          name: ninja & ninja test
+          name: build & install
           command: |
             mkdir build
             cd build
             meson ..
             ninja all
+            ninja install
+      - run:
+          name: tests
+          command: |
             ninja test
+      - run:
+          name: selftest
+          command: |
+            ./src/selftest/selftest tester tester-password
