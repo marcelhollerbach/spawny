@@ -28,6 +28,7 @@ check_user(const char *user)
    if (!user_entry)
      {
         printf("FATAL: Failed to find user %s\n", user);
+        abort();
      }
    else
      {
