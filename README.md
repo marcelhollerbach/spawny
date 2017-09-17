@@ -52,6 +52,10 @@ The fallback greeter looks like that:
 
 ![Fallback greeter](https://cloud.githubusercontent.com/assets/1415748/17888029/6235d18a-6929-11e6-9f77-87d934d70be0.png)
 
+## sp-greeter-set
+
+Will set the passed greeter as the one that will get started after a sp-greeter-start call.
+
 ## sp-greeter-start
 
 Requests the daemon to start a greeter on the same seat where this process is in.
