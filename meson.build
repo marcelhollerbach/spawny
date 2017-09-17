@@ -5,26 +5,22 @@ project('spawny', 'c',
 
 pkg = import('pkgconfig')
 
-
 config_h = configuration_data()
 
-config_h.set_quoted('SP_SERVER_SOCKET', '/run/spawny/spawny.service')
-config_h.set('SP_SERVER_SOCKET_P', '/run/spawny/spawny.service')
+server_socket = '/run/spawny/spawny.service'
+server_socket_debug = '/run/spawny/spawny-debug.service'
+bin_dir = join_paths(get_option('prefix'), get_option('bindir'))
+fallback_dir = join_paths(get_option('prefix'), get_option('libdir'), 'spawny')
 
-config_h.set_quoted('SP_SERVER_DEBUG_SOCKET', '/run/spawny/spawny-debug.service')
-
+config_h.set_quoted('SP_SERVER_SOCKET', server_socket)
+config_h.set_quoted('SP_SERVER_DEBUG_SOCKET', server_socket_debug)
 config_h.set_quoted('SP_PAM_SERVICE_GREETER', 'spawny-greeter')
 config_h.set_quoted('SP_PAM_SERVICE', 'spawny')
-
-config_h.set_quoted('PACKAGE_BIN_DIR', join_paths(get_option('prefix'), get_option('bindir')))
-config_h.set('PACKAGE_BIN_DIR_P', join_paths(get_option('prefix'), get_option('bindir')))
-
 config_h.set_quoted('SP_USER', 'spawny')
 config_h.set_quoted('SP_USER_DB_DIR', '/var/lib/spawny')
-config_h.set_quoted('SP_GREETER', join_paths(get_option('prefix'),get_option('libdir'),'spawny','greeter'))
-
-fallback_dir = join_paths(get_option('prefix'), get_option('libdir'), 'spawny')
+config_h.set_quoted('SP_GREETER', join_paths(fallback_dir, 'greeter'))
 config_h.set_quoted('SP_GREETER_FALLBACK', join_paths(fallback_dir, 'sp-fallback-greeter'))
+config_h.set_quoted('PACKAGE_BIN_DIR', bin_dir)
 
 top_inc = include_directories('.')
 
