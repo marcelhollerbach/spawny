@@ -102,11 +102,12 @@ _session_done(void *data, Spawn_Service_End end) {
         greeter_lockout(seat);
         server_spawnservice_feedback(1, "You are logged in!", client->fd);
         INF("User Session alive.");
+        client->try = NULL;
         client_goodbye(client);
         free(seat);
         seat = NULL;
     }
-    client->try = NULL;
+
 }
 
 static bool
