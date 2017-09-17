@@ -12,9 +12,9 @@ const char*
 sp_service_path_get(bool debug)
 {
     if (debug)
-      return SERVER_DEBUG_SOCKET;
+      return SP_SERVER_DEBUG_SOCKET;
     else
-      return SERVER_SOCKET;
+      return SP_SERVER_SOCKET;
 }
 
 void

@@ -11,7 +11,7 @@
 #include <stdbool.h>
 #include <limits.h>
 
-const char *sp_pam_service = PAM_SERVICE;
+const char *sp_pam_service = SP_PAM_SERVICE;
 
 #include <security/pam_appl.h>
 
@@ -174,13 +174,13 @@ int main(int argc, char const *argv[])
     config.password = argv[2];
   }
 
-  check_user(USER);
+  check_user(SP_USER);
 
   config.autologin = false;
   check_pam_service(sp_pam_service, config);
 
   config.autologin = true;
-  check_pam_service(PAM_SERVICE_GREETER, config);
+  check_pam_service(SP_PAM_SERVICE_GREETER, config);
 
   return 0;
 }

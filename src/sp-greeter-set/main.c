@@ -24,14 +24,14 @@ int main(int argc, char const *argv[])
         return EXIT_FAILURE;
     }
 
-  if (access(GREETER_BINARY_PATH, R_OK) != 0)
+  if (access(SP_GREETER, R_OK) != 0)
     {
-       unlink(GREETER_BINARY_PATH);
+       unlink(SP_GREETER);
     }
 
-  if (!link(argv[1], GREETER_BINARY_PATH))
+  if (!link(argv[1], SP_GREETER))
     {
-       perror("Failed to link argument to "GREETER_BINARY_PATH);
+       perror("Failed to link argument to "SP_GREETER);
        return EXIT_FAILURE;
     }
   printf("Setted %s as default.\n", argv[1]);

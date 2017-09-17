@@ -177,7 +177,7 @@ _put_user(User *user)
     pw = getpwnam(user->name);
 
     /* generate filename */
-    snprintf(file, sizeof(file), USER_DB_DIR"/%s.ini", user->name);
+    snprintf(file, sizeof(file), SP_USER_DB_DIR"/%s.ini", user->name);
 
     /* open file */
     f = fopen(file, "w+");
@@ -258,7 +258,7 @@ _load_file(const char *filename)
     struct passwd *pw;
 
 
-    snprintf(buf, sizeof(buf), USER_DB_DIR"/%s", filename);
+    snprintf(buf, sizeof(buf), SP_USER_DB_DIR"/%s", filename);
 
     file = fopen(buf, "r");
 
@@ -298,10 +298,10 @@ _load_from_fs(void) {
     DIR* od;
     struct dirent *dir;
 
-    od = opendir(USER_DB_DIR);
+    od = opendir(SP_USER_DB_DIR);
 
     if (!od) {
-        ERRNO_PRINTF("Opening database %s failed.", USER_DB_DIR);
+        ERRNO_PRINTF("Opening database %s failed.", SP_USER_DB_DIR);
         return false;
     }
 
@@ -332,13 +332,13 @@ _prepare_db(void)
         return false;
     }
 
-    if (!!access(USER_DB_DIR, W_OK | R_OK)
-        && mkpath(USER_DB_DIR, S_IRWXG | S_IRWXU | S_IRWXO) != 0) {
+    if (!!access(SP_USER_DB_DIR, W_OK | R_OK)
+        && mkpath(SP_USER_DB_DIR, S_IRWXG | S_IRWXU | S_IRWXO) != 0) {
         ERRNO_PRINTF("Failed to create database diretory.");
         return false;
     }
 
-    if (!!chown(USER_DB_DIR, usr->pw_uid, usr->pw_gid)) {
+    if (!!chown(SP_USER_DB_DIR, usr->pw_uid, usr->pw_gid)) {
         ERRNO_PRINTF("Failed to chown the database directory");
         return false;
     }
