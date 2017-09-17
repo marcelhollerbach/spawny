@@ -4,3 +4,6 @@ MAINTAINER Leander Kurscheidt
 
 RUN pacman -Syy
 RUN pacman -S base-devel git systemd openssh cmake meson ninja protobuf-c check --noconfirm
+
+RUN useradd tester
+RUN echo 'tester:tester-password' | chpasswd
