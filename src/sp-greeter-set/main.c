@@ -29,7 +29,7 @@ int main(int argc, char const *argv[])
        unlink(SP_GREETER);
     }
 
-  if (!link(argv[1], SP_GREETER))
+  if (link(argv[1], SP_GREETER) < 0)
     {
        perror("Failed to link argument to "SP_GREETER);
        return EXIT_FAILURE;
