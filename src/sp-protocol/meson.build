@@ -13,5 +13,6 @@ sp_protocol_lib = static_library('sp-protocol', server_proto,
 sp_protocol = declare_dependency(
   link_with : sp_protocol_lib,
   dependencies : protoc,
+  sources : server_proto,
   include_directories: [top_inc, include_directories('.')],
 )
