@@ -97,6 +97,7 @@ _session_done(void *data, Spawn_Service_End end) {
     Client *client = data;
     if (end.success == SPAWN_SERVICE_ERROR) {
         server_spawnservice_feedback(0, end.message, client->fd);
+        client->try = NULL;
     } else {
         char *seat = seat_get(client->client_info.pid);
         greeter_lockout(seat);
