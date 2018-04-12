@@ -40,7 +40,7 @@ If someone requests a new session or the displaying of a greeter, the following 
 * Waiting for its new session to be activated
 * Starts up the greeter or the session-template which was applied
 
-The daemon also loads its session-templates form /usr/xsessions /user/wayland-session and offers a tty template which just starts the users bash
+The daemon also loads its session-templates from /usr/share/xsessions, /usr/share/wayland-sessions and offers a tty template which just starts the users bash
 
 A different greeter from the sp-fallback-greeter can be configured in the config file.
 
