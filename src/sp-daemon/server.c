@@ -130,6 +130,7 @@ _client_data(Fd_Data *data, int fd) {
     uint8_t buf[MAX_MSG_SIZE];
     int len = 0;
     char *seat;
+    bool fallback_seat = false;
 
     client = data->data;
     len = read(fd, buf, sizeof(buf));
@@ -160,7 +161,10 @@ _client_data(Fd_Data *data, int fd) {
     seat = seat_get(client->client_info.pid);
     //if we are in debugging mode we are just using seat0
     if (!seat && _G.config.debug)
-      seat = FALLBACK_SEAT;
+      {
+         seat = FALLBACK_SEAT;
+         fallback_seat = true;
+      }
 
     switch(msg->type){
         case SPAWNY__GREETER__MESSAGE__TYPE__HELLO:
@@ -226,7 +230,7 @@ _client_data(Fd_Data *data, int fd) {
     }
     spawny__greeter__message__free_unpacked(msg, NULL);
 
-    if (seat != FALLBACK_SEAT)
+    if (fallback_seat)
       free(seat);
 }
 
