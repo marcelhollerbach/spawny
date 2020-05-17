@@ -14,7 +14,7 @@ _print_help(void)
    printf(" --prefered-session session\n");
    printf(" --edit key,val\n");
    printf(" --del key\n");
-   printf("The current keys are used by the daemon: prefered-session");
+   printf("The current keys are used by the daemon: prefered-session\n");
 }
 
 static bool
