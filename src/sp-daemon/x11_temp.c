@@ -19,7 +19,7 @@ _fire_up(void *data) {
     uid = getuid();
     pwd = getpwuid(uid);
 
-    snprintf(command, sizeof(command), "%s %s", executor, data);
+    snprintf(command, sizeof(command), "%s %s", executor,(char*) data);
 
     execl(pwd->pw_shell, basename(pwd->pw_shell), "--login", "-i", "-c", command, NULL);
     perror("Execl failed");
