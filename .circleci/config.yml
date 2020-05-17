@@ -6,14 +6,23 @@ jobs:
       # see the dockerfile
       - image: bu5hm4n/spawny
     steps:
-      - checkout
       - run:
-          name: clone git —recursive
+          name: https - checkout
           command: |
-            git submodule update --init --recursive
+            git clone https://github.com/marcelhollerbach/spawny.git
+            cd spawny
+            if [ -n "$CIRCLE_PR_NUMBER" ]; then
+                git fetch origin pull/$CIRCLE_PR_NUMBER/head
+            fi
+            if [ -n "$CIRCLE_SHA1" ]; then
+              git reset --hard $CIRCLE_SHA1
+            else
+              git reset --hard origin/master
+            fi
       - run:
           name: build & install
           command: |
+            cd spawny
             mkdir build
             cd build
             meson ..
@@ -22,10 +31,10 @@ jobs:
       - run:
           name: tests
           command: |
-            cd build
+            cd spawny/build
             ninja test
       - run:
           name: selftest
           command: |
-            cd build
+            cd spawny/build
             ./src/selftest/selftest tester tester-password
