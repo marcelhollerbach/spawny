@@ -14,7 +14,7 @@ _print_help(void)
    printf(" --prefered-session session\n");
    printf(" --edit key,val\n");
    printf(" --del key\n");
-   printf("The current keys are used by the daemon: prefered-session\n");
+   printf("In case you are root, you can edit arbitary users with the --user option\n");
 }
 
 static bool
@@ -53,10 +53,12 @@ main(int argc, char const *argv[])
    if (!user_db_init())
       return EXIT_FAILURE;
 
-   for (int i = 1; i < argc; i++) {
-      if (!strcmp(argv[i], "--user")) {
-         username = strdup(argv[i + 1]);
-         break;
+   if (getuid() == 0) {
+      for (int i = 1; i < argc; i++) {
+         if (!strcmp(argv[i], "--user")) {
+            username = strdup(argv[i + 1]);
+            break;
+         }
       }
    }
 
@@ -94,6 +96,10 @@ main(int argc, char const *argv[])
             return EXIT_FAILURE;
       } else if (!strcmp(argv[i], "--help")) {
          _print_help();
+         return EXIT_FAILURE;
+      } else if (!strcmp(argv[i], "--user")) {
+         if (getuid() == 0) continue;
+         printf("You can only do that as root!\n");
          return EXIT_FAILURE;
       } else {
          printf("unrecognized option %s\n", argv[i]);
