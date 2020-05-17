@@ -1,10 +1,12 @@
 # automatic building on push is not activated (i expect the dockerfile to change rarely)
-FROM dock0/arch
-MAINTAINER Leander Kurscheidt
+FROM archlinux/base
+MAINTAINER Marcel Hollerbach
 
 RUN pacman -Syy
-RUN pacman -S base-devel git systemd openssh cmake meson ninja protobuf-c check --noconfirm
+RUN pacman -S base-devel git meson ninja protobuf-c check --noconfirm
 
 RUN useradd tester
 RUN useradd spawny
 RUN echo 'tester:tester-password' | chpasswd
+RUN mkdir /var/lib/spawny
+RUN usermod -d /var/lib/spawny spawny
