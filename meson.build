@@ -21,6 +21,9 @@ config_h.set_quoted('SP_USER_DB_DIR', '/var/lib/spawny')
 config_h.set_quoted('SP_GREETER', join_paths(fallback_dir, 'greeter'))
 config_h.set_quoted('SP_GREETER_FALLBACK', join_paths(fallback_dir, 'sp-fallback-greeter'))
 config_h.set_quoted('PACKAGE_BIN_DIR', bin_dir)
+if get_option('test-build')
+  config_h.set('TEST_BUILD', 1)
+endif
 
 top_inc = include_directories('.')
 

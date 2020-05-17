@@ -379,7 +379,7 @@ child_run(Spawn_Try *try)
       setenv("TERM", "linux", 0);
 
       // get the new session
-      session = current_session_get();
+      session = session_get(getpid());
 
       if (!session) {
          _service_com_exit(try, "session is not valid");
@@ -423,6 +423,14 @@ child_run(Spawn_Try *try)
    }
 }
 
+#if defined(TEST_BUILD)
+static int
+open_tty(Spawn_Try *try, char *tty)
+{
+   //FIXME close and open something for stdin stdout stderr
+   return 1;
+}
+#else
 // open tty stuff
 static int
 open_tty(Spawn_Try *try, char *tty)
@@ -537,6 +545,7 @@ open_tty(Spawn_Try *try, char *tty)
 
    return 1;
 }
+#endif
 
 // pam stuff follows
 

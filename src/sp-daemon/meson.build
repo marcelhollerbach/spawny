@@ -11,9 +11,7 @@ src = [
   'manager.h',
   'server.c',
   'server.h',
-  'server_systemd.c',
   'sessionmgt.h',
-  'sessionmgt_logind.c',
   'spawnregistery.c',
   'spawnregistery.h',
   'spawnservice.c',
@@ -25,6 +23,18 @@ src = [
   'wl_temp.c',
   'x11_temp.c',
 ]
+
+if get_option('test-build')
+  src += [
+    'sessionmgt_test_build.c',
+    'server_test_build.c',
+  ]
+else
+  src += [
+    'sessionmgt_logind.c',
+    'server_systemd.c'
+  ]
+endif
 
 session_protocol = protoc_gen.process('session_spawn.proto')
 
