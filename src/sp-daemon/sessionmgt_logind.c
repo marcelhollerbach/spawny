@@ -70,7 +70,6 @@ session_activate(char *handle) {
 }
 
 #define GET_FIELD(func, field, errval) \
-    if (field) { \
         ret = func(handle, field); \
         switch(ret){ \
             case -ENXIO: \
@@ -90,7 +89,6 @@ session_activate(char *handle) {
                 INF("Error, Memory allocation failed."); \
                 *field = errval; \
             break; \
-        }\
     }
 
 bool
@@ -107,7 +105,9 @@ session_details(char *handle, uid_t *uid, char **name, char **icon, int *vtnr) {
     } else if (vtnr) {
       if (vtnr) {*vtnr = vtnr_raw;}
     }
-    GET_FIELD(sd_session_get_uid, uid, 0)
+    if (uid) {
+      GET_FIELD(sd_session_get_uid, uid, 0)
+    }
 
     GET_FIELD(sd_session_get_desktop, &tmp_desktop, NULL)
     GET_FIELD(sd_session_get_type, &tmp_type, NULL)
