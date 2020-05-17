@@ -34,7 +34,7 @@ jobs:
             cd spawny/build
             ninja test
       - run:
-          name: selftest
+          name: selftest-pam
           command: |
             cd spawny/build
-            ./src/selftest/selftest tester tester-password
+            ./src/selftest/selftest-pam-setup tester tester-password
