@@ -61,6 +61,7 @@ START_TEST(test_templatereg_unreg)
 {
     int ret;
     const char *id1, *id2, *id3;
+    char *unregister_id2;
     char *name = "test";
     char *icon = "icon";
 
@@ -73,14 +74,16 @@ START_TEST(test_templatereg_unreg)
     ck_assert_ptr_ne(id2, NULL);
     ck_assert_ptr_ne(id3, NULL);
 
-    id2 = strdup(id2);
+    unregister_id2 = strdup(id2);
 
-    ret = template_unregister(id2);
+    ret = template_unregister(unregister_id2);
     ck_assert_int_ne(ret, 0);
 
     //check for crashys
-    ret = template_run(id2);
+    ret = template_run(unregister_id2);
     ck_assert_int_eq(ret, 0);
+
+    free(unregister_id2);
 }
 END_TEST
 
