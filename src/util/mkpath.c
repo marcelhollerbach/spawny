@@ -1,10 +1,10 @@
 #include "mkpath.h"
-#include <limits.h>
 #include <libgen.h>
+#include <limits.h>
+#include <stdio.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <string.h>
-#include <stdio.h>
 #include <unistd.h>
 
 int
@@ -17,12 +17,12 @@ mkpath(const char *path, mode_t mode)
    dir = dirname(path_str);
 
    if (access(dir, R_OK) < 0) {
-        if (mkpath(dir, mode) == -1)
-            return -1;
+      if (mkpath(dir, mode) == -1)
+         return -1;
    }
 
    if (mkdir(path, mode) == -1)
-        return -1;
+      return -1;
 
    return 0;
 }

@@ -1,24 +1,27 @@
 #include "main.h"
-#include <unistd.h>
-#include <sys/types.h>
-#include <pwd.h>
 #include <libgen.h>
+#include <pwd.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 static void
-_tty_fire_up(void *data UNUSED) {
-    uid_t uid;
-    struct passwd *pwd;
+_tty_fire_up(void *data UNUSED)
+{
+   uid_t uid;
+   struct passwd *pwd;
 
-    uid = getuid();
-    pwd = getpwuid(uid);
+   uid = getuid();
+   pwd = getpwuid(uid);
 
-    execl(pwd->pw_shell, basename(pwd->pw_shell), "--login", "-i", NULL);
-    perror("Execl failed");
+   execl(pwd->pw_shell, basename(pwd->pw_shell), "--login", "-i", NULL);
+   perror("Execl failed");
 }
 
 void
-tty_template_init(void) {
-    const char *temp;
-    if (!(temp = template_register("tty", "utilities-terminal", "tty", _tty_fire_up, NULL)))
+tty_template_init(void)
+{
+   const char *temp;
+   if (!(temp = template_register(
+           "tty", "utilities-terminal", "tty", _tty_fire_up, NULL)))
       ERR("Failed to register template");
 }

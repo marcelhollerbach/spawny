@@ -1,7 +1,8 @@
 #include "main.h"
 #include <string.h>
 
-struct _Array{
+struct _Array
+{
    void *ptr;
    size_t size;
    unsigned int len;
@@ -9,7 +10,7 @@ struct _Array{
 
 #define ACCESS(arr, i) arr->ptr + (i)*arr->size
 
-Array*
+Array *
 array_new(size_t size)
 {
    Array *result;
@@ -20,19 +21,20 @@ array_new(size_t size)
    return result;
 }
 
-void*
+void *
 array_add(Array *arr)
 {
    arr->len++;
-   arr->ptr = realloc(arr->ptr, arr->len*arr->size);
+   arr->ptr = realloc(arr->ptr, arr->len * arr->size);
 
    return ACCESS(arr, arr->len - 1);
 }
 
-void*
+void *
 array_get(Array *arr, unsigned int i)
 {
-   if (i >= arr->len) return NULL;
+   if (i >= arr->len)
+      return NULL;
 
    return ACCESS(arr, i);
 }
@@ -41,13 +43,14 @@ void
 array_del(Array *arr, unsigned int i)
 {
    size_t s;
-   if (i >= arr->len) return;
+   if (i >= arr->len)
+      return;
 
-   s = (arr->len - i - 1)*arr->size;
+   s = (arr->len - i - 1) * arr->size;
    memmove(ACCESS(arr, i), ACCESS(arr, i + 1), s);
 
-   arr->len --;
-   arr->ptr = realloc(arr->ptr, arr->len*arr->size);
+   arr->len--;
+   arr->ptr = realloc(arr->ptr, arr->len * arr->size);
 }
 
 unsigned int
@@ -60,7 +63,7 @@ void
 array_free(Array *arr)
 {
    if (arr->ptr)
-     free(arr->ptr);
+      free(arr->ptr);
 
    free(arr);
 }

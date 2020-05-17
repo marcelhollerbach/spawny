@@ -3,6 +3,7 @@
 
 #include <sys/stat.h>
 
-int mkpath(const char *pathname, mode_t mode);
+int
+mkpath(const char *pathname, mode_t mode);
 
 #endif

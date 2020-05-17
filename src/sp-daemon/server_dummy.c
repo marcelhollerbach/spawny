@@ -1,6 +1,7 @@
 #include "main.h"
 
-int prefetch_server_socket(void)
+int
+prefetch_server_socket(void)
 {
-    return 0;
+   return 0;
 }

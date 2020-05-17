@@ -1,9 +1,9 @@
 #ifndef SP_UTIL_H
 #define SP_UTIL_H
 
-#include "mkpath.h"
 #include "log.h"
+#include "mkpath.h"
 
-#define UNUSED __attribute__ ((unused))
+#define UNUSED __attribute__((unused))
 
 #endif

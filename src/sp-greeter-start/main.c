@@ -4,7 +4,7 @@
 int
 main(int argc, char **argv)
 {
-    if (!sp_client_greeter_start(argc, argv))
+   if (!sp_client_greeter_start(argc, argv))
       return EXIT_FAILURE;
-    return EXIT_SUCCESS;
+   return EXIT_SUCCESS;
 }

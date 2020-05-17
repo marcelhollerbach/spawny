@@ -1,7 +1,7 @@
-#include "test.h"
 #include "../sp-daemon/spawnregistery.h"
-#include <unistd.h>
+#include "test.h"
 #include <stdbool.h>
+#include <unistd.h>
 
 static pid_t
 child_create(void)
@@ -11,7 +11,7 @@ child_create(void)
    if (child == 0) {
       abort();
    } else {
-      //make sure the child is really really created
+      // make sure the child is really really created
       sleep(2);
    }
    return child;
@@ -20,10 +20,10 @@ child_create(void)
 static void
 _handler(void *data, int sig UNUSED, pid_t t UNUSED)
 {
-    bool *b = data;
-    ck_assert_int_eq(*b, false);
-    ck_assert(WIFSIGNALED(SIGABRT));
-    *b = true;
+   bool *b = data;
+   ck_assert_int_eq(*b, false);
+   ck_assert(WIFSIGNALED(SIGABRT));
+   *b = true;
 }
 
 START_TEST(spawnregistery_callback_test)
@@ -40,18 +40,17 @@ START_TEST(spawnregistery_callback_test)
 
    spawnregistery_eval();
    ck_assert_int_eq(b, true);
-
 }
 END_TEST
 
-void spawnregistery_suite(Suite *s)
+void
+spawnregistery_suite(Suite *s)
 {
-    TCase *tc_core;
+   TCase *tc_core;
 
-    /* Core test case */
-    tc_core = tcase_create("Spawnregistery");
-    tcase_set_timeout(tc_core, 6);
-    tcase_add_test(tc_core, spawnregistery_callback_test);
-    suite_add_tcase(s, tc_core);
+   /* Core test case */
+   tc_core = tcase_create("Spawnregistery");
+   tcase_set_timeout(tc_core, 6);
+   tcase_add_test(tc_core, spawnregistery_callback_test);
+   suite_add_tcase(s, tc_core);
 }
-

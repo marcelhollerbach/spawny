@@ -6,30 +6,33 @@
 Global _G;
 
 static void
-init_check(void) {
-    char *session;
+init_check(void)
+{
+   char *session;
 
-    if (getuid() != 0) {
-        ERR("You can only run this as root.");
-        exit(-1);
-    }
+   if (getuid() != 0) {
+      ERR("You can only run this as root.");
+      exit(-1);
+   }
 
-    session = current_session_get();
+   session = current_session_get();
 
-    if (session != NULL) {
-        ERR("You must start this out of a session. This is in session %s", session);
-        exit(-1);
-    }
+   if (session != NULL) {
+      ERR("You must start this out of a session. This is in session %s",
+          session);
+      exit(-1);
+   }
 
-    free(session);
+   free(session);
 }
 
 void
 print_help(void)
 {
-    printf("Supported options\n");
-    printf("--debug / -d Start the daemon in debug mode\n");
-    printf("--no-greeter-restart Do not start the greeter once a session has shutted down\n");
+   printf("Supported options\n");
+   printf("--debug / -d Start the daemon in debug mode\n");
+   printf("--no-greeter-restart Do not start the greeter once a session has "
+          "shutted down\n");
 }
 
 void
@@ -41,49 +44,49 @@ _parse_args(int argc, char *argv[])
    _G.config.no_greeter_restart = false;
 
    for (int i = 1; i < argc; ++i) {
-        if (!strcmp(argv[i], "--debug") || !strcmp(argv[i], "-d")) {
-            _G.config.debug = true;
-        } else if (!strcmp(argv[i], "--no-greeter-restart")) {
-            _G.config.no_greeter_restart = true;
-        } else {
-            print_help();
-            exit(-1);
-        }
+      if (!strcmp(argv[i], "--debug") || !strcmp(argv[i], "-d")) {
+         _G.config.debug = true;
+      } else if (!strcmp(argv[i], "--no-greeter-restart")) {
+         _G.config.no_greeter_restart = true;
+      } else {
+         print_help();
+         exit(-1);
+      }
    }
 }
 
 static void
 _interrupt_handler(int sig UNUSED)
 {
-    manager_stop();
+   manager_stop();
 }
 
 int
 main(int argc, char **argv)
 {
-    _parse_args(argc, argv);
-    log_init();
-    init_check();
-    manager_init();
-    greeter_init();
-    spawnservice_init();
-    spawnregistery_init();
+   _parse_args(argc, argv);
+   log_init();
+   init_check();
+   manager_init();
+   greeter_init();
+   spawnservice_init();
+   spawnregistery_init();
 
-    signal(SIGINT, _interrupt_handler);
+   signal(SIGINT, _interrupt_handler);
 
-    tty_template_init();
-    x11_template_init();
-    wl_template_init();
+   tty_template_init();
+   x11_template_init();
+   wl_template_init();
 
-    if (!server_init()) {
-        return -1;
-    }
+   if (!server_init()) {
+      return -1;
+   }
 
-    manager_run();
+   manager_run();
 
-    spawnregistery_shutdown();
-    server_shutdown();
-    greeter_shutdown();
-    template_shutdown();
-    manager_shutdown();
+   spawnregistery_shutdown();
+   server_shutdown();
+   greeter_shutdown();
+   template_shutdown();
+   manager_shutdown();
 }

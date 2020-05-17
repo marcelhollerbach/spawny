@@ -1,8 +1,8 @@
 #include "log.h"
 #include <libgen.h>
 #include <stdarg.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 static Log_Type min_log_level;
 
@@ -14,13 +14,14 @@ log_init(void)
 
    raw = getenv("SPAWNY_LOG_LEVEL");
 
-   if (!raw) return;
+   if (!raw)
+      return;
 
    _level = atoi(raw);
    if (_level == 0)
-     min_log_level = LOG_TYPE_INF;
+      min_log_level = LOG_TYPE_INF;
    else if (_level >= 1)
-     min_log_level = LOG_TYPE_ERR;
+      min_log_level = LOG_TYPE_ERR;
 }
 
 void
@@ -30,16 +31,16 @@ log_to_type(Log_Type type, char *file, int line_number, const char *msg, ...)
    va_list args;
 
    if (type < min_log_level)
-     return;
+      return;
 
-   //print welcomer
+   // print welcomer
    if (type == LOG_TYPE_ERR)
-     printf("\x1B[31mERR");
+      printf("\x1B[31mERR");
    else if (type == LOG_TYPE_INF)
-     printf("\x1B[36mINF");
+      printf("\x1B[36mINF");
 
    file_name = basename(file);
-   //print filename
+   // print filename
    printf("\x1B[37m<%s:%d>", file_name, line_number);
 
    printf("\x1B[0m");

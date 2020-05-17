@@ -19,7 +19,8 @@
  *
  * @return the handle to the session or NULL on failure
  */
-char* session_get(pid_t pid);
+char *
+session_get(pid_t pid);
 
 /**
  * Get the seat of a given pid
@@ -28,12 +29,14 @@ char* session_get(pid_t pid);
  *
  * @return the handle to the seat or NULL on failure
  */
-char* seat_get(pid_t pid);
+char *
+seat_get(pid_t pid);
 
 /**
  * Get the current session.
  */
-char* current_session_get(void);
+char *
+current_session_get(void);
 
 /**
  * Enumerate the sessions for a given seat
@@ -44,16 +47,18 @@ char* current_session_get(void);
  * @param len A pointer to store a unsigned int in.
  *            The int describes the lengh of the array in *handles
  */
-void session_enumerate(const char *seat, char ***handles, unsigned int *len);
+void
+session_enumerate(const char *seat, char ***handles, unsigned int *len);
 
-
-void session_enumerate_free(char **handles, unsigned int len);
+void
+session_enumerate_free(char **handles, unsigned int len);
 /**
  * Activate the given session
  *
  * @param handle The session to activate
  */
-void session_activate(char *handle);
+void
+session_activate(char *handle);
 
 /**
  * Get details of a session
@@ -66,7 +71,8 @@ void session_activate(char *handle);
  *
  * @return true on sucess, false if get fetching failed
  */
-bool session_details(char *handle, uid_t *uid, char **name, char **icon, int *vtnr);
+bool
+session_details(char *handle, uid_t *uid, char **name, char **icon, int *vtnr);
 
 /**
  * This function is called from a seperated process!
@@ -76,6 +82,7 @@ bool session_details(char *handle, uid_t *uid, char **name, char **icon, int *vt
  * @param session The session to wait for
  *
  */
-void wait_session_active(char *session);
+void
+wait_session_active(char *session);
 
 #endif

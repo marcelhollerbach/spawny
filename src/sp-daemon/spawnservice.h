@@ -1,49 +1,57 @@
 #ifndef SPAWNSERVICE_H
 #define SPAWNSERVICE_H
 
-typedef enum {
-    SPAWN_SERVICE_SUCCESS = 0,
-    SPAWN_SERVICE_ERROR = 1,
+typedef enum
+{
+   SPAWN_SERVICE_SUCCESS = 0,
+   SPAWN_SERVICE_ERROR = 1,
 } Spawn_Service_State;
 
-typedef struct {
-    Spawn_Service_State success; //0 means error, 1 means success
-    const char *message; //message for the case of an error
+typedef struct
+{
+   Spawn_Service_State success; // 0 means error, 1 means success
+   const char *message;         // message for the case of an error
 } Spawn_Service_End;
 
 typedef void (*SpawnDoneCb)(void *data, Spawn_Service_End success);
 typedef void (*SpawnServiceJobCb)(void *data);
 
-typedef struct {
-    const char *session_type;
-    const char *session_desktop;
-    const char *session_seat;
+typedef struct
+{
+   const char *session_type;
+   const char *session_desktop;
+   const char *session_seat;
 } Xdg_Settings;
 
-typedef struct _Spawn_Try{
-    struct {
-        int fd[2];
-    } com;
-    struct {
-        SpawnServiceJobCb cb;
-        void *data;
-    } job, session_ended;
-    struct {
-        SpawnDoneCb cb;
-        void *data;
-    } done;
-    const char *service;
-    const char *usr;
-    const char *pw;
+typedef struct _Spawn_Try
+{
+   struct
+   {
+      int fd[2];
+   } com;
+   struct
+   {
+      SpawnServiceJobCb cb;
+      void *data;
+   } job, session_ended;
+   struct
+   {
+      SpawnDoneCb cb;
+      void *data;
+   } done;
+   const char *service;
+   const char *usr;
+   const char *pw;
 
-    char *session;
-    struct {
+   char *session;
+   struct
+   {
       char *error_msg;
       Spawn_Service_State success;
-    } exit;
+   } exit;
 
-    pid_t pid;
-    Xdg_Settings settings;
+   pid_t pid;
+   Xdg_Settings settings;
 } Spawn_Try;
 
 /*
@@ -62,12 +70,19 @@ typedef struct _Spawn_Try{
  * @param pw password used in pam
 
  */
-Spawn_Try*
-spawnservice_spawn(SpawnDoneCb done, void *data,
-                   SpawnServiceJobCb job, void *jobdata,
-                   SpawnServiceJobCb session_ended, void *session_ended_data,
-                   const char *service, const char *usr, const char *pw, Xdg_Settings *sessiongs);
+Spawn_Try *
+spawnservice_spawn(SpawnDoneCb done,
+                   void *data,
+                   SpawnServiceJobCb job,
+                   void *jobdata,
+                   SpawnServiceJobCb session_ended,
+                   void *session_ended_data,
+                   const char *service,
+                   const char *usr,
+                   const char *pw,
+                   Xdg_Settings *sessiongs);
 
-void spawnservice_init(void);
+void
+spawnservice_init(void);
 
 #endif
